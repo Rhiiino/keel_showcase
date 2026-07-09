@@ -17,13 +17,13 @@ def _contact(contact_id: int, first_name: str, gender: str | None) -> _ContactIn
     return _ContactInfo(id=contact_id, first_name=first_name, gender=gender)
 
 
-def test_rajan_anumol_family() -> None:
+def test_alex_jordan_family() -> None:
     contacts = [
-        _contact(1, "Rajan", "male"),
-        _contact(2, "Anumol", "female"),
-        _contact(3, "Ansa", "female"),
-        _contact(4, "Midhun", "male"),
-        _contact(5, "Anita", "female"),
+        _contact(1, "Alex", "male"),
+        _contact(2, "Jordan", "female"),
+        _contact(3, "Casey", "female"),
+        _contact(4, "Riley", "male"),
+        _contact(5, "Morgan", "female"),
     ]
     parent_edges = [
         (1, 3),
@@ -40,14 +40,14 @@ def test_rajan_anumol_family() -> None:
     assert len(families) == 1
     family = families[0]
     assert family.family_key == "1-2"
-    assert family.name == "Rajan's family"
+    assert family.name == "Alex's family"
     assert family.member_contact_ids == [1, 2, 3, 4, 5]
 
 
 def test_couple_without_children() -> None:
     contacts = [
-        _contact(10, "Linson", "male"),
-        _contact(11, "Ansa", "female"),
+        _contact(10, "Taylor", "male"),
+        _contact(11, "Casey", "female"),
     ]
     families = discover_nuclear_families(contacts, [], [(10, 11)])
 
@@ -58,7 +58,7 @@ def test_couple_without_children() -> None:
 
 def test_single_mother_family() -> None:
     contacts = [
-        _contact(20, "Susumma", "female"),
+        _contact(20, "Sam", "female"),
         _contact(21, "Child", "male"),
     ]
     parent_edges = [(20, 21)]
@@ -67,7 +67,7 @@ def test_single_mother_family() -> None:
 
     assert len(families) == 1
     assert families[0].family_key == "0-20"
-    assert families[0].name == "Susumma's family"
+    assert families[0].name == "Sam's family"
     assert families[0].member_contact_ids == [20, 21]
 
 
@@ -104,7 +104,7 @@ def test_remarriage_distinct_families() -> None:
 
 
 def test_possessive_name() -> None:
-    assert possessive_first_name("Rajan") == "Rajan's"
+    assert possessive_first_name("Alex") == "Alex's"
     assert possessive_first_name("James") == "James'"
 
 
@@ -119,7 +119,7 @@ def test_make_family_key() -> None:
 
 
 if __name__ == "__main__":
-    test_rajan_anumol_family()
+    test_alex_jordan_family()
     test_couple_without_children()
     test_single_mother_family()
     test_child_not_duplicated_into_single_parent_unit()

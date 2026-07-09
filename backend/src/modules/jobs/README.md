@@ -85,12 +85,7 @@ Schedule responses include `schedule_summary` (human-readable recurrence), `next
 | `job_runs` | Execution history (status, payload, result, error, optional `schedule_id`) |
 | `job_schedules` | Recurring rules: daily / weekly / monthly / yearly at wall-clock time, or `interval` (every N minutes) |
 
-Migrations:
-
-- [`2026_06_30_1800_job_runs/`](../../../scripts/db/migrations/2026_06_30_1800_job_runs/)
-- [`2026_07_01_job_schedules/`](../../../scripts/db/migrations/2026_07_01_job_schedules/)
-- [`2026_07_01_job_schedules_interval/`](../../../scripts/db/migrations/2026_07_01_job_schedules_interval/)
-- [`2026_07_01_timeline_event_reminders/`](../../../scripts/db/migrations/2026_07_01_timeline_event_reminders/)
+Schema: [`scripts/db/init/001_schema.sql`](../../../scripts/db/init/001_schema.sql) (`job_runs`, `job_schedules`, timeline reminder columns).
 
 ## Registered tasks
 

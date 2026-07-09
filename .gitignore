@@ -29,5 +29,7 @@ Thumbs.db
 *.swp
 *.swo
 
-# Note: .env files are committed with empty secret placeholders.
-# Do not commit filled API keys or OAuth secrets.
+# Environment files (never commit secrets)
+.env
+backend/.env
+frontend/.env

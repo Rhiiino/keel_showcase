@@ -63,7 +63,7 @@ home/
 
 ## Maintenance guidelines
 
-- Quote content changes belong in seed SQL / migrations, not code.
+- Quote content changes belong in `scripts/db/init/003_home_quotes.sql`, not code.
 - If quotes become user-editable, expand schemas and add write routes before updating this README.
 
 ## Related documentation

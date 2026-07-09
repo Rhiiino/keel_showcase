@@ -1,4 +1,4 @@
--- keel_api/scripts/db/seed/sql/011_home_quotes.sql
+-- keel_showcase/backend/scripts/db/init/003_home_quotes.sql
 -- Global inspirational quotes for the home screen rotator (Docker init on fresh volume).
 
 INSERT INTO quotes (text, author) VALUES

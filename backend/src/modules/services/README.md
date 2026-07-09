@@ -19,7 +19,7 @@ HTTP health monitors for external application URLs. Each service row stores prob
 
 ## Database
 
-Table `services` — migrations [`2026_07_03_services`](../../../scripts/db/migrations/2026_07_03_services/), [`2026_07_04_services_type_description`](../../../scripts/db/migrations/2026_07_04_services_type_description/), [`2026_07_04_services_name_type_unique`](../../../scripts/db/migrations/2026_07_04_services_name_type_unique/).
+Table `services` — schema in [`scripts/db/init/001_schema.sql`](../../../scripts/db/init/001_schema.sql).
 
 Config fields include `service_type` (`frontend` | `backend`) and optional `description`. Uniqueness is per user + name + type.
 

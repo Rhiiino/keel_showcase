@@ -63,8 +63,8 @@ def _edge(from_id: int, to_id: int, relationship_type: str) -> SimpleNamespace:
     )
 
 
-def test_ittyadathu_family_generations() -> None:
-    """Rajan and Anumol share Gen 0; children are Gen 1."""
+def test_two_parent_family_generations() -> None:
+    """Alex and Jordan share Gen 0; children are Gen 1."""
     member_ids = {1, 2, 3, 4, 5}
     edges = [
         _edge(1, 2, "spouse"),
@@ -96,6 +96,6 @@ def test_parent_above_child_when_root_is_child() -> None:
 
 
 if __name__ == "__main__":
-    test_ittyadathu_family_generations()
+    test_two_parent_family_generations()
     test_parent_above_child_when_root_is_child()
     print("tree_service tests passed")

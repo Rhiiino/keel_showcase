@@ -68,10 +68,10 @@ def test_ended_timer_uses_stored_duration() -> None:
     assert compute_elapsed_seconds(entry) == 240
 
 
-def test_migration_enforces_timer_lifecycle_guards() -> None:
+def test_schema_enforces_timer_lifecycle_guards() -> None:
     schema_path = (
         Path(__file__).parents[3]
-        / "scripts/db/migrations/2026_06_19_1037_focus_node_time_entries/schema.sql"
+        / "scripts/db/init/001_schema.sql"
     )
     schema = schema_path.read_text()
 
@@ -86,5 +86,5 @@ if __name__ == "__main__":
     test_running_timer_counts_active_seconds()
     test_paused_timer_freezes_at_pause_time()
     test_ended_timer_uses_stored_duration()
-    test_migration_enforces_timer_lifecycle_guards()
+    test_schema_enforces_timer_lifecycle_guards()
     print("focus time entry tests passed")

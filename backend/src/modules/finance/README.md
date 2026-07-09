@@ -73,7 +73,7 @@ Cover, logo, and gallery use **`/media`**, not finance routes.
 | `finance_obligation_tags` | Colored labels for obligations |
 | `finance_obligation_tag_assignments` | Obligation ↔ tag junction |
 
-Migrations: `scripts/db/migrations/2026_07_06_finance/`, `scripts/db/migrations/2026_07_07_finance_transactions/`.
+Schema: `scripts/db/init/001_schema.sql` (finance tables, transactions, obligations).
 
 ## Directory structure
 

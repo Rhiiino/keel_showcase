@@ -1,4 +1,4 @@
--- keel_api/scripts/db/seed/sql/010_catalog.sql
+-- keel_showcase/backend/scripts/db/init/002_catalog.sql
 -- Global intelligence catalog (providers, models, tools, agents, prompts, media).
 -- Loaded automatically on fresh Postgres volume via docker-compose init.
 

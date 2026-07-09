@@ -97,7 +97,7 @@ flowchart LR
 
 ## Maintenance guidelines
 
-- Catalog content changes require SQL seed/migration updates and often `POST /catalog/reload` or API restart.
+- Catalog content changes require SQL updates in `scripts/db/init/002_catalog.sql` and often `POST /catalog/reload` or API restart.
 - New tool categories need seed rows plus native tool files under `llm/tools/native/`.
 - Keep public media route in mind for CORS/cache headers when adding asset types.
 

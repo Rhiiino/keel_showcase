@@ -38,7 +38,7 @@ Login page, `RequireAuth` guard, profile menu, and session API client all call t
 | `users` | Demo user identity, display name, linked profile `contact_id` |
 | `sessions` | Cookie session tokens with expiry |
 
-Per-user rows; sessions cascade on user delete. Showcase seeds user id `1` (`showcase@keel.demo`) via `scripts/db/seed/sql/012_showcase_user.sql`.
+Per-user rows; sessions cascade on user delete. Showcase seeds user id `1` (`showcase@keel.demo`) via `scripts/db/init/004_showcase_user.sql`.
 
 ## Directory structure
 

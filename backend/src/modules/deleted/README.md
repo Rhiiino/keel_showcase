@@ -22,7 +22,7 @@ Global trash snapshots, restore/purge API, and entity-specific handlers.
 
 - `deleted_records` — snapshot rows with JSONB `payload`, `expires_at`, optional `purge_group_id`
 
-Migration: `scripts/db/migrations/2026_07_03_deleted_records/`
+Schema: `scripts/db/init/001_schema.sql` (`deleted_records` table).
 
 ## Background jobs
 

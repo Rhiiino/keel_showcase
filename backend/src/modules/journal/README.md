@@ -39,7 +39,7 @@ Journal lets the signed-in user write dated entries, assign colored tags, and br
 | `journal_tags` | User-owned colored label catalog |
 | `journal_entry_tag_assignments` | Junction — many tags per entry |
 
-**Migration:** `scripts/db/migrations/2026_06_27_1700_journal/` — fresh volumes also get DDL from `scripts/db/init/001_schema.sql`.
+**Schema:** `scripts/db/init/001_schema.sql` (journal tables and indexes).
 
 **Media:** gallery files attach via `media_attachments` with `entity_type = 'journal_entry'` and `role = 'gallery'` (see media module; migration `2026_06_30_journal_entry_media`).
 

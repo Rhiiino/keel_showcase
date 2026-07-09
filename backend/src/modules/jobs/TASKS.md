@@ -191,7 +191,7 @@ docker compose restart worker
 Smoke-test:
 
 ```sh
-docker compose exec api python scripts/dev/enqueue_ping.py   # existing ping script pattern
+docker compose exec api celery -A modules.jobs.celery_app call jobs.tasks.ping.run
 docker compose logs worker --tail 50
 ```
 

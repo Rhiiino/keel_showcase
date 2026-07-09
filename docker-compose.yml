@@ -61,9 +61,9 @@ services:
     volumes:
       - keel_showcase_pgdata:/var/lib/postgresql/data
       - ./backend/scripts/db/init/001_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
-      - ./backend/scripts/db/seed/sql/010_catalog.sql:/docker-entrypoint-initdb.d/02_catalog.sql:ro
-      - ./backend/scripts/db/seed/sql/011_home_quotes.sql:/docker-entrypoint-initdb.d/03_home_quotes.sql:ro
-      - ./backend/scripts/db/seed/sql/012_showcase_user.sql:/docker-entrypoint-initdb.d/04_showcase_user.sql:ro
+      - ./backend/scripts/db/init/002_catalog.sql:/docker-entrypoint-initdb.d/02_catalog.sql:ro
+      - ./backend/scripts/db/init/003_home_quotes.sql:/docker-entrypoint-initdb.d/03_home_quotes.sql:ro
+      - ./backend/scripts/db/init/004_showcase_user.sql:/docker-entrypoint-initdb.d/04_showcase_user.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-keel} -d ${POSTGRES_DB:-keel}"]
       interval: 5s

@@ -38,7 +38,7 @@ Learning workspace module — **C**ulmination **o**f **a**ll **K**nowledge. User
 | `coak_tags` | Record-scoped colored tag catalog (unique name per record) |
 | `coak_item_tag_assignments` | Many-to-many links between coak items and tags within a record |
 
-Migrations: `scripts/db/migrations/2026_07_01_coak/schema.sql`, `scripts/db/migrations/2026_07_01_coak_flash_items/schema.sql`, `scripts/db/migrations/2026_07_02_coak_record_workspace/schema.sql`, `scripts/db/migrations/2026_07_03_coak_item_media_attachment/schema.sql`, `scripts/db/migrations/2026_07_04_coak_tags/schema.sql`, `scripts/db/migrations/2026_07_05_coak_tag_description/schema.sql`
+Schema: `scripts/db/init/001_schema.sql` (coak tables, tags, flash items, media attachments).
 
 ## Storage and environment
 

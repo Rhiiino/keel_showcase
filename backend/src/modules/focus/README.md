@@ -62,7 +62,7 @@ v2 nodes API is primary; frontend `lists.ts` / `entries.ts` adapt legacy shapes.
 
 Constellation layout and visual settings persist in `user_preferences.settings` JSON (via `modules.settings.repository`), not separate tables.
 
-**Latest migration:** [`scripts/db/migrations/2026_06_19_1037_focus_node_time_entries/`](../../../scripts/db/migrations/2026_06_19_1037_focus_node_time_entries/) — adds node timer session persistence.
+**Schema:** [`scripts/db/init/001_schema.sql`](../../../scripts/db/init/001_schema.sql) — includes `focus_node_time_entries` for node timer session persistence.
 
 ## Directory structure
 
@@ -181,9 +181,7 @@ Tools call `modules.focus.service` and `schemas` — they use list/entry-oriente
 - [Modules umbrella README](../README.md)
 - [PROJECT_TREE.md](../../../PROJECT_TREE.md)
 - Frontend: [keel_web/src/modules/focus/README.md](../../../../keel_web/src/modules/focus/README.md)
-- Migration: [2026_06_15_1500_focus_node_cleanup](../../../scripts/db/migrations/2026_06_15_1500_focus_node_cleanup/README.md)
-- Migration: [2026_06_19_1037_focus_node_time_entries](../../../scripts/db/migrations/2026_06_19_1037_focus_node_time_entries/README.md)
-- Migration: [2026_06_20_general_updates](../../../scripts/db/migrations/2026_06_20_general_updates/README.md)
+- Schema: [`scripts/db/init/001_schema.sql`](../../../scripts/db/init/001_schema.sql)
 
 ## Module changelog
 

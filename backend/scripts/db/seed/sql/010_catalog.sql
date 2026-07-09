@@ -285,10 +285,4 @@ SELECT a.id, NULL::integer, NULL::integer, NULL::integer, 'image', 'tile', 'agen
 UNION ALL
 SELECT a.id, NULL::integer, NULL::integer, NULL::integer, 'model_3d', 'turntable', 'agents/keel/model.glb', 'model/gltf-binary', 0 FROM agents a WHERE a.key = 'keel'
 UNION ALL
-UNION ALL
-UNION ALL
-UNION ALL
-UNION ALL
-UNION ALL
-UNION ALL
 SELECT NULL::integer, c.id, NULL::integer, NULL::integer, 'image', 'tile', 'tool_categories/contacts/image.png', 'image/png', 0 FROM tool_categories c WHERE c.key = 'contacts';

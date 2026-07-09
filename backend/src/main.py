@@ -56,6 +56,12 @@ for registration in MODULE_REGISTRY:
         app.include_router(registration.router)
 
 
+# GET /health — unauthenticated liveness check (no auth, no DB)
+@app.get("/health")
+async def health() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 # GET /test — unauthenticated dev/stress-test endpoint (no auth, no DB)
 @app.get("/test")
 async def test_route() -> str:

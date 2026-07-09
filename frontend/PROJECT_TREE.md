@@ -240,7 +240,7 @@ keel_web/
 │   │   │   │   ├── loginConfig.ts  # ACTIVE_LOGIN_VARIANT global switch
 │   │   │   │   └── loginScatterPlacement.ts  # scatter login placement helpers
 │   │   │   ├── components/          # auth UI components
-│   │   │   │   ├── GoogleSignInButton.tsx  # Google Sign In Button
+│   │   │   │   ├── EnterButton.tsx  # Showcase Enter login button
 │   │   │   │   ├── login/          # login variant-specific UI
 │   │   │   │   │   ├── classic/
 │   │   │   │   │   │   └── LoginLightningSky.tsx  # classic login lightning sky
@@ -1542,37 +1542,6 @@ keel_web/
 │   │           ├── ServiceCreatePage.tsx  # New service form
 │   │           ├── ServiceDetailPage.tsx  # Edit service form
 │   │           └── ServicesPage.tsx  # Services list hub
-│   │   └── email/
-│   │       ├── README.md  # Email module manifest
-│   │       ├── EmailModuleLayout.tsx  # AppShellContent + max-w-6xl wrapper
-│   │       ├── api.ts  # Email accounts + message fetch API client
-│   │       ├── navItem.tsx  # App nav menu entry
-│   │       ├── manifest.ts  # Module registration for app shell
-│   │       ├── routes.tsx  # /email routes
-│   │       ├── components/
-│   │       │   ├── EmailAccountConnectButton.tsx  # Connect/Reconnect Gmail button
-│   │       │   ├── EmailAccountForm.tsx  # Create/edit fields + connection readout
-│   │       │   ├── EmailAccountFormPageLayout.tsx  # Create form header with Save/Discard
-│   │       │   ├── EmailAccountInboxPageLayout.tsx  # Inbox header with Fetch + settings
-│   │       │   ├── EmailAccountSettingsModal.tsx  # Account settings modal
-│   │       │   ├── EmailAccountStatusDot.tsx  # Glowing connected/re-auth/disconnected dot
-│   │       │   ├── EmailAccountsListRow.tsx  # List row + status dot + connection + menu
-│   │       │   ├── EmailAccountsListView.tsx  # List table chrome
-│   │       │   ├── EmailInboxFetchFilters.tsx  # Inbox search filter panel
-│   │       │   ├── EmailInboxMessageRow.tsx  # Inbox message list row
-│   │       │   ├── EmailInboxMessagesListView.tsx  # Inbox message list table
-│   │       │   └── EmailMessageDetailModal.tsx  # Message detail modal
-│   │       ├── hooks/
-│   │       │   ├── useEmailAccountEditor.ts  # Account edit state and mutations
-│   │       │   └── useEmailInboxFetch.ts  # Inbox fetch state + prefs persistence
-│   │       ├── lib/
-│   │       │   ├── emailDisplay.ts  # Status dot classes, form helpers, labels
-│   │       │   ├── emailInboxDisplay.ts  # Inbox filter + datetime display helpers
-│   │       │   └── emailMessageDisplay.ts  # Message body + address formatting
-│   │       └── pages/
-│   │           ├── EmailAccountCreatePage.tsx  # New account form
-│   │           ├── EmailAccountDetailPage.tsx  # Inbox fetch workspace
-│   │           └── EmailAccountsPage.tsx  # Email accounts list hub
 │   │   └── jobs/
 │   │       ├── README.md  # Jobs module manifest
 │   │       ├── JobsModuleLayout.tsx  # ModuleSubNavLayout wrapper

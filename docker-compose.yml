@@ -10,10 +10,7 @@ x-keel-app-build: &keel-app-build
 
 x-keel-app-env: &keel-app-env
   DATABASE_URL: postgresql://${POSTGRES_USER:-keel}:${POSTGRES_PASSWORD:-keel}@db:5432/${POSTGRES_DB:-keel}
-  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-  GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
-  GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:9092/auth/google/callback}
-  GOOGLE_GMAIL_REDIRECT_URI: ${GOOGLE_GMAIL_REDIRECT_URI:-http://localhost:9092/email/gmail/callback}
+  SHOWCASE_USER_ID: ${SHOWCASE_USER_ID:-1}
   FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
   CORS_EXTRA_ORIGINS: ${CORS_EXTRA_ORIGINS:-}
   SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-keel_session}
@@ -66,6 +63,7 @@ services:
       - ./backend/scripts/db/init/001_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
       - ./backend/scripts/db/seed/sql/010_catalog.sql:/docker-entrypoint-initdb.d/02_catalog.sql:ro
       - ./backend/scripts/db/seed/sql/011_home_quotes.sql:/docker-entrypoint-initdb.d/03_home_quotes.sql:ro
+      - ./backend/scripts/db/seed/sql/012_showcase_user.sql:/docker-entrypoint-initdb.d/04_showcase_user.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-keel} -d ${POSTGRES_DB:-keel}"]
       interval: 5s

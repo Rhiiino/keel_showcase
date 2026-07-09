@@ -3,7 +3,7 @@
 // Auth module API layer: CurrentUser type, TanStack Query keys, and fetch helpers
 // for session check (GET /auth/me), logout, and Google login URL.
 
-import { apiFetch, getApiBaseUrl } from "../../lib/api";
+import { apiFetch } from "../../lib/api";
 
 export type CurrentUser = {
   id: number;
@@ -70,6 +70,9 @@ export function logout(): Promise<void> {
   });
 }
 
-export function getGoogleLoginUrl(): string {
-  return `${getApiBaseUrl().replace(/\/$/, "")}/auth/google/login`;
+export function enterShowcase(): Promise<CurrentUser> {
+  return apiFetch<CurrentUser>("/auth/showcase/login", {
+    method: "POST",
+    credentials: "include",
+  });
 }

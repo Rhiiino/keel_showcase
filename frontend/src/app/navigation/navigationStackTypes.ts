@@ -36,7 +36,6 @@ export type NavigationLabelContext = {
   getFigureName: (figureId: number) => string | undefined;
   getFamilyGroupName: (familyKey: string) => string | undefined;
   getCoakRecordName: (recordId: number) => string | undefined;
-  getEmailAccountName: (accountId: number) => string | undefined;
   getFinanceTransactionTitle: (transactionId: number) => string | undefined;
   getFinanceVendorName: (vendorId: number) => string | undefined;
   getFinanceObligationName: (obligationId: number) => string | undefined;

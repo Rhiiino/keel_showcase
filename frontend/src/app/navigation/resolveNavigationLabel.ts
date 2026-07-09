@@ -395,22 +395,6 @@ export function resolveNavigationSegment(
     return moduleResult("Finance");
   }
 
-  if (pathname === "/email/new") {
-    return pageResult("New email account");
-  }
-
-  const emailAccountMatch = pathname.match(/^\/email\/(\d+)$/);
-  if (emailAccountMatch) {
-    const accountId = parsePositiveInt(emailAccountMatch[1] ?? "");
-    const name =
-      accountId !== null ? context.getEmailAccountName(accountId) : undefined;
-    return recordOrFallback(name, "Email account");
-  }
-
-  if (pathname === "/email") {
-    return moduleResult("Email");
-  }
-
   if (pathname === "/intelligence/models") {
     return pageResult("Intelligence models");
   }

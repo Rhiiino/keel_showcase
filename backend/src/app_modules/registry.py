@@ -13,7 +13,6 @@ from modules.contacts.router import router as contacts_router
 from modules.figures.router import router as figures_router
 from modules.games.router import router as games_router
 from modules.deleted.router import router as deleted_router
-from modules.email.router import router as email_router
 from modules.finance.router import router as finance_router
 from modules.focus.router import router as focus_router
 from modules.home.router import router as home_router
@@ -48,7 +47,6 @@ MODULE_REGISTRY: tuple[ModuleRegistration, ...] = (
     ModuleRegistration(key="coak", router=coak_router),
     ModuleRegistration(key="games", router=games_router),
     ModuleRegistration(key="services", router=services_router),
-    ModuleRegistration(key="email", router=email_router),
 )
 
 

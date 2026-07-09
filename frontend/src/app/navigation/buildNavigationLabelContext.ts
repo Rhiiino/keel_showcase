@@ -17,8 +17,6 @@ import {
   formatFigureName,
   type Figure,
 } from "../../modules/people/figures/api";
-import { emailQueryKeys, type EmailAccount } from "../../modules/email/api";
-import { emailAccountDisplayName } from "../../modules/email/lib/emailDisplay";
 import { focusQueryKeys, type FocusList } from "../../modules/focus/api";
 import { jobsQueryKeys, type JobSchedule } from "../../modules/jobs/api";
 import {
@@ -105,12 +103,6 @@ export function buildNavigationLabelContext(
         coakQueryKeys.record(recordId),
       );
       return record?.name;
-    },
-    getEmailAccountName: (accountId) => {
-      const account = queryClient.getQueryData<EmailAccount>(
-        emailQueryKeys.detail(accountId),
-      );
-      return account ? emailAccountDisplayName(account) : undefined;
     },
     getFinanceTransactionTitle: (transactionId) => {
       const transaction = queryClient.getQueryData<FinanceTransaction>(

@@ -1,4 +1,4 @@
-# stack_sandbox/backend/src/modules/auth/schemas.py
+# backend/src/modules/auth/schemas.py
 """Pydantic models for auth responses."""
 
 from pydantic import BaseModel, EmailStr, Field, model_validator
@@ -22,22 +22,3 @@ class UpdateCurrentUserRequest(BaseModel):
         if self.display_name is None and "picture_url" not in self.model_fields_set:
             raise ValueError("At least one of display_name or picture_url must be provided.")
         return self
-
-
-class DevUserOption(BaseModel):
-    id: int
-    email: EmailStr
-    display_name: str
-
-
-class DevLoginRequest(BaseModel):
-    user_id: int = Field(gt=0)
-
-
-class MobileExchangeRequest(BaseModel):
-    code: str = Field(min_length=16, max_length=128)
-
-
-class MobileExchangeResponse(BaseModel):
-    session_token: str
-    user: CurrentUserResponse

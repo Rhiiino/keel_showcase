@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AgentModelViewer } from "../../../agents/components/AgentModelViewer";
 import { subagentModelSrc } from "../../../agents/lib/agentDisplay";
 import { LoginLightningSky } from "../../components/login/classic/LoginLightningSky";
-import { GoogleSignInButton } from "../../components/GoogleSignInButton";
+import { EnterButton } from "../../components/EnterButton";
 
 const FADE_DURATION_S = 1.5;
 const ELEMENT_GAP_S = 1.8;
@@ -197,7 +197,7 @@ export function ClassicLoginScreen() {
           </div>
 
           <motion.div className="mt-8" {...fadeProps(visible.button, skipInstant)}>
-            <GoogleSignInButton />
+            <EnterButton />
           </motion.div>
         </div>
       </section>

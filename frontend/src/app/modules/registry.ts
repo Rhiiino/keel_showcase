@@ -8,7 +8,6 @@ import { chatManifest } from "../../modules/chat/manifest";
 import { coakManifest } from "../../modules/coak/manifest";
 import { peopleManifest } from "../../modules/people/manifest";
 import { deletedManifest } from "../../modules/deleted/manifest";
-import { emailManifest } from "../../modules/email/manifest";
 import { financeManifest } from "../../modules/finance/manifest";
 import { focusManifest } from "../../modules/focus/manifest";
 import { gamesManifest } from "../../modules/games/manifest";
@@ -38,7 +37,6 @@ export const moduleManifests: FeatureModuleManifest[] = [
   journalManifest,
   jobsManifest,
   servicesManifest,
-  emailManifest,
   focusManifest,
   gamesManifest,
   coakManifest,

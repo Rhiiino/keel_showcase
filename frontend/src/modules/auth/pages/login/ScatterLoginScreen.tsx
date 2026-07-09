@@ -3,7 +3,7 @@
 // Gray gradient login with scattered Keel Persona animations around the viewport.
 
 import { LoginScatterAmbience } from "../../components/login/scatter/LoginScatterAmbience";
-import { GoogleSignInButton } from "../../components/GoogleSignInButton";
+import { EnterButton } from "../../components/EnterButton";
 
 export function ScatterLoginScreen() {
   return (
@@ -16,7 +16,7 @@ export function ScatterLoginScreen() {
         <p className="font-mono text-3xl font-bold uppercase tracking-[0.38em] text-lime-300 sm:text-4xl sm:tracking-[0.42em]">
           K E E L
         </p>
-        <GoogleSignInButton />
+        <EnterButton />
       </div>
     </main>
   );

@@ -11,7 +11,6 @@ import { PersonBirthDateField } from "../../shared/components/PersonBirthDateFie
 import { PersonPhotoField } from "../../shared/components/PersonPhotoField";
 import {
   EMPTY_BIRTH_DATE_PARTS,
-  partsFromDateOnly,
   partsToDateOnly,
   partsToPayload,
   type BirthDateParts,

@@ -4,7 +4,7 @@
 
 import { KeelPersonaPlayer } from "../../../../components/keelPersona";
 import { useKeelClipMediaReady, useRandomKeelClip } from "../../../../hooks/keelPersona";
-import { GoogleSignInButton } from "../../components/GoogleSignInButton";
+import { EnterButton } from "../../components/EnterButton";
 
 const PERSONA_SIZE_PX = 220;
 
@@ -24,7 +24,7 @@ export function EmberLoginScreen() {
           mediaReady={mediaReady}
           showCaption={false}
         />
-        <GoogleSignInButton />
+        <EnterButton />
       </div>
     </main>
   );

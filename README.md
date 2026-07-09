@@ -2,16 +2,17 @@
 
 **Live demo:** [keel.themidhunraj.com](https://keel.themidhunraj.com)
 
-Keel is a modular full-stack personal productivity platform: Google OAuth sessions, multi-agent SSE chat with LLM tool orchestration, project workspace canvases, a focus constellation graph, media storage, and feature modules for finance, contacts, timeline, journal, email, and more.
+Keel is a modular full-stack personal productivity platform: session-based showcase login, SSE chat with LLM tool orchestration, project workspace canvases, a focus constellation graph, media storage, and feature modules for finance, contacts, timeline, journal, and more.
 
-This repository is a **standalone public showcase** of the Keel web app and API — self-contained with no dependency on other repos.
+This repository is a **standalone public showcase** of the Keel web app and API — self-contained with no dependency on other repos. Visitors press **Enter** on the login screen to access a shared demo account (no OAuth).
 
 ## Features
 
 See [docs/MODULES.md](docs/MODULES.md) for the full module list. Highlights:
 
-- **Modular monolith** — manifest-based frontend and backend registries; add or remove feature slices without rewiring the shell
-- **SSE chat** — streaming LLM conversations with native tool calls
+- **Modular monolith** — manifest-based frontend and backend registries
+- **Showcase Enter login** — one shared demo user; no Google OAuth setup required
+- **SSE chat** — streaming LLM conversations with native tool calls via the Keel orchestrator agent
 - **Agents & intelligence** — catalog-driven agent editor and models/tools browser
 - **Projects** — kanban gallery and Obsidian-style infinite workspace canvas
 - **Focus** — task lists with card hub and interactive constellation graph
@@ -42,7 +43,7 @@ keel_showcase/
 
 - Node.js 20+
 - Docker and Docker Compose
-- Google Cloud OAuth credentials (for login)
+- `SESSION_SECRET` in `backend/.env` (required for cookies)
 - LLM API keys (for chat and agents)
 
 ## Configuration
@@ -51,12 +52,12 @@ Environment files live in each app directory:
 
 | File | Purpose |
 |------|---------|
-| [`backend/.env`](backend/.env) | Database, OAuth, session, LLM keys, Garage S3 |
+| [`backend/.env`](backend/.env) | Database, showcase user id, session secret, LLM keys, Garage S3 |
 | [`frontend/.env`](frontend/.env) | `VITE_DEV_PORT`, `VITE_PREVIEW_PORT`, `VITE_API_BASE_URL` |
 
-Secret values (`GOOGLE_CLIENT_*`, `SESSION_SECRET`, `OPENAI_API_KEY`, `S3_ACCESS_KEY`, etc.) are left empty in git. Fill them on your server or local machine — **never commit populated secrets**.
+Secret values (`SESSION_SECRET`, `OPENAI_API_KEY`, `S3_ACCESS_KEY`, etc.) are left empty in git. Fill them on your server or local machine — **never commit populated secrets**.
 
-For local development, point `VITE_API_BASE_URL` at `http://127.0.0.1:9092` and update OAuth redirect URIs accordingly.
+For local development, point `VITE_API_BASE_URL` at `http://127.0.0.1:9092`.
 
 ## Quick start
 
@@ -67,6 +68,8 @@ From the repo root:
 ```bash
 docker compose --env-file backend/.env up --build -d
 ```
+
+Set `SESSION_SECRET` in `backend/.env` before starting (any random string).
 
 API: `http://127.0.0.1:9092`  
 Health: `http://127.0.0.1:9092/health`
@@ -79,7 +82,7 @@ npm install
 npm run dev
 ```
 
-Dev server: `http://127.0.0.1:5173`
+Dev server: `http://127.0.0.1:5173` — open `/login` and click **Enter**.
 
 ### Production preview
 

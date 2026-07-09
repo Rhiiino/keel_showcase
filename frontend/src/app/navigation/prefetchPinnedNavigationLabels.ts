@@ -13,7 +13,6 @@ import {
   fetchFamilyGroup,
 } from "../../modules/people/contacts/api";
 import { fetchFigure, figuresQueryKeys } from "../../modules/people/figures/api";
-import { emailQueryKeys, fetchEmailAccount } from "../../modules/email/api";
 import { fetchFocusList, focusQueryKeys } from "../../modules/focus/api";
 import { fetchJobSchedule, jobsQueryKeys } from "../../modules/jobs/api";
 import { fetchJournalEntry, journalQueryKeys } from "../../modules/journal/api";
@@ -251,17 +250,6 @@ function prefetchRecordLabel(
       });
     }
     return;
-  }
-
-  const emailAccountMatch = pathname.match(/^\/email\/(\d+)$/);
-  if (emailAccountMatch) {
-    const accountId = parsePositiveInt(emailAccountMatch[1] ?? "");
-    if (accountId !== null) {
-      void queryClient.prefetchQuery({
-        queryKey: emailQueryKeys.detail(accountId),
-        queryFn: () => fetchEmailAccount(accountId),
-      });
-    }
   }
 }
 

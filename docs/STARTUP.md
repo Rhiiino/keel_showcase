@@ -15,20 +15,16 @@ Configure Caddy (or your reverse proxy) to route those hostnames to the local po
 
 | File | Key variables |
 |------|---------------|
-| `backend/.env` | `API_PORT`, `GOOGLE_*`, `SESSION_SECRET`, `OPENAI_API_KEY`, `S3_*`, `FRONTEND_URL`, `CORS_EXTRA_ORIGINS` |
+| `backend/.env` | `SHOWCASE_USER_ID`, `SESSION_SECRET`, `OPENAI_API_KEY`, `S3_*`, `FRONTEND_URL`, `CORS_EXTRA_ORIGINS` |
 | `frontend/.env` | `VITE_DEV_PORT`, `VITE_PREVIEW_PORT`, `VITE_API_BASE_URL` |
 
 Before first deploy, fill in on the server:
 
-1. `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
-2. `SESSION_SECRET` (random string)
-3. `OPENAI_API_KEY` (and other LLM keys as needed)
-4. `S3_ACCESS_KEY` and `S3_SECRET_KEY` (after Garage initialization)
+1. `SESSION_SECRET` (random string — required for login cookies)
+2. `OPENAI_API_KEY` (and other LLM keys as needed)
+3. `S3_ACCESS_KEY` and `S3_SECRET_KEY` (after Garage initialization)
 
-Add Google OAuth redirect URIs in Google Cloud Console:
-
-- `https://keelapi.themidhunraj.com/auth/google/callback`
-- `https://keelapi.themidhunraj.com/email/gmail/callback` (if using email module)
+The shared demo user is seeded automatically as `showcase@keel.demo` (`SHOWCASE_USER_ID=1`). Visitors click **Enter** on the login screen — no OAuth setup.
 
 ---
 
@@ -103,13 +99,13 @@ Stop: `pkill -f "vite preview.*5177"`
 ## First-time checklist
 
 1. Clone repo to `/root/myrepos/keel_showcase`
-2. Fill `backend/.env` secrets on the server
+2. Set `SESSION_SECRET` in `backend/.env`
 3. Configure DNS + Caddy for `keel` and `keelapi` subdomains
 4. Start backend with Docker Compose
 5. Initialize Garage bucket and S3 keys (see backend scripts under `backend/scripts/`)
 6. Build and start frontend preview
-7. Sign in via Google OAuth
-8. Optionally seed demo data: set `DEMO_SEED_ENABLED=true` and `DEMO_USER_EMAIL=` in `backend/.env`, then run the demo seed script
+7. Open the site, click **Enter** on the login screen
+8. Optionally seed demo data: set `DEMO_SEED_ENABLED=true` and `DEMO_USER_EMAIL=showcase@keel.demo` in `backend/.env`, then run the demo seed script
 
 ---
 

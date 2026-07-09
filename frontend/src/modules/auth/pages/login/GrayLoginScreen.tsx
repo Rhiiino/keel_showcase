@@ -3,7 +3,7 @@
 // Gray gradient login screen: Keel logo and Google sign-in only.
 
 import keelLogo from "../../../../assets/general/keel.png";
-import { GoogleSignInButton } from "../../components/GoogleSignInButton";
+import { EnterButton } from "../../components/EnterButton";
 
 export function GrayLoginScreen() {
   return (
@@ -16,7 +16,7 @@ export function GrayLoginScreen() {
           alt="Keel"
           className="h-48 w-48 object-contain sm:h-56 sm:w-56"
         />
-        <GoogleSignInButton />
+        <EnterButton />
       </div>
     </main>
   );

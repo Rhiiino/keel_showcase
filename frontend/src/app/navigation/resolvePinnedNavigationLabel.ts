@@ -140,12 +140,6 @@ export function hasNavigationRecordData(
     );
   }
 
-  const emailAccountMatch = pathname.match(/^\/email\/(\d+)$/);
-  if (emailAccountMatch) {
-    const accountId = parsePositiveInt(emailAccountMatch[1] ?? "");
-    return accountId !== null && context.getEmailAccountName(accountId) !== undefined;
-  }
-
   return false;
 }
 

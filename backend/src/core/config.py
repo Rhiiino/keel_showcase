@@ -19,11 +19,8 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     app_env: str = "development"
 
-    google_client_id: str = ""
-    google_client_secret: str = ""
-    google_redirect_uri: str = "http://localhost:8002/auth/google/callback"
-    google_gmail_redirect_uri: str = "http://localhost:8002/email/gmail/callback"
     frontend_url: str = "http://localhost:5173"
+    showcase_user_id: int = 1
     # Comma-separated extra CORS origins (e.g. production web URL when testing cross-origin).
     cors_extra_origins: str = ""
 

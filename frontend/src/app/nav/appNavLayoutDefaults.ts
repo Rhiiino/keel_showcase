@@ -36,7 +36,6 @@ export function buildDefaultNavLayout(registryItemIds: readonly string[]): NavLa
     has("journal") ||
     has("jobs") ||
     has("services") ||
-    has("email") ||
     has("focus")
   ) {
     entries.push({ kind: "separator", id: NAV_SEPARATOR_CATALOG });
@@ -50,13 +49,11 @@ export function buildDefaultNavLayout(registryItemIds: readonly string[]): NavLa
   pushItem("journal");
   pushItem("jobs");
   pushItem("services");
-  pushItem("email");
   pushItem("focus");
 
-  if (has("coak") || has("dev")) {
+  if (has("coak")) {
     entries.push({ kind: "separator", id: NAV_SEPARATOR_LAB });
     pushItem("coak");
-    pushItem("dev");
   }
 
   return entries;

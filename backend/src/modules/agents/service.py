@@ -3,11 +3,17 @@
 
 from __future__ import annotations
 
+import json
+import re
+
+from fastapi import UploadFile
+
 from core.database import get_pool
 from core.errors import AppError
 from llm.agents.contracts import AgentDefinition
 from llm.catalog import reload_catalog_cache
 from llm.catalog.cache import get_catalog_cache
+from llm.catalog.storage import write_catalog_upload
 from modules.catalog import config as catalog_config
 from modules.catalog import repository as catalog_repository
 from modules.agents.schemas import AgentMediaPublic
@@ -25,8 +31,11 @@ from llm.tools.manifest import build_tool_manifest_for_agent
 from llm.tools.registry import TOOL_DEFINITIONS
 from modules.chat import service as chat_service
 from modules.chat.service import resolve_user_llm
+from modules.media import config as media_config
+from modules.media.validation import extension_for_upload, validate_image_upload
 from modules.agents.schemas import (
     AgentContextUsageResponse,
+    AgentCreate,
     AgentLlmPreferencesPublic,
     AgentLlmPreferencesUpdate,
     AgentSummary,
@@ -37,6 +46,9 @@ from modules.agents.schemas import (
     ToolSummary,
     ToolTokenUsage,
 )
+
+ORCHESTRATOR_AGENT_KEY = "keel"
+MAX_AGENT_KEY_LENGTH = 64
 
 EDITABLE_PROMPT_SECTION_KEYS = frozenset({
     "identity",
@@ -56,6 +68,276 @@ REQUIRED_PROMPT_SECTION_KEYS = frozenset({
 })
 
 
+def _slugify_display_name(display_name: str) -> str:
+    """Convert a display name into a stable agent key slug."""
+    slug = display_name.strip().lower()
+    slug = re.sub(r"[^a-z0-9]+", "_", slug)
+    slug = slug.strip("_")
+    if not slug:
+        raise AppError(
+            "Display name must contain at least one letter or number.",
+            status_code=400,
+        )
+    return slug[:MAX_AGENT_KEY_LENGTH]
+
+
+async def _resolve_unique_agent_key(conn, base_key: str) -> str:
+    """Return a unique agent key, appending numeric suffixes on collision."""
+    candidate = base_key
+    suffix = 2
+    while await catalog_repository.agent_key_exists(conn, candidate):
+        trimmed_base = base_key[: max(1, MAX_AGENT_KEY_LENGTH - len(str(suffix)) - 1)]
+        candidate = f"{trimmed_base}_{suffix}"
+        suffix += 1
+    return candidate
+
+
+def _validate_tool_categories(category_keys: list[str]) -> None:
+    """Ensure tool category keys exist in the loaded catalog."""
+    if not category_keys:
+        raise AppError("At least one tool category is required.", status_code=400)
+    cache = get_catalog_cache()
+    cache.require_loaded()
+    unknown = sorted(set(category_keys) - set(cache.tool_categories.keys()))
+    if unknown:
+        raise AppError(
+            f"Unknown tool categories: {', '.join(unknown)}",
+            status_code=400,
+        )
+
+
+def _validate_system_prompt_create(payload: AgentCreate) -> dict[str, str]:
+    """Validate and normalize system prompt sections for agent creation."""
+    prompt = payload.system_prompt
+    sections = {
+        "identity": prompt.identity.strip(),
+        "purpose": prompt.purpose.strip(),
+        "guidelines": prompt.guidelines.strip(),
+        "domain_reference": prompt.domain_reference.strip(),
+        "safety": prompt.safety.strip(),
+    }
+    tool_guidance = (prompt.tool_guidance or "").strip()
+    for key, content in sections.items():
+        if not content:
+            raise AppError(
+                f"System prompt section {key!r} cannot be empty.",
+                status_code=400,
+            )
+    sections["tool_guidance"] = tool_guidance or None
+    return sections
+
+
+async def _read_upload_file(upload: UploadFile) -> tuple[str, str, bytes]:
+    """Read an upload file and return filename, content type, and bytes."""
+    data = await upload.read()
+    filename = upload.filename or "upload"
+    content_type = upload.content_type or "application/octet-stream"
+    return filename, content_type, data
+
+
+def _validate_tile_image(filename: str, content_type: str, data: bytes) -> tuple[str, str]:
+    """Validate portrait upload and return MIME type plus storage key suffix."""
+    validate_image_upload(content_type, filename, data)
+    extension = extension_for_upload(content_type, filename)
+    if extension not in {".png", ".jpg", ".jpeg", ".webp", ".gif"}:
+        raise AppError("Portrait image must be PNG, JPEG, WebP, or GIF.", status_code=400)
+    if extension == ".jpeg":
+        extension = ".jpg"
+    return content_type, extension
+
+
+def _validate_model_3d(filename: str, content_type: str, data: bytes) -> None:
+    """Validate optional GLB turntable upload."""
+    if not data:
+        raise AppError("3D model file is empty.", status_code=400)
+    if len(data) > media_config.MAX_MEDIA_BYTES:
+        raise AppError("3D model exceeds maximum upload size.", status_code=400)
+    suffix = filename.lower().rsplit(".", maxsplit=1)[-1] if "." in filename else ""
+    if suffix != "glb" and content_type != "model/gltf-binary":
+        raise AppError("3D model must be a GLB file.", status_code=400)
+
+
+async def create_agent_for_user(
+    payload: AgentCreate,
+    *,
+    tile_image: UploadFile,
+    model_3d: UploadFile | None = None,
+) -> AgentSummary:
+    """Create a sub-agent with prompt, tool grants, Keel delegation, and media."""
+    _validate_tool_categories(payload.tool_categories)
+    prompt_sections = _validate_system_prompt_create(payload)
+
+    tile_filename, tile_content_type, tile_data = await _read_upload_file(tile_image)
+    tile_mime, tile_extension = _validate_tile_image(
+        tile_filename,
+        tile_content_type,
+        tile_data,
+    )
+
+    model_data: bytes | None = None
+    model_mime = "model/gltf-binary"
+    if model_3d is not None:
+        model_filename, model_content_type, model_data = await _read_upload_file(model_3d)
+        if model_data:
+            _validate_model_3d(model_filename, model_content_type, model_data)
+            if model_content_type:
+                model_mime = model_content_type
+
+    base_key = _slugify_display_name(payload.display_name)
+    pool = get_pool()
+    agent_key: str | None = None
+
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            agent_key = await _resolve_unique_agent_key(conn, base_key)
+
+            prompt_row = await catalog_repository.insert_system_prompt(
+                conn,
+                key=agent_key,
+                display_name=payload.display_name.strip(),
+                identity=prompt_sections["identity"],
+                purpose=prompt_sections["purpose"],
+                guidelines=prompt_sections["guidelines"],
+                domain_reference=prompt_sections["domain_reference"],
+                tool_guidance=prompt_sections["tool_guidance"],
+                safety=prompt_sections["safety"],
+            )
+            sort_order = await catalog_repository.fetch_next_subagent_sort_order(conn)
+            agent_row = await catalog_repository.insert_agent(
+                conn,
+                key=agent_key,
+                display_name=payload.display_name.strip(),
+                description=payload.description.strip(),
+                system_prompt_id=prompt_row["id"],
+                sort_order=sort_order,
+            )
+
+            await catalog_repository.replace_agent_tool_categories(
+                conn,
+                agent_key=agent_key,
+                category_keys=payload.tool_categories,
+            )
+
+            orchestrator_row = await catalog_repository.fetch_agent_row_by_key(
+                conn,
+                ORCHESTRATOR_AGENT_KEY,
+            )
+            if orchestrator_row is None:
+                raise AppError("Orchestrator agent is not registered.", status_code=500)
+
+            await catalog_repository.insert_agent_delegation(
+                conn,
+                parent_agent_id=orchestrator_row["id"],
+                child_agent_id=agent_row["id"],
+            )
+
+            tile_storage_key = f"agents/{agent_key}/image{tile_extension}"
+            write_catalog_upload(tile_storage_key, tile_data)
+            await catalog_repository.insert_catalog_media(
+                conn,
+                agent_id=agent_row["id"],
+                media_kind="image",
+                role="tile",
+                storage_key=tile_storage_key,
+                mime_type=tile_mime,
+            )
+
+            if model_data:
+                model_storage_key = f"agents/{agent_key}/model.glb"
+                write_catalog_upload(model_storage_key, model_data)
+                await catalog_repository.insert_catalog_media(
+                    conn,
+                    agent_id=agent_row["id"],
+                    media_kind="model_3d",
+                    role="turntable",
+                    storage_key=model_storage_key,
+                    mime_type=model_mime,
+                )
+
+    await reload_catalog_cache()
+    return _agent_summary_for_id(agent_key)
+
+
+async def update_agent_media_for_user(
+    agent_id: str,
+    *,
+    tile_image: UploadFile | None = None,
+    model_3d: UploadFile | None = None,
+) -> AgentSummary:
+    """Replace portrait and/or turntable media for a sub-agent."""
+    agent = get_agent(agent_id)
+    if agent.is_orchestrator:
+        raise AppError("Orchestrator media cannot be changed.", status_code=400)
+    if tile_image is None and model_3d is None:
+        return _agent_summary_for_id(agent_id)
+
+    tile_payload: tuple[str, bytes, str] | None = None
+    model_payload: tuple[str, bytes] | None = None
+
+    if tile_image is not None:
+        tile_filename, tile_content_type, tile_data = await _read_upload_file(tile_image)
+        tile_mime, tile_extension = _validate_tile_image(
+            tile_filename,
+            tile_content_type,
+            tile_data,
+        )
+        tile_payload = (tile_mime, tile_data, tile_extension)
+
+    if model_3d is not None:
+        model_filename, model_content_type, model_data = await _read_upload_file(model_3d)
+        if model_data:
+            _validate_model_3d(model_filename, model_content_type, model_data)
+            model_payload = (model_content_type or "model/gltf-binary", model_data)
+
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            agent_row = await catalog_repository.fetch_agent_row_by_key(conn, agent.id)
+            if agent_row is None:
+                raise AppError(f"Agent {agent_id!r} not found.", status_code=404)
+            agent_db_id = agent_row["id"]
+
+            if tile_payload is not None:
+                tile_mime, tile_data, tile_extension = tile_payload
+                tile_storage_key = f"agents/{agent.id}/image{tile_extension}"
+                write_catalog_upload(tile_storage_key, tile_data)
+                await catalog_repository.replace_agent_catalog_media(
+                    conn,
+                    agent_id=agent_db_id,
+                    media_kind="image",
+                    role="tile",
+                    storage_key=tile_storage_key,
+                    mime_type=tile_mime,
+                )
+
+            if model_payload is not None:
+                model_mime, model_data = model_payload
+                model_storage_key = f"agents/{agent.id}/model.glb"
+                write_catalog_upload(model_storage_key, model_data)
+                await catalog_repository.replace_agent_catalog_media(
+                    conn,
+                    agent_id=agent_db_id,
+                    media_kind="model_3d",
+                    role="turntable",
+                    storage_key=model_storage_key,
+                    mime_type=model_mime,
+                )
+
+    await reload_catalog_cache()
+    return _agent_summary_for_id(agent_id)
+
+
+def parse_agent_create_payload(raw_payload: str) -> AgentCreate:
+    """Parse and validate JSON payload from multipart create form."""
+    try:
+        parsed = json.loads(raw_payload)
+    except json.JSONDecodeError as exc:
+        raise AppError("Invalid agent payload JSON.", status_code=400) from exc
+    if not isinstance(parsed, dict):
+        raise AppError("Agent payload must be a JSON object.", status_code=400)
+    return AgentCreate.model_validate(parsed)
+
+
 def _media_for_agent(agent_id: str) -> list[AgentMediaPublic]:
     """Return catalog media URLs for an agent."""
     cache = get_catalog_cache()
@@ -67,6 +349,7 @@ def _media_for_agent(agent_id: str) -> list[AgentMediaPublic]:
             role=item.role,
             mime_type=item.mime_type,
             url=f"{prefix}/{item.storage_key}",
+            updated_at=item.updated_at.isoformat() if item.updated_at else None,
         )
         for item in cache.catalog_media
         if item.agent_key == agent_id
@@ -215,6 +498,8 @@ async def update_agent_for_user(
 ) -> AgentSummary:
     """Update agent metadata and/or tool category grants, then reload the catalog cache."""
     agent = get_agent(agent_id)
+    if agent.is_orchestrator:
+        raise AppError("Orchestrator agent cannot be edited.", status_code=400)
     has_metadata = payload.display_name is not None or payload.description is not None
     has_categories = payload.tool_categories is not None
 
@@ -265,6 +550,8 @@ async def update_agent_system_prompt_for_user(
 ) -> AgentSystemPromptResponse:
     """Update DB-backed system prompt sections for an agent, then reload the catalog cache."""
     agent = get_agent(agent_id)
+    if agent.is_orchestrator:
+        raise AppError("Orchestrator system prompt cannot be edited.", status_code=400)
     if not payload.sections:
         return await get_agent_system_prompt_for_user(user_id, agent_id)
 

@@ -38,6 +38,8 @@ coverage/
 data/
 backups/
 scripts/db/seed/assets/
+assets/catalog-uploads/**
+!assets/catalog-uploads/.gitkeep
 
 # Docker volume artifacts (local only)
 pgdata/

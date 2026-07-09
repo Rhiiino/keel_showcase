@@ -12,6 +12,7 @@ import {
   type AgentContextUsage,
   type AgentSummary,
 } from "../api";
+import { isDraftAgent } from "../lib/draftAgent";
 
 type UseAgentContextUsageResult = {
   usage: AgentContextUsage | undefined;
@@ -20,10 +21,12 @@ type UseAgentContextUsageResult = {
 };
 
 export function useAgentContextUsage(agent: AgentSummary): UseAgentContextUsageResult {
+  const isDraft = isDraftAgent(agent);
+
   const agentPrefsQuery = useQuery({
     queryKey: agentsQueryKeys.llmPreferences(agent.id),
     queryFn: () => fetchAgentLlmPreferences(agent.id),
-    enabled: !agent.is_orchestrator,
+    enabled: !agent.is_orchestrator && !isDraft,
   });
 
   const chatPrefsQuery = useQuery({
@@ -50,7 +53,7 @@ export function useAgentContextUsage(agent: AgentSummary): UseAgentContextUsageR
       modelId ?? "pending",
     ),
     queryFn: () => fetchAgentContextUsage(agent.id),
-    enabled: Boolean(provider && modelId),
+    enabled: !isDraft && Boolean(provider && modelId),
   });
 
   return {

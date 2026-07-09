@@ -36,6 +36,7 @@ x-keel-app-env: &keel-app-env
   S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-true}
   HAUL_PLAYWRIGHT_ENABLED: ${HAUL_PLAYWRIGHT_ENABLED:-false}
   CATALOG_ASSETS_PATH: ${CATALOG_ASSETS_PATH:-/app/assets/catalog}
+  CATALOG_UPLOADS_PATH: ${CATALOG_UPLOADS_PATH:-/app/assets/catalog-uploads}
   JOBS_ENABLED: ${JOBS_ENABLED:-true}
   REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
   CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
@@ -44,6 +45,7 @@ x-keel-app-env: &keel-app-env
 
 x-keel-app-volumes: &keel-app-volumes
   - ./backend/assets/catalog:${CATALOG_ASSETS_PATH:-/app/assets/catalog}:ro
+  - ./backend/assets/catalog-uploads:${CATALOG_UPLOADS_PATH:-/app/assets/catalog-uploads}
   - ./backend/scripts:/app/scripts:ro
   - ${BACKUP_HOST_DIR:-./backend/backups/local}:${BACKUP_DIR:-/app/backups/local}
 

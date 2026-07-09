@@ -13,63 +13,23 @@ import {
 import { useAgentEditor } from "../hooks/useAgentEditor";
 import { useAgentContextUsage } from "../hooks/useAgentContextUsage";
 import {
-  orchestratorPortraitSrc,
   subagentDisplayNameClassName,
-  subagentModelSrc,
-  subagentPortraitSrc,
 } from "../lib/agentDisplay";
+import { isDraftAgent } from "../lib/draftAgent";
+import { EDITABLE_AGENT_PROMPT_SECTIONS } from "../lib/agentPromptSections";
+import { AgentMediaHero } from "./AgentMediaHero";
 import { AgentModelSettings } from "./AgentModelSettings";
-import { AgentModelViewer } from "./AgentModelViewer";
 import { AgentSectionHeader } from "./AgentSectionHeader";
 import { AgentStartChatButton } from "./AgentStartChatButton";
 import { AgentToolCategoryEditor } from "./AgentToolCategoryEditor";
 import { EditableText } from "./EditableText";
+import { SystemPromptSectionBlock } from "./SystemPromptSectionBlock";
 import { formatContextWindow } from "./TokenCountBadge";
 
 type AgentDetailPanelProps = {
   agent: AgentSummary;
+  onCreated?: (agent: AgentSummary) => void;
 };
-
-function SystemPromptSectionBlock({
-  section,
-  content,
-  onChange,
-}: {
-  section: SystemPromptSection;
-  content: string;
-  onChange: (value: string) => void;
-}) {
-  const editable = section.editable !== false;
-
-  return (
-    <section className="space-y-2">
-      {section.label ? (
-        <div className="flex items-baseline justify-between gap-3">
-          <p className="font-mono text-xs uppercase tracking-wider text-stone-500">
-            {section.label}
-          </p>
-          {!editable ? (
-            <span className="font-mono text-[10px] uppercase tracking-wider text-stone-600">
-              Auto-generated
-            </span>
-          ) : null}
-        </div>
-      ) : null}
-      <EditableText
-        value={content}
-        onChange={onChange}
-        editable={editable}
-        className={[
-          "whitespace-pre-wrap font-mono text-sm leading-relaxed",
-          editable
-            ? "text-stone-300"
-            : "text-stone-500",
-        ].join(" ")}
-        editableClassName="px-3 py-2.5"
-      />
-    </section>
-  );
-}
 
 function AgentSystemPromptBlock({
   sections,
@@ -78,6 +38,7 @@ function AgentSystemPromptBlock({
   isError,
   promptSections,
   updatePromptSection,
+  editingEnabled,
 }: {
   sections: SystemPromptSection[];
   fallbackPrompt?: string;
@@ -85,6 +46,7 @@ function AgentSystemPromptBlock({
   isError: boolean;
   promptSections: Record<string, string>;
   updatePromptSection: (key: string, content: string) => void;
+  editingEnabled: boolean;
 }) {
   if (isLoading) {
     return <p className="text-sm text-stone-500">Loading prompt…</p>;
@@ -103,6 +65,7 @@ function AgentSystemPromptBlock({
             section={section}
             content={promptSections[section.key] ?? section.content}
             onChange={(value) => updatePromptSection(section.key, value)}
+            editingEnabled={editingEnabled}
           />
         ))
       ) : (
@@ -123,12 +86,14 @@ function AgentToolsColumn({
   toolsTokenCount,
   isEstimate,
   isLoading,
+  readOnly,
 }: {
   toolCategories: string[];
   onCategoriesChange: (categories: string[]) => void;
   toolsTokenCount?: number;
   isEstimate?: boolean;
   isLoading?: boolean;
+  readOnly: boolean;
 }) {
   return (
     <div className="min-w-0">
@@ -143,52 +108,33 @@ function AgentToolsColumn({
         <AgentToolCategoryEditor
           assignedCategories={toolCategories}
           onChange={onCategoriesChange}
+          readOnly={readOnly}
         />
       </div>
     </div>
   );
 }
 
-function OrchestratorPortraitHero({ agent }: { agent: AgentSummary }) {
-  return (
-    <div
-      className="flex h-64 w-56 shrink-0 items-center justify-center"
-      aria-hidden
-    >
-      <div
-        className={[
-          "flex h-44 w-44 items-center justify-center rounded-2xl",
-          "border border-lime-400/20 bg-stone-950/60",
-          "shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_8px_24px_rgba(0,0,0,0.35)]",
-        ].join(" ")}
-      >
-        <img
-          src={orchestratorPortraitSrc(agent)}
-          alt=""
-          className="h-32 w-32 object-contain drop-shadow-md"
-        />
-      </div>
-    </div>
-  );
-}
-
-export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
+export function AgentDetailPanel({ agent, onCreated }: AgentDetailPanelProps) {
+  const isDraft = isDraftAgent(agent);
   const promptQuery = useQuery({
     queryKey: agentsQueryKeys.systemPrompt(agent.id),
     queryFn: () => fetchAgentSystemPrompt(agent.id),
+    enabled: !isDraft,
   });
-  const editor = useAgentEditor(agent, promptQuery.data);
+  const editor = useAgentEditor(agent, promptQuery.data, { onCreated });
   const { usage, isLoading: usageLoading, isError: usageError } =
     useAgentContextUsage(agent);
 
-  const showUsage = !usageError;
+  const showUsage = !usageError && !isDraft;
   const isEstimate = usage?.is_estimate ?? false;
-  const modelSrc = subagentModelSrc(agent.id, agent.media);
-  const showHeroColumn = Boolean(modelSrc || agent.is_orchestrator);
+  const fieldsEditable = editor.fieldsEditable;
+  const promptSections = isDraft
+    ? EDITABLE_AGENT_PROMPT_SECTIONS
+    : (promptQuery.data?.sections ?? []);
 
-  const headerGridClass = showHeroColumn
-    ? "grid-cols-[auto_minmax(0,1fr)_minmax(0,14rem)]"
-    : "grid-cols-[minmax(0,1fr)_minmax(0,14rem)]";
+  const headerGridClass =
+    "grid-cols-[auto_minmax(0,1fr)_minmax(0,14rem)]";
 
   return (
     <section className="flex min-w-0 w-full flex-col">
@@ -198,29 +144,29 @@ export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
           headerGridClass,
         ].join(" ")}
       >
-        {showHeroColumn ? (
-          <div className="flex shrink-0 flex-col items-center gap-4">
-            {modelSrc ? (
-              <AgentModelViewer
-                agentId={agent.id}
-                src={modelSrc}
-                placeholderSrc={subagentPortraitSrc(agent.id, agent.media)}
-                className="h-64 w-56"
-              />
-            ) : (
-              <OrchestratorPortraitHero agent={agent} />
-            )}
+        <div className="flex shrink-0 flex-col items-center gap-4">
+          <AgentMediaHero
+            agent={agent}
+            editable={fieldsEditable}
+            tilePreviewUrl={editor.tilePreviewUrl}
+            model3dPreviewUrl={editor.model3dPreviewUrl}
+            onTileImageChange={editor.setTileImage}
+            onModel3dChange={editor.setModel3d}
+          />
+          {!isDraft ? (
             <AgentStartChatButton
               agentId={agent.id}
               displayName={editor.displayName}
             />
-          </div>
-        ) : null}
+          ) : null}
+        </div>
         <div className="min-w-0">
           <EditableText
             as="h3"
             value={editor.displayName}
             onChange={editor.setDisplayName}
+            editable={fieldsEditable}
+            placeholder={isDraft ? "e.g. Finance assistant" : undefined}
             className={[
               "text-xl font-medium outline-none",
               agent.is_orchestrator
@@ -232,73 +178,91 @@ export function AgentDetailPanel({ agent }: AgentDetailPanelProps) {
             as="p"
             value={editor.description}
             onChange={editor.setDescription}
+            editable={fieldsEditable}
+            placeholder={
+              isDraft
+                ? "Short summary Keel uses when routing to this agent."
+                : undefined
+            }
             className="mt-2 text-sm leading-relaxed text-stone-300"
             editableClassName="px-3 py-3"
           />
-          {!agent.is_orchestrator && (
+          {!agent.is_orchestrator && !isDraft ? (
             <p className="mt-2 text-sm text-stone-400">Invoked via Keel delegation</p>
-          )}
+          ) : null}
         </div>
 
         <div className="min-w-0 max-w-full border-l border-stone-800/50 pl-5">
-          <p className="font-mono text-xs uppercase tracking-wider text-stone-500">
-            Model
-          </p>
-          <div className="mt-2">
-            <AgentModelSettings
-              agentId={agent.id}
-              isOrchestrator={agent.is_orchestrator}
-              layout="column"
-            />
-          </div>
-          {showUsage && (
-            <p
-              className="mt-3 text-xs leading-relaxed text-stone-500"
-              title="Estimated input tokens for system prompt plus tool definitions, before conversation history."
-            >
-              Context overhead{" "}
-              {usageLoading ? (
-                <span className="font-mono text-stone-600">—</span>
-              ) : usage ? (
-                <span className="font-mono tabular-nums text-stone-400">
-                  {isEstimate ? "~" : ""}
-                  {usage.total_tokens.toLocaleString()} /{" "}
-                  {formatContextWindow(usage.max_context_window)}
-                </span>
-              ) : null}
+          {!isDraft ? (
+            <>
+              <p className="font-mono text-xs uppercase tracking-wider text-stone-500">
+                Provider
+              </p>
+              <div className="mt-2">
+                <AgentModelSettings
+                  agentId={agent.id}
+                  isOrchestrator={agent.is_orchestrator}
+                  layout="column"
+                />
+              </div>
+              {showUsage && (
+                <p
+                  className="mt-3 text-xs leading-relaxed text-stone-500"
+                  title="Estimated input tokens for system prompt plus tool definitions, before conversation history."
+                >
+                  Context overhead{" "}
+                  {usageLoading ? (
+                    <span className="font-mono text-stone-600">—</span>
+                  ) : usage ? (
+                    <span className="font-mono tabular-nums text-stone-400">
+                      {isEstimate ? "~" : ""}
+                      {usage.total_tokens.toLocaleString()} /{" "}
+                      {formatContextWindow(usage.max_context_window)}
+                    </span>
+                  ) : null}
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="text-sm text-stone-500">
+              Provider and model can be configured after the agent is created.
             </p>
           )}
         </div>
       </div>
 
-      <div className="mt-8 grid min-w-0 grid-cols-[minmax(0,18rem)_minmax(0,1fr)] gap-6 border-t border-stone-800/50 pt-8 sm:gap-10">
-        <AgentToolsColumn
-          toolCategories={editor.toolCategories}
-          onCategoriesChange={editor.setToolCategories}
-          toolsTokenCount={showUsage ? usage?.tools_tokens : undefined}
-          isEstimate={isEstimate}
-          isLoading={usageLoading}
-        />
-
-        <div className="min-w-0 border-l border-stone-800/50 pl-6 sm:pl-10">
-          <AgentSectionHeader
-            label="System prompt"
-            tokenCount={showUsage ? usage?.system_prompt_tokens : undefined}
+      {!agent.is_orchestrator ? (
+        <div className="mt-8 grid min-w-0 grid-cols-[minmax(0,18rem)_minmax(0,1fr)] gap-6 border-t border-stone-800/50 pt-8 sm:gap-10">
+          <AgentToolsColumn
+            toolCategories={editor.toolCategories}
+            onCategoriesChange={editor.setToolCategories}
+            toolsTokenCount={showUsage ? usage?.tools_tokens : undefined}
             isEstimate={isEstimate}
             isLoading={usageLoading}
+            readOnly={!fieldsEditable}
           />
-          <div className="mt-3">
-            <AgentSystemPromptBlock
-              sections={promptQuery.data?.sections ?? []}
-              fallbackPrompt={promptQuery.data?.system_prompt}
-              isLoading={promptQuery.isLoading}
-              isError={promptQuery.isError}
-              promptSections={editor.promptSections}
-              updatePromptSection={editor.updatePromptSection}
+
+          <div className="min-w-0 border-l border-stone-800/50 pl-6 sm:pl-10">
+            <AgentSectionHeader
+              label="System prompt"
+              tokenCount={showUsage ? usage?.system_prompt_tokens : undefined}
+              isEstimate={isEstimate}
+              isLoading={usageLoading}
             />
+            <div className="mt-3">
+              <AgentSystemPromptBlock
+                sections={promptSections}
+                fallbackPrompt={promptQuery.data?.system_prompt}
+                isLoading={!isDraft && promptQuery.isLoading}
+                isError={!isDraft && promptQuery.isError}
+                promptSections={editor.promptSections}
+                updatePromptSection={editor.updatePromptSection}
+                editingEnabled={fieldsEditable}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      ) : null}
     </section>
   );
 }

@@ -6,7 +6,9 @@ OPENAPI_TAG = "agents"
 ROUTE_PREFIX = f"/{FEATURE_KEY}"
 
 LIST_PATH = ""
+CREATE_PATH = LIST_PATH
 AGENT_PATH = "/{agent_id}"
 AGENT_SYSTEM_PROMPT_PATH = "/{agent_id}/system-prompt"
 AGENT_CONTEXT_USAGE_PATH = "/{agent_id}/context-usage"
 AGENT_PREFERENCES_PATH = "/{agent_id}/preferences"
+AGENT_MEDIA_PATH = "/{agent_id}/media"

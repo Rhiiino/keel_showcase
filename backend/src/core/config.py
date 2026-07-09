@@ -55,6 +55,7 @@ class Settings(BaseSettings):
 
     haul_playwright_enabled: bool = False
     catalog_assets_path: str = ""
+    catalog_uploads_path: str = ""
 
     connector_token_ttl_seconds: int = 3600
 

@@ -12,6 +12,7 @@ import { toolCategoryLabel } from "../../chat/lib/tools";
 type AgentToolCategoryEditorProps = {
   assignedCategories: string[];
   onChange: (categories: string[]) => void;
+  readOnly?: boolean;
 };
 
 function sortCategories(categories: string[]) {
@@ -21,6 +22,7 @@ function sortCategories(categories: string[]) {
 export function AgentToolCategoryEditor({
   assignedCategories,
   onChange,
+  readOnly = false,
 }: AgentToolCategoryEditorProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const categoriesQuery = useQuery({
@@ -42,16 +44,38 @@ export function AgentToolCategoryEditor({
   }, [assignedSet, categoriesQuery.data]);
 
   const removeCategory = (category: string) => {
-    if (assignedCategories.length <= 1) {
+    if (readOnly || assignedCategories.length <= 1) {
       return;
     }
     onChange(assignedCategories.filter((key) => key !== category));
   };
 
   const addCategory = (category: string) => {
+    if (readOnly) {
+      return;
+    }
     onChange(sortCategories([...assignedCategories, category]));
     setPickerOpen(false);
   };
+
+  if (readOnly) {
+    return (
+      <div className="flex flex-wrap items-center gap-1.5">
+        {assignedCategories.map((category) => (
+          <span
+            key={category}
+            className={[
+              "inline-flex items-center gap-1.5 rounded bg-stone-900/50 py-1 pl-1.5 pr-2",
+              "font-mono text-xs uppercase tracking-wider text-stone-400 ring-1 ring-stone-800/60",
+            ].join(" ")}
+          >
+            <ToolCategoryIcon category={category} size="xs" />
+            {toolCategoryLabel(category)}
+          </span>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2">

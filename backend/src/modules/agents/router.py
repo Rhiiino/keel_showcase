@@ -3,7 +3,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 
 from modules.auth.schemas import CurrentUserResponse
 from modules.auth.service import get_current_user
@@ -21,6 +21,23 @@ from modules.agents.schemas import (
 router = APIRouter(prefix=config.ROUTE_PREFIX, tags=[config.OPENAPI_TAG])
 
 CurrentUser = Annotated[CurrentUserResponse, Depends(get_current_user)]
+
+
+# POST /agents
+@router.post(config.LIST_PATH, response_model=AgentSummary, status_code=status.HTTP_201_CREATED)
+async def create_agent(
+    user: CurrentUser,
+    payload: str = Form(...),
+    tile_image: UploadFile = File(...),
+    model_3d: UploadFile | None = File(default=None),
+) -> AgentSummary:
+    """Create a sub-agent with prompt sections, tool grants, media, and Keel delegation."""
+    create_payload = service.parse_agent_create_payload(payload)
+    return await service.create_agent_for_user(
+        create_payload,
+        tile_image=tile_image,
+        model_3d=model_3d,
+    )
 
 
 # GET /subagents
@@ -101,3 +118,19 @@ async def delete_agent_llm_preferences(
 ) -> AgentLlmPreferencesPublic:
     """Clear override so the sub-agent inherits global chat preferences."""
     return await service.clear_agent_llm_preferences_for_user(user.id, agent_id)
+
+
+# PATCH /agents/{agent_id}/media
+@router.patch(config.AGENT_MEDIA_PATH, response_model=AgentSummary)
+async def update_agent_media(
+    agent_id: str,
+    user: CurrentUser,
+    tile_image: UploadFile | None = File(default=None),
+    model_3d: UploadFile | None = File(default=None),
+) -> AgentSummary:
+    """Replace an agent portrait and/or optional turntable GLB model."""
+    return await service.update_agent_media_for_user(
+        agent_id,
+        tile_image=tile_image,
+        model_3d=model_3d,
+    )

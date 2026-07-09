@@ -5,8 +5,24 @@
 import { getApiBaseUrl } from "../../../lib/api";
 import type { AgentMedia, AgentSummary } from "../api";
 
-function catalogMediaUrl(storageKey: string): string {
-  return `${getApiBaseUrl()}/catalog/media/${storageKey}`;
+function catalogMediaUrl(storageKey: string, cacheBuster?: string | null): string {
+  const url = `${getApiBaseUrl()}/catalog/media/${storageKey}`;
+  if (!cacheBuster) {
+    return url;
+  }
+  return `${url}?v=${encodeURIComponent(cacheBuster)}`;
+}
+
+function resolveAgentMediaUrl(
+  url: string,
+  cacheBuster?: string | null,
+): string {
+  const absoluteUrl = url.startsWith("http") ? url : `${getApiBaseUrl()}${url}`;
+  if (!cacheBuster) {
+    return absoluteUrl;
+  }
+  const separator = absoluteUrl.includes("?") ? "&" : "?";
+  return `${absoluteUrl}${separator}v=${encodeURIComponent(cacheBuster)}`;
 }
 
 function mediaByKind(
@@ -27,9 +43,10 @@ function agentImageStorageKey(agentId: string): string {
   return `agents/${agentId}/image.png`;
 }
 
-function agentModelStorageKey(agentId: string): string {
-  return `agents/${agentId}/model.glb`;
-}
+/** Built-in agents with committed 3D assets when catalog media is not loaded yet. */
+const BUILTIN_AGENT_MODEL_STORAGE_KEYS: Record<string, string> = {
+  keel: "agents/keel/model.glb",
+};
 
 /** Portrait URL for an agent (orchestrator or sub-agent). */
 export function agentImageUrl(
@@ -38,9 +55,7 @@ export function agentImageUrl(
 ): string {
   const fromApi = mediaByKind(media, "image", "tile");
   if (fromApi) {
-    return fromApi.url.startsWith("http")
-      ? fromApi.url
-      : `${getApiBaseUrl()}${fromApi.url}`;
+    return resolveAgentMediaUrl(fromApi.url, fromApi.updated_at);
   }
   return catalogMediaUrl(agentImageStorageKey(agentId));
 }
@@ -52,11 +67,10 @@ export function agentModelUrl(
 ): string | null {
   const fromApi = mediaByKind(media, "model_3d", "turntable");
   if (fromApi) {
-    return fromApi.url.startsWith("http")
-      ? fromApi.url
-      : `${getApiBaseUrl()}${fromApi.url}`;
+    return resolveAgentMediaUrl(fromApi.url, fromApi.updated_at);
   }
-  return catalogMediaUrl(agentModelStorageKey(agentId));
+  const builtinStorageKey = BUILTIN_AGENT_MODEL_STORAGE_KEYS[agentId];
+  return builtinStorageKey ? catalogMediaUrl(builtinStorageKey) : null;
 }
 
 export function orchestratorPortraitSrc(agent?: AgentSummary | null): string {

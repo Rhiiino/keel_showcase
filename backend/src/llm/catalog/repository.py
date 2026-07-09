@@ -174,6 +174,7 @@ async def fetch_catalog_media(conn: asyncpg.Connection) -> list[asyncpg.Record]:
             cm.mime_type,
             cm.byte_size,
             cm.sort_order,
+            cm.updated_at,
             a.key AS agent_key,
             tc.key AS tool_category_key,
             p.key AS provider_key,

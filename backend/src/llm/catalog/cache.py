@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any
 
 import asyncpg
@@ -156,6 +157,7 @@ class CatalogMediaEntry:
     mime_type: str
     byte_size: int | None
     sort_order: int
+    updated_at: datetime | None = None
     agent_key: str | None = None
     tool_category_key: str | None = None
     provider_key: str | None = None
@@ -351,6 +353,7 @@ async def _load_from_connection(conn: asyncpg.Connection) -> CatalogCache:
                 mime_type=row["mime_type"],
                 byte_size=row["byte_size"],
                 sort_order=row["sort_order"],
+                updated_at=row["updated_at"],
                 agent_key=row["agent_key"],
                 tool_category_key=row["tool_category_key"],
                 provider_key=row["provider_key"],

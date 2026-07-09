@@ -2,13 +2,14 @@
 
 // Agents module API: subagent catalog and system-prompt preview.
 
-import { apiFetch } from "../../lib/api";
+import { ApiError, apiFetch, getApiBaseUrl } from "../../lib/api";
 
 export type AgentMedia = {
   media_kind: string;
   role: string | null;
   mime_type: string;
   url: string;
+  updated_at?: string | null;
 };
 
 export type ToolSummary = {
@@ -70,6 +71,22 @@ export type AgentSystemPromptUpdate = {
   sections: SystemPromptSectionUpdate[];
 };
 
+export type AgentSystemPromptCreate = {
+  identity: string;
+  purpose: string;
+  guidelines: string;
+  domain_reference: string;
+  tool_guidance?: string;
+  safety: string;
+};
+
+export type AgentCreatePayload = {
+  display_name: string;
+  description: string;
+  tool_categories: string[];
+  system_prompt: AgentSystemPromptCreate;
+};
+
 export type ToolTokenUsage = {
   name: string;
   category: string;
@@ -104,6 +121,48 @@ export const agentsQueryKeys = {
 
 export function fetchAgents(): Promise<AgentSummary[]> {
   return apiFetch<AgentSummary[]>("/agents", { credentials });
+}
+
+export function createAgent(
+  payload: AgentCreatePayload,
+  tileImage: File,
+  model3d?: File | null,
+): Promise<AgentSummary> {
+  return new Promise((resolve, reject) => {
+    const formData = new FormData();
+    formData.append("payload", JSON.stringify(payload));
+    formData.append("tile_image", tileImage);
+    if (model3d) {
+      formData.append("model_3d", model3d);
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${getApiBaseUrl().replace(/\/$/, "")}/agents`);
+    xhr.withCredentials = true;
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolve(JSON.parse(xhr.responseText) as AgentSummary);
+        } catch {
+          reject(new ApiError("Invalid create agent response.", xhr.status));
+        }
+        return;
+      }
+      reject(
+        new ApiError(
+          `API ${xhr.status}${xhr.responseText ? `: ${xhr.responseText}` : ""}`,
+          xhr.status,
+        ),
+      );
+    };
+
+    xhr.onerror = () => {
+      reject(new ApiError("Failed to create agent.", 0));
+    };
+
+    xhr.send(formData);
+  });
 }
 
 export function fetchAgentSystemPrompt(agentId: string): Promise<AgentSystemPrompt> {
@@ -165,5 +224,55 @@ export function updateAgentSystemPrompt(
     method: "PATCH",
     credentials,
     body: payload,
+  });
+}
+
+export type AgentMediaUpdate = {
+  tileImage?: File | null;
+  model3d?: File | null;
+};
+
+export function updateAgentMedia(
+  agentId: string,
+  payload: AgentMediaUpdate,
+): Promise<AgentSummary> {
+  return new Promise((resolve, reject) => {
+    const formData = new FormData();
+    if (payload.tileImage) {
+      formData.append("tile_image", payload.tileImage);
+    }
+    if (payload.model3d) {
+      formData.append("model_3d", payload.model3d);
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open(
+      "PATCH",
+      `${getApiBaseUrl().replace(/\/$/, "")}/agents/${encodeURIComponent(agentId)}/media`,
+    );
+    xhr.withCredentials = true;
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolve(JSON.parse(xhr.responseText) as AgentSummary);
+        } catch {
+          reject(new ApiError("Invalid update agent media response.", xhr.status));
+        }
+        return;
+      }
+      reject(
+        new ApiError(
+          `API ${xhr.status}${xhr.responseText ? `: ${xhr.responseText}` : ""}`,
+          xhr.status,
+        ),
+      );
+    };
+
+    xhr.onerror = () => {
+      reject(new ApiError("Failed to update agent media.", 0));
+    };
+
+    xhr.send(formData);
   });
 }

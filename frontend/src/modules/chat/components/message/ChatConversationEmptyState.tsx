@@ -44,20 +44,26 @@ function KeelEmptyState() {
 export function ChatConversationEmptyState({
   driverAgentId,
 }: ChatConversationEmptyStateProps) {
-  const modelSrc = subagentModelSrc(driverAgentId);
   const agentsQuery = useQuery({
     queryKey: agentsQueryKeys.catalog(),
     queryFn: fetchAgents,
-    enabled: modelSrc !== null && driverAgentId !== "keel",
+    enabled: driverAgentId !== "keel",
   });
 
-  if (!modelSrc || driverAgentId === "keel") {
+  if (driverAgentId === "keel") {
     return <KeelEmptyState />;
   }
 
-  const displayName =
-    agentsQuery.data?.find((agent) => agent.id === driverAgentId)?.display_name ??
-    driverAgentId;
+  const driverAgent = agentsQuery.data?.find((agent) => agent.id === driverAgentId);
+  const modelSrc = driverAgent
+    ? subagentModelSrc(driverAgentId, driverAgent.media)
+    : null;
+
+  if (!modelSrc) {
+    return <KeelEmptyState />;
+  }
+
+  const displayName = driverAgent?.display_name ?? driverAgentId;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-6 py-10 text-center">

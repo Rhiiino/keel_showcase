@@ -1,0 +1,958 @@
+{
+  "design": {
+    "version": 1,
+    "iconSizePx": 560,
+    "baseImage": "keel",
+    "elements": [
+      {
+        "id": "preset-right-eye-bottom-left",
+        "name": "Right eye bottom left",
+        "visible": false,
+        "kind": "dot",
+        "x": 361.2,
+        "y": 226.2,
+        "sizePx": 22,
+        "color": "hsl(172, 70%, 55%)",
+        "zIndex": 22,
+        "groupId": "gaze-bottom-left",
+        "tags": [
+          "gaze"
+        ],
+        "locked": true,
+        "slot": "eyes"
+      },
+      {
+        "id": "preset-left-eye-bottom-left",
+        "name": "Left eye bottom left",
+        "visible": false,
+        "kind": "dot",
+        "x": 137.2,
+        "y": 232.4,
+        "sizePx": 22,
+        "color": "hsl(178, 70%, 55%)",
+        "zIndex": 23,
+        "groupId": "gaze-bottom-left",
+        "tags": [
+          "gaze"
+        ],
+        "locked": true,
+        "slot": "eyes"
+      },
+      {
+        "id": "preset-right-eye-bottom-right",
+        "name": "Right eye bottom right",
+        "visible": false,
+        "kind": "dot",
+        "x": 426.7,
+        "y": 230.2,
+        "sizePx": 22,
+        "color": "hsl(172, 70%, 55%)",
+        "zIndex": 24,
+        "groupId": "gaze-bottom-right",
+        "tags": [
+          "gaze"
+        ],
+        "locked": true,
+        "slot": "eyes"
+      },
+      {
+        "id": "preset-left-eye-bottom-right",
+        "name": "Left eye bottom right",
+        "visible": false,
+        "kind": "dot",
+        "x": 204.9,
+        "y": 219.0,
+        "sizePx": 22,
+        "color": "hsl(178, 70%, 55%)",
+        "zIndex": 25,
+        "groupId": "gaze-bottom-right",
+        "tags": [
+          "gaze"
+        ],
+        "locked": true,
+        "slot": "eyes"
+      },
+      {
+        "id": "preset-right-eye-top-left",
+        "name": "Right eye top left",
+        "visible": false,
+        "kind": "dot",
+        "x": 339.4,
+        "y": 131.0,
+        "sizePx": 22,
+        "color": "hsl(172, 70%, 55%)",
+        "zIndex": 26,
+        "groupId": "gaze-top-left",
+        "tags": [
+          "gaze"
+        ],
+        "locked": true,
+        "slot": "eyes"
+      },
+      {
+        "id": "preset-left-eye-top-left",
+        "name": "Left eye top left",
+        "visible": false,
+        "kind": "dot",
+        "x": 163.0,
+        "y": 131.6,
+        "sizePx": 22,
+        "color": "hsl(178, 70%, 55%)",
+        "zIndex": 27,
+        "groupId": "gaze-top-left",
+        "tags": [
+          "gaze"
+        ],
+        "locked": true,
+        "slot": "eyes"
+      },
+      {
+        "id": "preset-right-eye-top-right",
+        "name": "Right eye top right",
+        "visible": false,
+        "kind": "dot",
+        "x": 397.6,
+        "y": 124.9,
+        "sizePx": 22,
+        "color": "hsl(172, 70%, 55%)",
+        "zIndex": 28,
+        "groupId": "gaze-top-right",
+        "tags": [
+          "gaze"
+        ],
+        "locked": true,
+        "slot": "eyes"
+      },
+      {
+        "id": "preset-left-eye-top-right",
+        "name": "Left eye top right",
+        "visible": false,
+        "kind": "dot",
+        "x": 218.4,
+        "y": 127.1,
+        "sizePx": 22,
+        "color": "hsl(178, 70%, 55%)",
+        "zIndex": 29,
+        "groupId": "gaze-top-right",
+        "tags": [
+          "gaze"
+        ],
+        "locked": true,
+        "slot": "eyes"
+      },
+      {
+        "id": "preset-left-eye-line-1",
+        "name": "left outer eye 1",
+        "visible": false,
+        "kind": "line",
+        "x": 199.92,
+        "y": 72.24,
+        "length": 130,
+        "thickness": 3,
+        "angle": -180,
+        "color": "hsl(-80, 70%, 55%)",
+        "zIndex": 30,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-left-eye-line-2",
+        "name": "left outer eye 2",
+        "visible": false,
+        "kind": "line",
+        "x": 100.8,
+        "y": 151.76,
+        "length": 174,
+        "thickness": 3,
+        "angle": 114,
+        "color": "hsl(-77, 70%, 55%)",
+        "zIndex": 31,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-left-eye-line-3",
+        "name": "left outer eye 3",
+        "visible": false,
+        "kind": "line",
+        "x": 114.24,
+        "y": 271.6,
+        "length": 129,
+        "thickness": 3,
+        "angle": 39,
+        "color": "hsl(-77, 70%, 55%)",
+        "zIndex": 32,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-left-eye-line-4",
+        "name": "left outer eye 4",
+        "visible": false,
+        "kind": "line",
+        "x": 216.16,
+        "y": 273.84,
+        "length": 127,
+        "thickness": 3,
+        "angle": -35,
+        "color": "hsl(-81, 70%, 55%)",
+        "zIndex": 33,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-left-eye-line-5",
+        "name": "left outer eye 5",
+        "visible": false,
+        "kind": "line",
+        "x": 266.0,
+        "y": 154.56,
+        "length": 167,
+        "thickness": 3,
+        "angle": -90,
+        "color": "hsl(-74, 70%, 55%)",
+        "zIndex": 34,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-right-eye-line-1",
+        "name": "right outer eye 1",
+        "visible": false,
+        "kind": "line",
+        "x": 360.08,
+        "y": 72.24,
+        "length": 130,
+        "thickness": 3,
+        "angle": 0,
+        "color": "hsl(261, 70%, 55%)",
+        "zIndex": 35,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-right-eye-line-2",
+        "name": "right outer eye 2",
+        "visible": false,
+        "kind": "line",
+        "x": 459.2,
+        "y": 151.76,
+        "length": 174,
+        "thickness": 3,
+        "angle": 66,
+        "color": "hsl(267, 70%, 55%)",
+        "zIndex": 36,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-right-eye-line-3",
+        "name": "right outer eye 3",
+        "visible": false,
+        "kind": "line",
+        "x": 446.32,
+        "y": 269.92,
+        "length": 127,
+        "thickness": 3,
+        "angle": 141,
+        "color": "hsl(-83, 70%, 55%)",
+        "zIndex": 37,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-right-eye-line-4",
+        "name": "right outer eye 4",
+        "visible": false,
+        "kind": "line",
+        "x": 346.08,
+        "y": 274.96,
+        "length": 125,
+        "thickness": 3,
+        "angle": -145,
+        "color": "hsl(-70, 70%, 55%)",
+        "zIndex": 38,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-right-eye-line-5",
+        "name": "right outer eye 5",
+        "visible": false,
+        "kind": "line",
+        "x": 295.68,
+        "y": 155.68,
+        "length": 167,
+        "thickness": 3,
+        "angle": -90,
+        "color": "hsl(-71, 70%, 55%)",
+        "zIndex": 39,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-left-inner-eye-line-1",
+        "name": "left inner eye 1",
+        "visible": false,
+        "kind": "line",
+        "x": 197.12,
+        "y": 98.0,
+        "length": 75,
+        "thickness": 3,
+        "angle": 180,
+        "color": "hsl(14, 70%, 55%)",
+        "zIndex": 40,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-left-inner-eye-line-2",
+        "name": "left inner eye 2",
+        "visible": false,
+        "kind": "line",
+        "x": 131.6,
+        "y": 161.84,
+        "length": 140,
+        "thickness": 3,
+        "angle": 114,
+        "color": "hsl(-3, 70%, 55%)",
+        "zIndex": 41,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-left-inner-eye-line-3",
+        "name": "left inner eye 3",
+        "visible": false,
+        "kind": "line",
+        "x": 133.28,
+        "y": 245.28,
+        "length": 80,
+        "thickness": 3,
+        "angle": 37,
+        "color": "hsl(-30, 70%, 55%)",
+        "zIndex": 42,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-left-inner-eye-line-4",
+        "name": "left inner eye 4",
+        "visible": false,
+        "kind": "line",
+        "x": 198.8,
+        "y": 242.48,
+        "length": 89,
+        "thickness": 3,
+        "angle": -36,
+        "color": "hsl(-25, 70%, 55%)",
+        "zIndex": 43,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-left-inner-eye-line-5",
+        "name": "left inner eye 5",
+        "visible": false,
+        "kind": "line",
+        "x": 234.08,
+        "y": 156.24,
+        "length": 122,
+        "thickness": 3,
+        "angle": -90,
+        "color": "hsl(-22, 70%, 55%)",
+        "zIndex": 44,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-right-inner-eye-line-1",
+        "name": "right inner eye 1",
+        "visible": false,
+        "kind": "line",
+        "x": 362.88,
+        "y": 97.44,
+        "length": 75,
+        "thickness": 3,
+        "angle": 0,
+        "color": "hsl(14, 70%, 55%)",
+        "zIndex": 45,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-right-inner-eye-line-2",
+        "name": "right inner eye 2",
+        "visible": false,
+        "kind": "line",
+        "x": 427.28,
+        "y": 159.04,
+        "length": 137,
+        "thickness": 3,
+        "angle": 65,
+        "color": "hsl(-3, 70%, 55%)",
+        "zIndex": 46,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-right-inner-eye-line-3",
+        "name": "right inner eye 3",
+        "visible": false,
+        "kind": "line",
+        "x": 426.72,
+        "y": 245.28,
+        "length": 80,
+        "thickness": 3,
+        "angle": 143,
+        "color": "hsl(-30, 70%, 55%)",
+        "zIndex": 47,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-right-inner-eye-line-4",
+        "name": "right inner eye 4",
+        "visible": false,
+        "kind": "line",
+        "x": 361.2,
+        "y": 242.48,
+        "length": 89,
+        "thickness": 3,
+        "angle": -144,
+        "color": "hsl(-25, 70%, 55%)",
+        "zIndex": 48,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-right-inner-eye-line-5",
+        "name": "right inner eye 5",
+        "visible": false,
+        "kind": "line",
+        "x": 325.92,
+        "y": 156.24,
+        "length": 122,
+        "thickness": 3,
+        "angle": -90,
+        "color": "hsl(-22, 70%, 55%)",
+        "zIndex": 49,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-mouth-outer-line-1",
+        "name": "mouth outer line 1",
+        "visible": false,
+        "kind": "line",
+        "x": 222.88,
+        "y": 305.2,
+        "length": 131,
+        "thickness": 3,
+        "angle": -32,
+        "color": "hsl(0, 0%, 95%)",
+        "zIndex": 50,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-mouth-outer-line-2",
+        "name": "mouth outer line 2",
+        "visible": false,
+        "kind": "line",
+        "x": 334.32,
+        "y": 304.08,
+        "length": 132,
+        "thickness": 3,
+        "angle": 32,
+        "color": "hsl(0, 0%, 95%)",
+        "zIndex": 51,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-mouth-outer-line-3",
+        "name": "mouth outer line 3",
+        "visible": false,
+        "kind": "line",
+        "x": 360.08,
+        "y": 392.0,
+        "length": 121,
+        "thickness": 3,
+        "angle": 120,
+        "color": "hsl(0, 0%, 95%)",
+        "zIndex": 52,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-mouth-inner-line-3",
+        "name": "mouth inner line 3",
+        "visible": false,
+        "kind": "line",
+        "x": 332.08,
+        "y": 377.44,
+        "length": 76,
+        "thickness": 3,
+        "angle": 119,
+        "color": "hsl(0, 0%, 95%)",
+        "zIndex": 53,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-mouth-outer-line-5",
+        "name": "mouth outer line 5",
+        "visible": false,
+        "kind": "line",
+        "x": 200.48,
+        "y": 393.12,
+        "length": 121,
+        "thickness": 3,
+        "angle": -120,
+        "color": "hsl(0, 0%, 95%)",
+        "zIndex": 54,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-mouth-inner-line-1",
+        "name": "mouth inner line 1",
+        "visible": false,
+        "kind": "line",
+        "x": 244.16,
+        "y": 323.68,
+        "length": 82,
+        "thickness": 3,
+        "angle": -31,
+        "color": "hsl(0, 0%, 95%)",
+        "zIndex": 55,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-mouth-inner-line-2",
+        "name": "mouth inner line 2",
+        "visible": false,
+        "kind": "line",
+        "x": 314.16,
+        "y": 322.0,
+        "length": 81,
+        "thickness": 3,
+        "angle": 32,
+        "color": "hsl(0, 0%, 95%)",
+        "zIndex": 56,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-mouth-outer-line-4",
+        "name": "mouth outer line 4",
+        "visible": false,
+        "kind": "line",
+        "x": 278.88,
+        "y": 443.52,
+        "length": 105,
+        "thickness": 3,
+        "angle": -180,
+        "color": "hsl(0, 0%, 95%)",
+        "zIndex": 57,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-mouth-inner-line-4",
+        "name": "mouth inner line 4",
+        "visible": false,
+        "kind": "line",
+        "x": 280.0,
+        "y": 410.48,
+        "length": 67,
+        "thickness": 3,
+        "angle": -180,
+        "color": "hsl(0, 0%, 95%)",
+        "zIndex": 58,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-mouth-inner-line-5",
+        "name": "mouth inner line 5",
+        "visible": false,
+        "kind": "line",
+        "x": 229.04,
+        "y": 376.32,
+        "length": 80,
+        "thickness": 3,
+        "angle": -119,
+        "color": "hsl(0, 0%, 95%)",
+        "zIndex": 59,
+        "tags": [
+          "line"
+        ],
+        "groupId": "tesla-lines",
+        "locked": true
+      },
+      {
+        "id": "preset-right-eye-straight",
+        "name": "Right eye straight on",
+        "visible": true,
+        "kind": "dot",
+        "x": 381.92,
+        "y": 178.08,
+        "sizePx": 22,
+        "color": "hsl(172, 70%, 55%)",
+        "zIndex": 214,
+        "groupId": "gaze-straight",
+        "tags": [
+          "gaze"
+        ],
+        "locked": true,
+        "slot": "eyes"
+      },
+      {
+        "id": "preset-left-eye-straight",
+        "name": "Left eye straight on",
+        "visible": true,
+        "kind": "dot",
+        "x": 178.3065625,
+        "y": 177.6190625,
+        "sizePx": 22,
+        "color": "hsl(178, 70%, 55%)",
+        "zIndex": 216,
+        "groupId": "gaze-straight",
+        "tags": [
+          "gaze"
+        ],
+        "locked": true,
+        "slot": "eyes"
+      },
+      {
+        "id": "f327980e-9e80-4056-ab56-493aa4e80338",
+        "name": "cake",
+        "visible": false,
+        "kind": "media-image",
+        "x": 477.75567626953125,
+        "y": 428.2890930175781,
+        "width": 120,
+        "height": 120,
+        "angle": 0,
+        "mediaId": "8a2fdaf4-d5c5-4cd8-b200-1febf8d029a9",
+        "mediaFilename": "cake",
+        "zIndex": 298,
+        "tags": [
+          "accessory"
+        ],
+        "groupId": "prop-cake"
+      },
+      {
+        "id": "preset-nose-with-mustache",
+        "name": "nose w/ mustache",
+        "visible": false,
+        "kind": "media-image",
+        "x": 282.8,
+        "y": 262.08,
+        "width": 180,
+        "height": 180,
+        "angle": 0,
+        "mediaId": "42ba856f-3bdf-418d-bbbf-f5a435723ca8",
+        "mediaFilename": "nose w/ mustache",
+        "zIndex": 300,
+        "groupId": "nose-mustache",
+        "tags": [
+          "accessory"
+        ],
+        "locked": true,
+        "slot": "mouth"
+      },
+      {
+        "id": "preset-chef-hat",
+        "name": "chef hat",
+        "visible": false,
+        "kind": "media-image",
+        "x": 261.93523193359374,
+        "y": -28.501914062500006,
+        "width": 255,
+        "height": 255,
+        "angle": 0,
+        "mediaId": "0aeb057d-c61f-4904-9519-e6a7127f366a",
+        "mediaFilename": "chef hat",
+        "zIndex": 304,
+        "groupId": "hat-chef",
+        "tags": [
+          "accessory"
+        ],
+        "locked": true,
+        "slot": "head"
+      },
+      {
+        "id": "preset-beret",
+        "name": "beret",
+        "visible": false,
+        "kind": "media-image",
+        "x": 145.6,
+        "y": 66.08,
+        "width": 246,
+        "height": 246,
+        "angle": -22,
+        "mediaId": "5acb1787-634b-44e2-bba1-519bb3c5c7fb",
+        "mediaFilename": "beret",
+        "zIndex": 305,
+        "groupId": "hat-beret",
+        "tags": [
+          "accessory"
+        ],
+        "locked": true,
+        "slot": "head"
+      },
+      {
+        "id": "77e71f3c-3ab2-412d-bd1c-32e084101bc5",
+        "name": "pirate hat 2",
+        "visible": false,
+        "kind": "media-image",
+        "x": 273.8,
+        "y": -24.1,
+        "width": 245,
+        "height": 245,
+        "angle": 0,
+        "mediaId": "a75df9f5-211f-4a99-bc4d-6a9e805b404f",
+        "mediaFilename": "pirate hat 2",
+        "zIndex": 306,
+        "groupId": "hat-pirate",
+        "tags": [
+          "accessory"
+        ],
+        "locked": true,
+        "slot": "head"
+      },
+      {
+        "id": "85c31dba-9d33-44f8-acd5-6014a00444ce",
+        "name": "telescope top right",
+        "visible": false,
+        "kind": "media-image",
+        "x": 505.1,
+        "y": 19.0,
+        "width": 229,
+        "height": 229,
+        "angle": 269,
+        "mediaId": "0b75aced-bc0c-459f-b7b1-a611bcf568b2",
+        "mediaFilename": "telescope",
+        "zIndex": 307,
+        "groupId": "prop-telescope-top-right",
+        "tags": [
+          "accessory"
+        ],
+        "locked": true
+      },
+      {
+        "id": "5627add7-cdd9-438f-b26d-d0c3fb11bbb0",
+        "name": "telescope top bottom left",
+        "visible": false,
+        "kind": "media-image",
+        "x": 51.5,
+        "y": 348.3,
+        "width": 229,
+        "height": 229,
+        "angle": 77,
+        "mediaId": "0b75aced-bc0c-459f-b7b1-a611bcf568b2",
+        "mediaFilename": "telescope",
+        "zIndex": 308,
+        "groupId": "prop-telescope-bottom-left",
+        "tags": [
+          "accessory"
+        ],
+        "locked": true
+      },
+      {
+        "id": "08d4bb36-3f9b-4bcf-8914-0fed75f77f93",
+        "name": "telescope bottom right",
+        "visible": false,
+        "kind": "media-image",
+        "x": 535.4,
+        "y": 321.4,
+        "width": 229,
+        "height": 229,
+        "angle": -6,
+        "mediaId": "0b75aced-bc0c-459f-b7b1-a611bcf568b2",
+        "mediaFilename": "telescope",
+        "zIndex": 309,
+        "groupId": "prop-telescope-bottom-right",
+        "tags": [
+          "accessory"
+        ],
+        "locked": true
+      },
+      {
+        "id": "a518e505-43e8-447a-bc62-26cd6a065f8f",
+        "name": "telescope top left",
+        "visible": false,
+        "kind": "media-image",
+        "x": 44.2,
+        "y": 23.5,
+        "width": 229,
+        "height": 229,
+        "angle": 177,
+        "mediaId": "0b75aced-bc0c-459f-b7b1-a611bcf568b2",
+        "mediaFilename": "telescope",
+        "zIndex": 310,
+        "groupId": "prop-telescope-top-left",
+        "tags": [
+          "accessory"
+        ],
+        "locked": true
+      },
+      {
+        "id": "6ec69350-1eb7-46de-ae45-61c9fe62033c",
+        "name": "branch start position",
+        "visible": false,
+        "kind": "media-image",
+        "x": 518.6,
+        "y": 404.9,
+        "width": 209,
+        "height": 209,
+        "angle": 80,
+        "mediaId": "67ff4275-c010-4cf2-84eb-c889da09c080",
+        "mediaFilename": "branch",
+        "zIndex": 646,
+        "groupId": "prop-branch",
+        "tags": [
+          "accessory"
+        ],
+        "locked": true,
+        "slot": "body"
+      },
+      {
+        "id": "47825d11-d88d-45e3-b893-cf381f02efaa",
+        "name": "helm",
+        "visible": false,
+        "kind": "media-image",
+        "x": 279.44,
+        "y": 372.4,
+        "width": 301,
+        "height": 301,
+        "angle": 0,
+        "mediaId": "3771682d-3996-408f-a266-72bd04f91a53",
+        "mediaFilename": "helm",
+        "zIndex": 665,
+        "groupId": "prop-helm",
+        "tags": [
+          "accessory"
+        ],
+        "locked": true,
+        "slot": "body"
+      },
+      {
+        "id": "649fee90-41ae-433c-b4a0-35e33df5ce39",
+        "name": "sailor hat",
+        "visible": false,
+        "kind": "media-image",
+        "x": 277.76,
+        "y": 16.24,
+        "width": 273,
+        "height": 273,
+        "angle": 2,
+        "mediaId": "c409ab66-662b-488f-b679-e22de87ca45c",
+        "mediaFilename": "sailor hat",
+        "zIndex": 702,
+        "groupId": "hat-sailor",
+        "tags": [
+          "accessory"
+        ],
+        "locked": true,
+        "slot": "head"
+      }
+    ],
+    "baseOffset": {
+      "x": -21.28955078125,
+      "y": -24.14971923828125
+    }
+  },
+  "media": {}
+}

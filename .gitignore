@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Build output
+dist/
+frontend/dist/
+.svelte-kit/
+
+# Runtime data
+backups/
+*.log
+logs/
+tmp/
+temp/
+
+# Python caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+*.swo
+
+# Note: .env files are committed with empty secret placeholders.
+# Do not commit filled API keys or OAuth secrets.

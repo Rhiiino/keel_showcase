@@ -1,0 +1,173 @@
+/* keel_web/src/modules/timeline/components/calendar/timeline-calendar.css */
+
+.timeline-full-calendar .fc {
+  --fc-border-color: rgb(41 37 36);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: rgb(12 10 9 / 0.4);
+  --fc-list-event-hover-bg-color: rgb(41 37 36 / 0.6);
+  --fc-today-bg-color: rgb(59 130 246 / 0.12);
+  --fc-event-bg-color: rgb(37 99 235);
+  --fc-event-border-color: rgb(29 78 216);
+  --fc-event-text-color: rgb(250 250 249);
+  color: rgb(231 229 228);
+  font-size: 1rem;
+}
+
+.timeline-full-calendar .fc-theme-standard td,
+.timeline-full-calendar .fc-theme-standard th {
+  border-color: rgb(41 37 36);
+}
+
+.timeline-full-calendar .fc-col-header-cell-cushion,
+.timeline-full-calendar .fc-daygrid-day-number,
+.timeline-full-calendar .fc-list-day-cushion {
+  color: rgb(168 162 158);
+}
+
+.timeline-full-calendar .fc-col-header-cell-cushion {
+  padding: 0.75rem 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.timeline-full-calendar .fc-daygrid-day-top {
+  padding: 0.375rem 0.5rem 0.25rem;
+}
+
+.timeline-full-calendar .fc-daygrid-day-number {
+  font-size: 0.9375rem;
+  padding: 0.25rem 0.375rem;
+}
+
+.timeline-full-calendar .fc-toolbar-title {
+  color: rgb(250 250 249);
+  font-size: 1.375rem;
+  font-weight: 600;
+}
+
+.timeline-full-calendar .fc-button {
+  background-color: rgb(28 25 23);
+  border-color: rgb(68 64 60);
+  color: rgb(231 229 228);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.4375rem 0.75rem;
+  text-transform: capitalize;
+}
+
+.timeline-full-calendar .fc-button:hover {
+  background-color: rgb(41 37 36);
+  border-color: rgb(87 83 78);
+  color: rgb(250 250 249);
+}
+
+.timeline-full-calendar .fc-button-primary:not(:disabled).fc-button-active,
+.timeline-full-calendar .fc-button-primary:not(:disabled):active {
+  background-color: rgb(37 99 235);
+  border-color: rgb(29 78 216);
+  color: rgb(250 250 249);
+}
+
+.timeline-full-calendar .fc-daygrid-event {
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  margin-top: 0.1875rem;
+  padding: 0.3125rem 0.5rem;
+}
+
+.timeline-full-calendar .fc-daygrid-block-event {
+  background-color: var(--fc-event-bg-color);
+  border: 1px solid var(--fc-event-border-color);
+  color: var(--fc-event-text-color);
+}
+
+.timeline-full-calendar .fc-daygrid-event .fc-event-main {
+  min-height: 1.75rem;
+  overflow: hidden;
+}
+
+.timeline-full-calendar .fc-timegrid-event .fc-event-main,
+.timeline-full-calendar .fc-list-event-title {
+  overflow: hidden;
+}
+
+.timeline-full-calendar .fc-timegrid-event {
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+}
+
+.timeline-full-calendar .fc-timegrid-event .fc-event-main {
+  min-height: 1.75rem;
+  padding: 0.25rem 0.375rem;
+}
+
+.timeline-full-calendar .fc-timegrid-slot {
+  height: 2.75rem;
+}
+
+.timeline-full-calendar .fc-timegrid-axis-cushion,
+.timeline-full-calendar .fc-timegrid-slot-label-cushion {
+  color: rgb(120 113 108);
+  font-size: 0.875rem;
+}
+
+.timeline-full-calendar .fc-event-title {
+  font-weight: 500;
+}
+
+.timeline-full-calendar .fc-list-event {
+  font-size: 0.9375rem;
+}
+
+.timeline-full-calendar .fc-list-event td {
+  padding: 0.75rem 1rem;
+}
+
+.timeline-full-calendar .fc-list-event-title a {
+  color: rgb(231 229 228);
+}
+
+.timeline-full-calendar .fc-list-event-time {
+  color: rgb(168 162 158);
+  font-size: 0.875rem;
+}
+
+.timeline-full-calendar .fc-scrollgrid,
+.timeline-full-calendar .fc-scrollgrid-section > * {
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.timeline-full-calendar .fc-scrollgrid {
+  border: 1px solid rgb(41 37 36);
+  background: rgb(12 10 9 / 0.4);
+}
+
+.timeline-full-calendar .fc-daygrid-day-frame {
+  min-height: 9rem;
+  cursor: pointer;
+}
+
+.timeline-full-calendar .fc-timegrid .fc-daygrid-day-frame {
+  min-height: 2.75rem;
+  cursor: default;
+}
+
+.timeline-full-calendar .fc-timegrid .fc-daygrid-body {
+  min-height: 2.75rem;
+}
+
+.timeline-full-calendar .fc-timegrid .fc-daygrid-event-harness {
+  visibility: visible !important;
+}
+
+.timeline-full-calendar .fc-day-other .fc-daygrid-day-top {
+  opacity: 0.45;
+}
+
+.timeline-full-calendar .timeline-plan-item-event {
+  --fc-event-bg-color: rgb(14 116 144 / 0.35);
+  --fc-event-border-color: rgb(34 211 238 / 0.55);
+  border-style: dashed !important;
+}

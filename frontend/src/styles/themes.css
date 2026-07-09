@@ -1,0 +1,423 @@
+/* stack_sandbox/frontend_web/src/styles/themes.css */
+
+/*
+ * Global themes via CSS variables. Tailwind `stone`, `bg-app`, and `app-accent` read these values.
+ * Structural tokens (radius, shadow, chrome) give each theme a distinct visual personality.
+ */
+
+:root {
+  --app-radius-sm: 0.375rem;
+  --app-radius-md: 0.5rem;
+  --app-radius-lg: 0.75rem;
+  --app-radius-xl: 1rem;
+
+  --app-shadow-panel: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --app-shadow-float: 0 4px 14px rgba(0, 0, 0, 0.35);
+  --app-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  --app-nav-border: rgb(var(--stone-800) / 0.8);
+  --app-nav-chrome-shadow: none;
+  --app-header-border: rgb(var(--stone-800) / 0.8);
+  --app-header-chrome-shadow: none;
+
+  --app-surface-bg: rgb(var(--stone-900) / 0.95);
+  --app-surface-border: rgb(var(--stone-700) / 0.8);
+  --app-surface-blur: 0px;
+
+  --app-ring-color: rgb(var(--app-accent) / 0.4);
+  --app-ring-width: 1px;
+
+  --app-scrollbar-thumb: var(--stone-600);
+  --app-scrollbar-track: var(--stone-900);
+}
+
+:root,
+[data-app-theme="forest"] {
+  color-scheme: dark;
+
+  --app-bg: 5 7 5;
+  --app-canvas-bg: 10 11 10;
+  --app-shell-gradient: radial-gradient(
+      circle at 22% 28%,
+      rgba(125, 211, 252, 0.12),
+      transparent 34%
+    ),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.035), transparent 40%);
+  --app-accent: 190 242 100;
+  --app-accent-muted: 163 230 53;
+  --app-accent-on: 12 10 9;
+
+  --stone-50: 250 250 249;
+  --stone-100: 245 245 244;
+  --stone-200: 231 229 228;
+  --stone-300: 214 211 209;
+  --stone-400: 168 162 158;
+  --stone-500: 120 113 108;
+  --stone-600: 87 83 78;
+  --stone-700: 68 64 60;
+  --stone-800: 41 37 36;
+  --stone-900: 28 25 23;
+  --stone-950: 12 10 9;
+
+  --chat-user-bg: 47 56 40;
+  --chat-user-border: 74 86 66;
+  --chat-user-bg-hover: 56 68 50;
+  --chat-user-border-hover: 90 103 82;
+  --chat-user-ring: 90 103 82;
+}
+
+[data-app-theme="ember"] {
+  color-scheme: dark;
+
+  --app-bg: 21 19 16;
+  --app-canvas-bg: 28 26 23;
+  --app-shell-gradient: radial-gradient(
+      circle at 24% 26%,
+      rgba(251, 191, 36, 0.08),
+      transparent 36%
+    ),
+    linear-gradient(118deg, rgba(255, 248, 235, 0.04), transparent 42%);
+  --app-accent: 251 191 36;
+  --app-accent-muted: 245 158 11;
+  --app-accent-on: 23 21 18;
+
+  --stone-50: 250 249 247;
+  --stone-100: 241 239 235;
+  --stone-200: 226 222 216;
+  --stone-300: 202 196 188;
+  --stone-400: 168 160 150;
+  --stone-500: 130 122 112;
+  --stone-600: 100 93 84;
+  --stone-700: 82 77 71;
+  --stone-800: 55 51 46;
+  --stone-900: 35 32 28;
+  --stone-950: 23 21 18;
+
+  --chat-user-bg: 58 54 48;
+  --chat-user-border: 88 82 74;
+  --chat-user-bg-hover: 68 64 57;
+  --chat-user-border-hover: 108 100 90;
+  --chat-user-ring: 108 100 90;
+}
+
+[data-app-theme="sage"] {
+  color-scheme: dark;
+
+  --app-bg: 12 15 14;
+  --app-canvas-bg: 18 22 20;
+  --app-shell-gradient: radial-gradient(
+      circle at 20% 24%,
+      rgba(52, 211, 153, 0.09),
+      transparent 36%
+    ),
+    linear-gradient(116deg, rgba(220, 252, 231, 0.035), transparent 42%);
+  --app-accent: 52 211 153;
+  --app-accent-muted: 16 185 129;
+  --app-accent-on: 16 20 18;
+
+  --stone-50: 247 250 249;
+  --stone-100: 236 241 239;
+  --stone-200: 214 222 218;
+  --stone-300: 186 198 192;
+  --stone-400: 148 162 154;
+  --stone-500: 118 132 124;
+  --stone-600: 92 106 98;
+  --stone-700: 72 84 78;
+  --stone-800: 46 54 50;
+  --stone-900: 28 34 31;
+  --stone-950: 16 20 18;
+
+  --chat-user-bg: 36 48 42;
+  --chat-user-border: 58 74 66;
+  --chat-user-bg-hover: 44 58 51;
+  --chat-user-border-hover: 72 92 82;
+  --chat-user-ring: 72 92 82;
+}
+
+/*
+ * Light theme: stone scale is inverted so existing `bg-stone-950` / `text-stone-100`
+ * classes map to light surfaces and dark typography.
+ */
+[data-app-theme="parchment"] {
+  color-scheme: light;
+
+  --app-radius-md: 0.625rem;
+  --app-radius-lg: 0.875rem;
+  --app-radius-xl: 1.125rem;
+
+  --app-shadow-panel: 0 8px 28px rgba(40, 48, 42, 0.14);
+  --app-shadow-float: 0 3px 10px rgba(40, 48, 42, 0.1);
+
+  --app-nav-border: rgb(148 164 152 / 0.85);
+  --app-nav-chrome-shadow: inset -1px 0 0 rgb(13 148 136 / 0.18);
+  --app-header-border: rgb(148 164 152 / 0.75);
+  --app-header-chrome-shadow: inset 0 -1px 0 rgb(13 148 136 / 0.1);
+
+  --app-surface-bg: rgb(var(--stone-950) / 0.92);
+  --app-surface-border: rgb(var(--stone-700) / 0.65);
+
+  --app-bg: 200 204 196;
+  --app-canvas-bg: 188 194 184;
+  --app-shell-gradient: radial-gradient(
+      circle at 18% 22%,
+      rgba(13, 148, 136, 0.11),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 88% 78%,
+      rgba(180, 154, 108, 0.07),
+      transparent 36%
+    ),
+    linear-gradient(125deg, rgba(204, 251, 241, 0.22), transparent 52%);
+  --app-accent: 15 118 110;
+  --app-accent-muted: 13 148 136;
+  --app-accent-on: 236 253 245;
+
+  --stone-50: 12 10 9;
+  --stone-100: 28 25 23;
+  --stone-200: 41 37 34;
+  --stone-300: 61 57 52;
+  --stone-400: 82 78 72;
+  --stone-500: 92 98 90;
+  --stone-600: 112 120 110;
+  --stone-700: 138 148 136;
+  --stone-800: 164 176 166;
+  --stone-900: 206 214 204;
+  --stone-950: 222 228 216;
+
+  --chat-user-bg: 178 192 178;
+  --chat-user-border: 128 148 132;
+  --chat-user-bg-hover: 164 180 166;
+  --chat-user-border-hover: 108 132 116;
+  --chat-user-ring: 15 118 110;
+
+  --app-scrollbar-thumb: 138 148 136;
+  --app-scrollbar-track: 200 204 196;
+}
+
+[data-app-theme="midnight"] {
+  color-scheme: dark;
+
+  --app-shadow-panel: 0 14px 44px rgba(8, 16, 40, 0.55);
+  --app-shadow-float: 0 4px 16px rgba(30, 58, 138, 0.25);
+
+  --app-bg: 8 12 24;
+  --app-canvas-bg: 12 18 36;
+  --app-shell-gradient: radial-gradient(
+      circle at 20% 22%,
+      rgba(99, 102, 241, 0.14),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 82% 78%,
+      rgba(56, 189, 248, 0.08),
+      transparent 34%
+    ),
+    linear-gradient(120deg, rgba(129, 140, 248, 0.04), transparent 44%);
+  --app-accent: 129 140 248;
+  --app-accent-muted: 99 102 241;
+  --app-accent-on: 15 23 42;
+
+  --stone-50: 248 250 252;
+  --stone-100: 241 245 249;
+  --stone-200: 226 232 240;
+  --stone-300: 203 213 225;
+  --stone-400: 148 163 184;
+  --stone-500: 100 116 139;
+  --stone-600: 71 85 105;
+  --stone-700: 51 65 85;
+  --stone-800: 30 41 59;
+  --stone-900: 20 28 46;
+  --stone-950: 10 14 28;
+
+  --chat-user-bg: 36 44 72;
+  --chat-user-border: 58 68 102;
+  --chat-user-bg-hover: 44 54 88;
+  --chat-user-border-hover: 72 84 124;
+  --chat-user-ring: 99 102 241;
+}
+
+[data-app-theme="obsidian"] {
+  color-scheme: dark;
+
+  --app-radius-sm: 0.25rem;
+  --app-radius-md: 0.375rem;
+  --app-radius-lg: 0.5rem;
+  --app-radius-xl: 0.625rem;
+
+  --app-shadow-panel: none;
+  --app-shadow-float: none;
+  --app-shadow-inset: none;
+
+  --app-nav-border: rgb(var(--stone-800) / 0.95);
+  --app-header-border: rgb(var(--stone-800) / 0.95);
+
+  --app-surface-bg: rgb(var(--stone-950));
+  --app-surface-border: rgb(var(--stone-800));
+
+  --app-bg: 0 0 0;
+  --app-canvas-bg: 4 4 4;
+  --app-shell-gradient: linear-gradient(
+    180deg,
+    rgba(34, 211, 238, 0.03),
+    transparent 28%
+  );
+  --app-accent: 34 211 238;
+  --app-accent-muted: 6 182 212;
+  --app-accent-on: 0 0 0;
+
+  --stone-50: 250 250 250;
+  --stone-100: 245 245 245;
+  --stone-200: 229 229 229;
+  --stone-300: 212 212 212;
+  --stone-400: 163 163 163;
+  --stone-500: 115 115 115;
+  --stone-600: 82 82 82;
+  --stone-700: 64 64 64;
+  --stone-800: 38 38 38;
+  --stone-900: 23 23 23;
+  --stone-950: 10 10 10;
+
+  --chat-user-bg: 23 23 23;
+  --chat-user-border: 64 64 64;
+  --chat-user-bg-hover: 38 38 38;
+  --chat-user-border-hover: 82 82 82;
+  --chat-user-ring: 34 211 238;
+}
+
+[data-app-theme="sepia"] {
+  color-scheme: dark;
+
+  --app-radius-sm: 0.5rem;
+  --app-radius-md: 0.75rem;
+  --app-radius-lg: 1rem;
+  --app-radius-xl: 1.25rem;
+
+  --app-shadow-panel: 0 10px 36px rgba(40, 24, 12, 0.42);
+  --app-shadow-float: 0 4px 14px rgba(68, 44, 24, 0.28);
+  --app-shadow-inset: inset 0 1px 0 rgba(255, 236, 210, 0.06);
+
+  --app-bg: 24 18 14;
+  --app-canvas-bg: 32 24 18;
+  --app-shell-gradient: radial-gradient(
+      circle at 18% 20%,
+      rgba(217, 119, 87, 0.1),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 86% 82%,
+      rgba(180, 130, 70, 0.07),
+      transparent 34%
+    ),
+    linear-gradient(125deg, rgba(255, 228, 196, 0.035), transparent 48%);
+  --app-accent: 217 119 87;
+  --app-accent-muted: 194 92 58;
+  --app-accent-on: 28 20 14;
+
+  --stone-50: 250 247 242;
+  --stone-100: 241 233 224;
+  --stone-200: 224 211 196;
+  --stone-300: 196 178 156;
+  --stone-400: 162 142 118;
+  --stone-500: 130 110 88;
+  --stone-600: 102 84 66;
+  --stone-700: 82 66 52;
+  --stone-800: 58 46 36;
+  --stone-900: 38 30 24;
+  --stone-950: 22 18 14;
+
+  --chat-user-bg: 52 40 32;
+  --chat-user-border: 82 64 50;
+  --chat-user-bg-hover: 64 50 40;
+  --chat-user-border-hover: 102 80 62;
+  --chat-user-ring: 194 92 58;
+}
+
+[data-app-theme="signal"] {
+  color-scheme: dark;
+
+  --app-radius-sm: 0.25rem;
+  --app-radius-md: 0.375rem;
+  --app-radius-lg: 0.5rem;
+  --app-radius-xl: 0.625rem;
+
+  --app-shadow-panel: 0 6px 0 rgba(0, 0, 0, 0.65);
+  --app-shadow-float: 0 3px 0 rgba(0, 0, 0, 0.5);
+
+  --app-nav-border: rgb(var(--stone-600));
+  --app-header-border: rgb(var(--stone-600));
+
+  --app-surface-bg: rgb(var(--stone-950));
+  --app-surface-border: rgb(var(--stone-500) / 0.85);
+
+  --app-ring-width: 2px;
+  --app-ring-color: rgb(var(--app-accent) / 0.75);
+
+  --app-bg: 4 4 4;
+  --app-canvas-bg: 8 8 8;
+  --app-shell-gradient: linear-gradient(
+    135deg,
+    rgba(251, 113, 133, 0.06),
+    transparent 42%
+  );
+  --app-accent: 251 113 133;
+  --app-accent-muted: 244 63 94;
+  --app-accent-on: 4 4 4;
+
+  --stone-50: 255 255 255;
+  --stone-100: 245 245 245;
+  --stone-200: 212 212 212;
+  --stone-300: 163 163 163;
+  --stone-400: 115 115 115;
+  --stone-500: 82 82 82;
+  --stone-600: 64 64 64;
+  --stone-700: 48 48 48;
+  --stone-800: 32 32 32;
+  --stone-900: 20 20 20;
+  --stone-950: 8 8 8;
+
+  --chat-user-bg: 32 32 32;
+  --chat-user-border: 82 82 82;
+  --chat-user-bg-hover: 48 48 48;
+  --chat-user-border-hover: 115 115 115;
+  --chat-user-ring: 251 113 133;
+}
+
+[data-app-theme="rainy_night"] {
+  color-scheme: dark;
+
+  --app-bg: 2 2 2;
+  --app-canvas-bg: 6 6 6;
+  --app-shell-gradient: radial-gradient(
+      ellipse 90% 70% at 50% 100%,
+      rgba(15, 23, 42, 0.35) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 55% 40% at 18% 12%,
+      rgba(30, 41, 59, 0.18) 0%,
+      transparent 70%
+    ),
+    linear-gradient(168deg, #020202 0%, #060606 46%, #0c0c0c 100%);
+  --app-accent: 191 219 254;
+  --app-accent-muted: 125 211 252;
+  --app-accent-on: 2 6 23;
+
+  --stone-50: 248 250 252;
+  --stone-100: 241 245 249;
+  --stone-200: 226 232 240;
+  --stone-300: 203 213 225;
+  --stone-400: 148 163 184;
+  --stone-500: 100 116 139;
+  --stone-600: 71 85 105;
+  --stone-700: 51 65 85;
+  --stone-800: 30 41 59;
+  --stone-900: 15 23 42;
+  --stone-950: 2 6 23;
+
+  --chat-user-bg: 15 23 42;
+  --chat-user-border: 51 65 85;
+  --chat-user-bg-hover: 30 41 59;
+  --chat-user-border-hover: 71 85 105;
+  --chat-user-ring: 125 211 252;
+}

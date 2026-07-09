@@ -1,0 +1,1 @@
+export { CoakTagsTab } from "./CoakTagsTab";

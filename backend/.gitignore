@@ -1,0 +1,45 @@
+# keel_api/.gitignore
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Editor and local workspace files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local environment and secrets
+.env
+.env.*
+
+# Logs and runtime output
+*.log
+logs/
+tmp/
+temp/
+
+# Python virtualenv and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Coverage and test artifacts
+.coverage
+htmlcov/
+coverage/
+
+# Runtime media and data (paths set via env on the server)
+data/
+backups/
+scripts/db/seed/assets/
+
+# Docker volume artifacts (local only)
+pgdata/
+
+/backups

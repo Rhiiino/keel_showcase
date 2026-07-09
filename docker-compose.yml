@@ -1,0 +1,168 @@
+# keel_showcase/docker-compose.yml
+# Postgres + Garage + Redis + API + Celery worker/beat.
+# Usage: docker compose --env-file backend/.env up --build -d
+
+x-keel-app-build: &keel-app-build
+  context: ./backend
+  dockerfile: Dockerfile
+  args:
+    INSTALL_PLAYWRIGHT_CHROMIUM: ${INSTALL_PLAYWRIGHT_CHROMIUM:-0}
+
+x-keel-app-env: &keel-app-env
+  DATABASE_URL: postgresql://${POSTGRES_USER:-keel}:${POSTGRES_PASSWORD:-keel}@db:5432/${POSTGRES_DB:-keel}
+  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+  GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+  GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:9092/auth/google/callback}
+  GOOGLE_GMAIL_REDIRECT_URI: ${GOOGLE_GMAIL_REDIRECT_URI:-http://localhost:9092/email/gmail/callback}
+  FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+  CORS_EXTRA_ORIGINS: ${CORS_EXTRA_ORIGINS:-}
+  SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-keel_session}
+  SESSION_SECRET: ${SESSION_SECRET:-}
+  SESSION_TTL_SECONDS: ${SESSION_TTL_SECONDS:-604800}
+  MAX_ACTIVE_SESSIONS: ${MAX_ACTIVE_SESSIONS:-5}
+  SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+  SESSION_COOKIE_SAMESITE: ${SESSION_COOKIE_SAMESITE:-lax}
+  SESSION_COOKIE_DOMAIN: ${SESSION_COOKIE_DOMAIN:-}
+  CHAT_LLM_PROVIDER: ${CHAT_LLM_PROVIDER:-openai}
+  CHAT_MAX_TOOL_ITERATIONS: ${CHAT_MAX_TOOL_ITERATIONS:-5}
+  OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+  MOONSHOT_API_KEY: ${MOONSHOT_API_KEY:-}
+  MOONSHOT_BASE_URL: ${MOONSHOT_BASE_URL:-}
+  TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+  OBSIDIAN_VAULT_PATH: ${OBSIDIAN_VAULT_PATH:-}
+  S3_ENDPOINT_URL: http://garage:3900
+  S3_BUCKET: ${S3_BUCKET:-keel-media}
+  S3_ACCESS_KEY: ${S3_ACCESS_KEY:-}
+  S3_SECRET_KEY: ${S3_SECRET_KEY:-}
+  S3_REGION: ${S3_REGION:-garage}
+  S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-true}
+  HAUL_PLAYWRIGHT_ENABLED: ${HAUL_PLAYWRIGHT_ENABLED:-false}
+  CATALOG_ASSETS_PATH: ${CATALOG_ASSETS_PATH:-/app/assets/catalog}
+  JOBS_ENABLED: ${JOBS_ENABLED:-true}
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+  CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+  CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-2}
+  BACKUP_DIR: ${BACKUP_DIR:-/app/backups/local}
+
+x-keel-app-volumes: &keel-app-volumes
+  - ./backend/assets/catalog:${CATALOG_ASSETS_PATH:-/app/assets/catalog}:ro
+  - ./backend/scripts:/app/scripts:ro
+  - ${BACKUP_HOST_DIR:-./backend/backups/local}:${BACKUP_DIR:-/app/backups/local}
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: keel_showcase_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-keel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-keel}
+      POSTGRES_DB: ${POSTGRES_DB:-keel}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5434}:5432"
+    volumes:
+      - keel_showcase_pgdata:/var/lib/postgresql/data
+      - ./backend/scripts/db/init/001_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./backend/scripts/db/seed/sql/010_catalog.sql:/docker-entrypoint-initdb.d/02_catalog.sql:ro
+      - ./backend/scripts/db/seed/sql/011_home_quotes.sql:/docker-entrypoint-initdb.d/03_home_quotes.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-keel} -d ${POSTGRES_DB:-keel}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: keel_showcase_redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  garage:
+    image: dxflrs/garage:v2.3.0
+    container_name: keel_showcase_garage
+    restart: unless-stopped
+    environment:
+      GARAGE_CONFIG_FILE: /etc/garage.toml
+      GARAGE_DEFAULT_ACCESS_KEY: ${S3_ACCESS_KEY}
+      GARAGE_DEFAULT_SECRET_KEY: ${S3_SECRET_KEY}
+      GARAGE_DEFAULT_BUCKET: ${S3_BUCKET:-keel-media}
+    volumes:
+      - ./backend/config/garage.toml:/etc/garage.toml:ro
+      - keel_showcase_garage_meta:/var/lib/garage/meta
+      - keel_showcase_garage_data:/var/lib/garage/data
+    ports:
+      - "127.0.0.1:${GARAGE_S3_PORT:-3901}:3900"
+      - "127.0.0.1:${GARAGE_ADMIN_PORT:-3904}:3903"
+    command: ["/garage", "server", "--single-node", "--default-bucket"]
+
+  api:
+    build: *keel-app-build
+    container_name: keel_showcase_api
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      <<: *keel-app-env
+    ports:
+      - "127.0.0.1:${API_PORT:-9092}:8000"
+    volumes: *keel-app-volumes
+    depends_on:
+      db:
+        condition: service_healthy
+      garage:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  worker:
+    build: *keel-app-build
+    container_name: keel_showcase_worker
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      <<: *keel-app-env
+    command:
+      [
+        "/bin/sh",
+        "-c",
+        "celery -A modules.jobs.celery_app worker --loglevel=info -Q default,heavy --concurrency=$${CELERY_WORKER_CONCURRENCY:-2}",
+      ]
+    volumes: *keel-app-volumes
+    depends_on:
+      db:
+        condition: service_healthy
+      garage:
+        condition: service_started
+      redis:
+        condition: service_healthy
+
+  beat:
+    build: *keel-app-build
+    container_name: keel_showcase_beat
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      <<: *keel-app-env
+    command:
+      [
+        "celery",
+        "-A",
+        "modules.jobs.celery_app",
+        "beat",
+        "--loglevel=info",
+      ]
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  keel_showcase_pgdata:
+  keel_showcase_garage_meta:
+  keel_showcase_garage_data:

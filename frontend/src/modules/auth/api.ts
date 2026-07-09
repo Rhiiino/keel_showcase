@@ -3,7 +3,7 @@
 // Auth module API layer: CurrentUser type, TanStack Query keys, and fetch helpers
 // for session check (GET /auth/me), logout, and Google login URL.
 
-import { apiFetch } from "../../lib/api";
+import { ApiError, apiFetch } from "../../lib/api";
 
 export type CurrentUser = {
   id: number;
@@ -46,6 +46,28 @@ export function fetchCurrentUserWithTimeout(signal?: AbortSignal): Promise<Curre
     clearTimeout(timeoutId);
     signal?.removeEventListener("abort", onAbort);
   });
+}
+
+/** Session probe for auth gates: 401 means "not signed in", not a failed query. */
+export async function fetchAuthSessionUser(
+  signal?: AbortSignal,
+): Promise<CurrentUser | null> {
+  try {
+    return await fetchCurrentUserWithTimeout(signal);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+/** Avoid retrying expected unauthenticated responses from GET /auth/me. */
+export function authSessionQueryRetry(failureCount: number, error: unknown): boolean {
+  if (error instanceof ApiError && error.status === 401) {
+    return false;
+  }
+  return failureCount < 1;
 }
 
 export type UpdateCurrentUserPayload = {

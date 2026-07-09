@@ -72,7 +72,22 @@ npm install
 npm run dev
 ```
 
-Dev server: `http://127.0.0.1:5173`
+Dev server: `http://127.0.0.1:5173` (or `5177` when using the public-domain dev setup below)
+
+### Dev server on the public domain
+
+Caddy forwards `https://keel.themidhunraj.com` → `127.0.0.1:5177`. To use `npm run dev` on that URL with hot reload:
+
+1. Run on the **same VPS** as Caddy (not your local laptop).
+2. Stop preview: `pkill -f "vite preview.*5177" || true`
+3. In `frontend/.env`:
+   ```env
+   VITE_DEV_PORT=5177
+   VITE_DEV_PUBLIC_ORIGIN=https://keel.themidhunraj.com
+   ```
+4. `npm run dev`
+
+When finished, stop dev (Ctrl+C) and restart preview if you want the production build served again.
 
 ### Production preview
 

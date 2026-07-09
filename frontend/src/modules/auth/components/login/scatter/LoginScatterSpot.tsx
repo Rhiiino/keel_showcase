@@ -7,6 +7,7 @@ import { useKeelClipMediaReady } from "../../../../../hooks/keelPersona";
 import {
   LOGIN_SCATTER_PERSONA_SIZE_PX,
   LOGIN_SCATTER_TELEPORT_MS,
+  type LoginScatterQuadrant,
 } from "../../../lib/loginScatterPlacement";
 import { LoginScatterClipDescriptor } from "./LoginScatterClipDescriptor";
 
@@ -15,6 +16,7 @@ export type LoginScatterSpotPhase = "entering" | "playing" | "teleporting-out";
 export type LoginScatterSpotState = {
   key: number;
   clipId: string;
+  quadrant: LoginScatterQuadrant;
   x: number;
   y: number;
   phase: LoginScatterSpotPhase;

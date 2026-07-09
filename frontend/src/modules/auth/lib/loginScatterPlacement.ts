@@ -1,16 +1,33 @@
 // keel_web/src/modules/auth/lib/loginScatterPlacement.ts
 
-// Random viewport placement for scatter login persona spots (avoids center + edges).
+// Viewport placement for scatter login persona spots (quadrant figure-8 + intro sailor).
 
 export const LOGIN_SCATTER_PERSONA_SIZE_PX = 130;
+export const LOGIN_SCATTER_INTRO_SAILOR_SIZE_PX = 172;
 export const LOGIN_SCATTER_HEAD_OVERFLOW_RATIO = 0.28;
-export const LOGIN_SCATTER_TELEPORT_MS = 400;
+export const LOGIN_SCATTER_TELEPORT_MS = 600;
 /** How long each spot plays at rest after arrival, before teleporting to the next position. */
-export const LOGIN_SCATTER_PLAY_MS = 5000;
+export const LOGIN_SCATTER_PLAY_MS = 7500;
 export const LOGIN_SCATTER_EDGE_PADDING_PX = 20;
 export const LOGIN_SCATTER_MIN_SEPARATION_PX = 140;
 export const LOGIN_SCATTER_DESCRIPTOR_GAP_PX = 12;
 export const LOGIN_SCATTER_DESCRIPTOR_MAX_WIDTH_PX = 176;
+
+export type LoginScatterQuadrant = "tl" | "tr" | "bl" | "br";
+
+const DIAGONAL_QUADRANT: Record<LoginScatterQuadrant, LoginScatterQuadrant> = {
+  tl: "br",
+  br: "tl",
+  tr: "bl",
+  bl: "tr",
+};
+
+const SAME_COLUMN_QUADRANT: Record<LoginScatterQuadrant, LoginScatterQuadrant> = {
+  tl: "bl",
+  bl: "tl",
+  tr: "br",
+  br: "tr",
+};
 
 export type ViewportSize = {
   width: number;
@@ -88,6 +105,121 @@ function distanceBetween(
   const dx = a.x - b.x;
   const dy = a.y - b.y;
   return Math.hypot(dx, dy);
+}
+
+function pickRandomQuadrant(): LoginScatterQuadrant {
+  const quadrants: LoginScatterQuadrant[] = ["tl", "tr", "bl", "br"];
+  return quadrants[Math.floor(Math.random() * quadrants.length)]!;
+}
+
+/** Sideways figure-8: random start, then diagonal → same column → diagonal → … */
+export function resolveNextLoginScatterQuadrant(
+  previous: LoginScatterQuadrant | null,
+  step: number,
+): LoginScatterQuadrant {
+  if (previous === null || step === 0) {
+    return pickRandomQuadrant();
+  }
+
+  return step % 2 === 1
+    ? DIAGONAL_QUADRANT[previous]
+    : SAME_COLUMN_QUADRANT[previous];
+}
+
+function quadrantBounds(
+  viewport: ViewportSize,
+  quadrant: LoginScatterQuadrant,
+  sizePx: number,
+  edgePadding: number,
+): { minX: number; maxX: number; minY: number; maxY: number } | null {
+  const halfWidth = loginScatterClusterHalfWidthPx(sizePx);
+  const halfHeight = loginScatterDisplayHeightPx(sizePx) / 2;
+
+  const minX = edgePadding + halfWidth;
+  const maxX = viewport.width - edgePadding - halfWidth;
+  const minY = edgePadding + halfHeight;
+  const maxY = viewport.height - edgePadding - halfHeight;
+
+  if (minX >= maxX || minY >= maxY) {
+    return null;
+  }
+
+  const midX = viewport.width / 2;
+  const midY = viewport.height / 2;
+
+  switch (quadrant) {
+    case "tl":
+      return { minX, maxX: Math.min(maxX, midX), minY, maxY: Math.min(maxY, midY) };
+    case "tr":
+      return { minX: Math.max(minX, midX), maxX, minY, maxY: Math.min(maxY, midY) };
+    case "bl":
+      return { minX, maxX: Math.min(maxX, midX), minY: Math.max(minY, midY), maxY };
+    case "br":
+      return { minX: Math.max(minX, midX), maxX, minY: Math.max(minY, midY), maxY };
+  }
+}
+
+/** Centered above the KEEL title for the intro sailor beat. */
+export function pickLoginScatterIntroSailorPosition(
+  viewport: ViewportSize,
+  sizePx = LOGIN_SCATTER_INTRO_SAILOR_SIZE_PX,
+): { x: number; y: number } {
+  const halfHeight = loginScatterDisplayHeightPx(sizePx) / 2;
+  const edgePadding = LOGIN_SCATTER_EDGE_PADDING_PX;
+  const targetY = viewport.height * 0.38;
+  const minY = edgePadding + halfHeight;
+  const maxY = viewport.height - edgePadding - halfHeight;
+
+  return {
+    x: viewport.width / 2,
+    y: Math.min(Math.max(targetY, minY), maxY),
+  };
+}
+
+export function pickLoginScatterPositionInQuadrant(
+  viewport: ViewportSize,
+  quadrant: LoginScatterQuadrant,
+  options?: {
+    sizePx?: number;
+    edgePadding?: number;
+    avoidCenter?: { x: number; y: number };
+    minSeparationPx?: number;
+  },
+): { x: number; y: number } {
+  const sizePx = options?.sizePx ?? LOGIN_SCATTER_PERSONA_SIZE_PX;
+  const edgePadding = options?.edgePadding ?? LOGIN_SCATTER_EDGE_PADDING_PX;
+  const minSeparationPx =
+    options?.minSeparationPx ?? LOGIN_SCATTER_MIN_SEPARATION_PX;
+  const exclusion = loginScatterCenterExclusionRect(viewport);
+  const bounds = quadrantBounds(viewport, quadrant, sizePx, edgePadding);
+
+  if (!bounds || bounds.minX >= bounds.maxX || bounds.minY >= bounds.maxY) {
+    return pickLoginScatterPosition(viewport, options);
+  }
+
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    const x = bounds.minX + Math.random() * (bounds.maxX - bounds.minX);
+    const y = bounds.minY + Math.random() * (bounds.maxY - bounds.minY);
+    const personaBounds = personaBoundsAt(x, y, sizePx);
+
+    if (rectsOverlap(personaBounds, exclusion)) {
+      continue;
+    }
+
+    if (
+      options?.avoidCenter &&
+      distanceBetween({ x, y }, options.avoidCenter) < minSeparationPx
+    ) {
+      continue;
+    }
+
+    return { x, y };
+  }
+
+  return {
+    x: (bounds.minX + bounds.maxX) / 2,
+    y: (bounds.minY + bounds.maxY) / 2,
+  };
 }
 
 export function pickLoginScatterPosition(

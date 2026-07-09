@@ -3,6 +3,7 @@
 // Gray gradient login with scattered Keel Persona animations around the viewport.
 
 import { LoginScatterAmbience } from "../../components/login/scatter/LoginScatterAmbience";
+import { ScatterLoginTitle } from "../../components/login/scatter/ScatterLoginTitle";
 import { EnterButton } from "../../components/EnterButton";
 
 export function ScatterLoginScreen() {
@@ -13,9 +14,7 @@ export function ScatterLoginScreen() {
       <LoginScatterAmbience />
 
       <div className="relative z-10 flex flex-col items-center gap-8">
-        <p className="font-mono text-3xl font-bold uppercase tracking-[0.38em] text-lime-300 sm:text-4xl sm:tracking-[0.42em]">
-          K E E L
-        </p>
+        <ScatterLoginTitle />
         <EnterButton />
       </div>
     </main>

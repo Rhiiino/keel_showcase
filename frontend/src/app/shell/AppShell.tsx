@@ -9,8 +9,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import {
   authKeys,
+  authSessionQueryRetry,
   CURRENT_USER_STALE_TIME_MS,
-  fetchCurrentUserWithTimeout,
+  fetchAuthSessionUser,
   logout,
   type CurrentUser,
 } from "../../modules/auth/api";
@@ -37,9 +38,10 @@ export function AppShell() {
 
   const { data: user } = useQuery({
     queryKey: authKeys.me(),
-    queryFn: ({ signal }) => fetchCurrentUserWithTimeout(signal),
+    queryFn: ({ signal }) => fetchAuthSessionUser(signal),
     staleTime: CURRENT_USER_STALE_TIME_MS,
     refetchOnWindowFocus: false,
+    retry: authSessionQueryRetry,
   });
 
   const logoutMutation = useMutation({

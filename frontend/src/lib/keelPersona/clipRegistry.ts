@@ -22,11 +22,17 @@ export function listKeelClips(): KeelAnimationClip[] {
 
 export function pickRandomKeelClipId(
   candidates: readonly KeelAnimationClip[] = listKeelClips(),
+  excludeClipId?: string,
 ): string {
   if (candidates.length === 0) {
     throw new Error("No Keel Persona clips registered");
   }
 
-  const index = Math.floor(Math.random() * candidates.length);
-  return candidates[index]!.id;
+  const pool =
+    excludeClipId !== undefined && candidates.length > 1
+      ? candidates.filter((clip) => clip.id !== excludeClipId)
+      : candidates;
+
+  const index = Math.floor(Math.random() * pool.length);
+  return pool[index]!.id;
 }

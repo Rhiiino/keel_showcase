@@ -9,8 +9,9 @@ import { InlineSaveDiscardActions } from "../../../components/InlineSaveDiscardA
 import { AppShellContent } from "../../../app/shell/AppShellContent";
 import {
   authKeys,
+  authSessionQueryRetry,
   CURRENT_USER_STALE_TIME_MS,
-  fetchCurrentUserWithTimeout,
+  fetchAuthSessionUser,
   patchCurrentUser,
 } from "../../auth/api";
 import { SettingsPageTabs } from "../components/SettingsPageTabs";
@@ -53,9 +54,10 @@ export function SettingsPage() {
 
   const { data: user } = useQuery({
     queryKey: authKeys.me(),
-    queryFn: ({ signal }) => fetchCurrentUserWithTimeout(signal),
+    queryFn: ({ signal }) => fetchAuthSessionUser(signal),
     staleTime: CURRENT_USER_STALE_TIME_MS,
     refetchOnWindowFocus: false,
+    retry: authSessionQueryRetry,
   });
 
   const [nameDraft, setNameDraft] = useState("");

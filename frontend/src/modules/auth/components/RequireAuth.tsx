@@ -6,20 +6,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { Navigate, Outlet } from "react-router-dom";
 
-import { ApiError } from "../../../lib/api";
 import {
   authKeys,
+  authSessionQueryRetry,
   CURRENT_USER_STALE_TIME_MS,
-  fetchCurrentUserWithTimeout,
+  fetchAuthSessionUser,
 } from "../api";
 
 export function RequireAuth() {
-  const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
+  const { data: user, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: authKeys.me(),
-    queryFn: ({ signal }) => fetchCurrentUserWithTimeout(signal),
+    queryFn: ({ signal }) => fetchAuthSessionUser(signal),
     staleTime: CURRENT_USER_STALE_TIME_MS,
     refetchOnWindowFocus: false,
-    retry: 2,
+    retry: authSessionQueryRetry,
   });
 
   if (isLoading) {
@@ -30,12 +30,12 @@ export function RequireAuth() {
     );
   }
 
-  if (error instanceof ApiError && error.status === 401) {
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
   // Keep the shell mounted when a background refetch fails but we already have a session.
-  if (isError && !data) {
+  if (isError) {
     const timedOut = error instanceof DOMException && error.name === "AbortError";
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-app px-6 text-center text-stone-300">

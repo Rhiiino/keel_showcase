@@ -7,8 +7,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   authKeys,
+  authSessionQueryRetry,
   CURRENT_USER_STALE_TIME_MS,
-  fetchCurrentUserWithTimeout,
+  fetchAuthSessionUser,
 } from "../../../auth/api";
 import { contactsQueryKeys, fetchContact } from "../../../people/contacts/api";
 import { HomeAliveTimer } from "./HomeAliveTimer";
@@ -43,9 +44,10 @@ export function HomeAliveTimerCard() {
 
   const userQuery = useQuery({
     queryKey: authKeys.me(),
-    queryFn: ({ signal }) => fetchCurrentUserWithTimeout(signal),
+    queryFn: ({ signal }) => fetchAuthSessionUser(signal),
     staleTime: CURRENT_USER_STALE_TIME_MS,
     refetchOnWindowFocus: false,
+    retry: authSessionQueryRetry,
   });
 
   const contactId = userQuery.data?.contact_id ?? null;

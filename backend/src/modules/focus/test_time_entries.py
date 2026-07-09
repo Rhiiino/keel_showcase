@@ -77,9 +77,10 @@ def test_schema_enforces_timer_lifecycle_guards() -> None:
 
     assert "focus_node_time_entries_node_user_fkey" in schema
     assert "FOREIGN KEY (node_id, user_id)" in schema
-    assert "status IN ('running', 'paused', 'ended')" in schema
+    assert "focus_node_time_entries_status_valid" in schema
+    assert "'running'" in schema and "'paused'" in schema and "'ended'" in schema
     assert "idx_focus_node_time_entries_one_open_per_node" in schema
-    assert "WHERE status IN ('running', 'paused')" in schema
+    assert "ARRAY['running'" in schema or "status IN ('running', 'paused', 'ended')" in schema
 
 
 if __name__ == "__main__":

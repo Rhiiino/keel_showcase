@@ -209,25 +209,15 @@ export function KeelPersonaPlayer({
     );
   }, [excludedGroupSet, loadingPlayback, previewElements, wobbleActive]);
 
-  // Wobble-excluded props (e.g. cake) render in a static overlay so they do not
-  // ride the body wobble. In loading playback, `previewElements` are still the
-  // promoted base (accessories default to visible: false) — the WAAPI timeline
-  // would reveal them on motion nodes, but excluded groups are pulled out of
-  // that tree. Force them visible here so the overlay actually mounts them.
   const staticElements = useMemo(() => {
     if (!wobbleActive || excludedGroupSet.size === 0) {
       return [];
     }
 
-    return previewElements
-      .filter((element) => {
-        if (!element.groupId || !excludedGroupSet.has(element.groupId)) {
-          return false;
-        }
-        return loadingPlayback || element.visible;
-      })
-      .map((element) => (element.visible ? element : { ...element, visible: true }));
-  }, [excludedGroupSet, loadingPlayback, previewElements, wobbleActive]);
+    return previewElements.filter(
+      (element) => element.visible && element.groupId && excludedGroupSet.has(element.groupId),
+    );
+  }, [excludedGroupSet, previewElements, wobbleActive]);
 
   const straightGazeVisible = useMemo(
     () =>
@@ -306,14 +296,7 @@ export function KeelPersonaPlayer({
       >
         <div
           ref={stageRef}
-          className={[
-            "keel-persona-player-stage absolute left-0 origin-top-left",
-            // Loading mode waits for WAAPI setup before revealing; standard stepped
-            // playback has no such gate and must mark ready immediately.
-            loadingPlayback ? "" : "keel-persona-compositor-ready",
-          ]
-            .filter(Boolean)
-            .join(" ")}
+          className="keel-persona-player-stage absolute left-0 origin-top-left"
           style={{
             top: headOverflowPx,
             width: designSizePx,

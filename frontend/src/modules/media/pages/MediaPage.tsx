@@ -222,7 +222,7 @@ export function MediaPage() {
       recordCount={
         contentsQuery.data ? folders.length + media.length : undefined
       }
-      subtitle="Files stored in your Garage (S3) bucket."
+      subtitle="Files stored in your Garage bucket."
       actions={
         <>
           <MediaViewToggle viewMode={viewMode} onChange={handleViewModeChange} />

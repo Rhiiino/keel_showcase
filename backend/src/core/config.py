@@ -44,6 +44,8 @@ class Settings(BaseSettings):
 
     tavily_api_key: str = ""
 
+    obsidian_vault_path: str = ""
+
     s3_endpoint_url: str = ""
     s3_bucket: str = ""
     s3_access_key: str = ""
@@ -53,7 +55,6 @@ class Settings(BaseSettings):
 
     haul_playwright_enabled: bool = False
     catalog_assets_path: str = ""
-    catalog_uploads_path: str = ""
 
     connector_token_ttl_seconds: int = 3600
 
@@ -64,11 +65,6 @@ class Settings(BaseSettings):
     celery_worker_concurrency: int = 2
 
     backup_dir: str = "/app/backups/local"
-
-    demo_reset_enabled: bool = False
-    demo_reset_snapshot_dir: str = "/app/backups/demo-baseline"
-    demo_reset_hour: int = 0
-    demo_reset_minute: int = 0
 
     recently_deleted_retention_days: int = 30
 

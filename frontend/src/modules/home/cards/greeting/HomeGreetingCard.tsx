@@ -18,9 +18,8 @@ import {
 } from "../../../settings/api";
 import {
   authKeys,
-  authSessionQueryRetry,
   CURRENT_USER_STALE_TIME_MS,
-  fetchAuthSessionUser,
+  fetchCurrentUserWithTimeout,
 } from "../../../auth/api";
 import {
   greetingFontPickerDimensions,
@@ -29,22 +28,14 @@ import {
 } from "../../lib/greetingFontSize";
 import { HomeGreetingFontSizeControl } from "./HomeGreetingFontSizeControl";
 
-const greetingControlsRevealClass = [
-  "opacity-0 pointer-events-none transition-opacity duration-200",
-  "group-hover/greeting:opacity-100 group-hover/greeting:pointer-events-auto",
-  "group-focus-within/greeting:opacity-100 group-focus-within/greeting:pointer-events-auto",
-  "has-[[data-open=true]]:opacity-100 has-[[data-open=true]]:pointer-events-auto",
-].join(" ");
-
 export function HomeGreetingCard() {
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: authKeys.me(),
-    queryFn: ({ signal }) => fetchAuthSessionUser(signal),
+    queryFn: ({ signal }) => fetchCurrentUserWithTimeout(signal),
     staleTime: CURRENT_USER_STALE_TIME_MS,
     refetchOnWindowFocus: false,
-    retry: authSessionQueryRetry,
   });
 
   const settingsQuery = useQuery({
@@ -90,30 +81,28 @@ export function HomeGreetingCard() {
   const greetingText = greetingName ? `Welcome, ${greetingName}` : "Welcome";
 
   return (
-    <div className="group/greeting relative inline-flex max-w-full items-center">
-      <div
-        className={[
-          "absolute top-1/2 right-full mr-1.5 -translate-y-1/2",
-          "flex flex-col items-center gap-1",
-          greetingControlsRevealClass,
-        ].join(" ")}
-        data-home-card-no-drag
-      >
-        <ProjectDetailInlineTitleFontPicker
-          titleFontDraft={greetingFontKey}
-          onTitleFontDraftChange={(nextFont) => saveFontMutation.mutate(nextFont)}
-          disabled={settingsBusy}
-          alwaysVisible
-          menuAlign="left"
-          triggerDimensions={fontPickerDimensions}
-        />
-
+    <div className="group/greeting inline-flex max-w-full items-center gap-1.5">
+      <div className="relative flex shrink-0 items-center">
         <HomeGreetingFontSizeControl
           fontSizePx={greetingFontSizePx}
           disabled={settingsBusy}
-          revealOnHover={false}
           onChange={(nextFontSizePx) => saveFontSizeMutation.mutate(nextFontSizePx)}
+          className="absolute top-1/2 right-full mr-1.5 -translate-y-1/2"
         />
+
+        <div
+          className="flex items-center justify-center"
+          style={{ width: fontPickerDimensions.buttonSizePx }}
+        >
+          <ProjectDetailInlineTitleFontPicker
+            titleFontDraft={greetingFontKey}
+            onTitleFontDraftChange={(nextFont) => saveFontMutation.mutate(nextFont)}
+            disabled={settingsBusy}
+            alwaysVisible
+            menuAlign="left"
+            triggerDimensions={fontPickerDimensions}
+          />
+        </div>
       </div>
 
       <h1

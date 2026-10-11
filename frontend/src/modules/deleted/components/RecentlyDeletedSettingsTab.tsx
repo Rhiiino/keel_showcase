@@ -42,7 +42,7 @@ export function RecentlyDeletedSettingsTab() {
   const actionError = restoreMutation.error ?? purgeMutation.error;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
       <div>
         <h2 className="text-base font-semibold text-stone-100">Recently Deleted</h2>
         <p className="mt-1 text-sm text-stone-500">

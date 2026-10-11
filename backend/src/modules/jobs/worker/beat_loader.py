@@ -9,7 +9,6 @@ from typing import Any
 
 import redis
 from celery.beat import PersistentScheduler
-from celery.schedules import crontab
 from celery.signals import beat_init
 
 from core.config import get_settings
@@ -71,25 +70,6 @@ def _build_beat_schedule(rows: list[Any]) -> dict[str, dict[str, object]]:
     return beat_schedule
 
 
-def _merge_demo_reset_schedule(
-    beat_schedule: dict[str, dict[str, object]],
-    settings: object,
-) -> None:
-    from core.config import Settings
-
-    if not isinstance(settings, Settings) or not settings.demo_reset_enabled:
-        return
-
-    beat_schedule["demo-reset-midnight"] = {
-        "task": jobs_config.TASK_RESTORE_DEMO_SNAPSHOT,
-        "schedule": crontab(
-            minute=settings.demo_reset_minute,
-            hour=settings.demo_reset_hour,
-        ),
-        "options": {"queue": jobs_config.HEAVY_QUEUE},
-    }
-
-
 async def _load_enabled_schedules_async() -> dict[str, dict[str, object]]:
     pool = get_pool()
     async with pool.acquire() as conn:
@@ -119,9 +99,7 @@ def sync_beat_schedule_from_database(*, scheduler: object | None = None) -> None
         return
 
     active_scheduler = scheduler if scheduler is not None else _beat_scheduler
-    settings = get_settings()
     beat_schedule = run_async(_load_enabled_schedules_async())
-    _merge_demo_reset_schedule(beat_schedule, settings)
     _apply_beat_schedule(active_scheduler, beat_schedule)
     logger.info("Loaded %s enabled job schedule(s) into Celery Beat.", len(beat_schedule))
 

@@ -26,7 +26,7 @@ export function TimelinePlansListView({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl ring-1 ring-stone-800/80 mb-8">
+    <div className="overflow-x-auto rounded-xl ring-1 ring-stone-800/80">
       <div className="min-w-[52rem]">
         <div
           className={[

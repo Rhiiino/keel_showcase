@@ -6,25 +6,25 @@ from __future__ import annotations
 from typing import Literal
 
 CORE = "core"
+OBSIDIAN = "obsidian"
 PROJECTS = "projects"
 HAUL = "haul"
 WEB = "web"
-FOCUS = "focus"
-PEOPLE = "people"
-COAK = "coak"
+AGENDA = "agenda"
+CONTACTS = "contacts"
 
 ToolCategory = Literal[
     "core",
+    "obsidian",
     "projects",
     "haul",
     "web",
-    "focus",
-    "people",
-    "coak",
+    "agenda",
+    "contacts",
 ]
 
 ALL_CATEGORIES: frozenset[str] = frozenset(
-    {CORE, PROJECTS, HAUL, WEB, FOCUS, PEOPLE, COAK}
+    {CORE, OBSIDIAN, PROJECTS, HAUL, WEB, AGENDA, CONTACTS}
 )
 
 

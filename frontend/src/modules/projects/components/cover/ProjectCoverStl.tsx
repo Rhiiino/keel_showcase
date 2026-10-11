@@ -11,7 +11,6 @@ import {
   createPlaceholderGeometry,
   createStlViewerRuntime,
   deferUntilWebGLSafe,
-  isWebGLAvailable,
   type StlViewerDisplayOptions,
   type StlViewerRuntime,
 } from "../../../../lib/stl-viewer";
@@ -56,7 +55,6 @@ export function ProjectCoverStl({
   const resolvedModelColor = resolveCoverModelColor(modelColorHex);
   const resolvedModelBrightness = resolveCoverModelBrightness(modelBrightness);
   const [runtimeReady, setRuntimeReady] = useState(false);
-  const [webglFailed, setWebglFailed] = useState(false);
 
   modelColorRef.current = resolvedModelColor;
   modelBrightnessRef.current = resolvedModelBrightness;
@@ -87,11 +85,6 @@ export function ProjectCoverStl({
         return;
       }
 
-      if (!isWebGLAvailable()) {
-        setWebglFailed(true);
-        return;
-      }
-
       void createStlViewerRuntime(
         canvas,
         container,
@@ -110,9 +103,7 @@ export function ProjectCoverStl({
           setRuntimeReady(true);
         })
         .catch(() => {
-          if (!cancelled) {
-            setWebglFailed(true);
-          }
+          // Fall back to static placeholder; error state handled below.
         });
     });
 
@@ -157,7 +148,7 @@ export function ProjectCoverStl({
     );
   }
 
-  if (stlQuery.isError || webglFailed) {
+  if (stlQuery.isError) {
     return <>{fallback}</>;
   }
 

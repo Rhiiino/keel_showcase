@@ -27,6 +27,7 @@ x-keel-app-env: &keel-app-env
   MOONSHOT_API_KEY: ${MOONSHOT_API_KEY:-}
   MOONSHOT_BASE_URL: ${MOONSHOT_BASE_URL:-}
   TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+  OBSIDIAN_VAULT_PATH: ${OBSIDIAN_VAULT_PATH:-}
   S3_ENDPOINT_URL: http://garage:3900
   S3_BUCKET: ${S3_BUCKET:-keel-media}
   S3_ACCESS_KEY: ${S3_ACCESS_KEY:-}
@@ -35,23 +36,16 @@ x-keel-app-env: &keel-app-env
   S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-true}
   HAUL_PLAYWRIGHT_ENABLED: ${HAUL_PLAYWRIGHT_ENABLED:-false}
   CATALOG_ASSETS_PATH: ${CATALOG_ASSETS_PATH:-/app/assets/catalog}
-  CATALOG_UPLOADS_PATH: ${CATALOG_UPLOADS_PATH:-/app/assets/catalog-uploads}
   JOBS_ENABLED: ${JOBS_ENABLED:-true}
   REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
   CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
   CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-2}
   BACKUP_DIR: ${BACKUP_DIR:-/app/backups/local}
-  DEMO_RESET_ENABLED: ${DEMO_RESET_ENABLED:-false}
-  DEMO_RESET_SNAPSHOT_DIR: ${DEMO_RESET_SNAPSHOT_DIR:-/app/backups/demo-baseline}
-  DEMO_RESET_HOUR: ${DEMO_RESET_HOUR:-0}
-  DEMO_RESET_MINUTE: ${DEMO_RESET_MINUTE:-0}
 
 x-keel-app-volumes: &keel-app-volumes
   - ./backend/assets/catalog:${CATALOG_ASSETS_PATH:-/app/assets/catalog}:ro
-  - ./backend/assets/catalog-uploads:${CATALOG_UPLOADS_PATH:-/app/assets/catalog-uploads}
   - ./backend/scripts:/app/scripts:ro
   - ${BACKUP_HOST_DIR:-./backend/backups/local}:${BACKUP_DIR:-/app/backups/local}
-  - ${DEMO_RESET_HOST_DIR:-./backend/backups/demo-baseline}:${DEMO_RESET_SNAPSHOT_DIR:-/app/backups/demo-baseline}
 
 services:
   db:
@@ -67,9 +61,9 @@ services:
     volumes:
       - keel_showcase_pgdata:/var/lib/postgresql/data
       - ./backend/scripts/db/init/001_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
-      - ./backend/scripts/db/init/002_catalog.sql:/docker-entrypoint-initdb.d/02_catalog.sql:ro
-      - ./backend/scripts/db/init/003_home_quotes.sql:/docker-entrypoint-initdb.d/03_home_quotes.sql:ro
-      - ./backend/scripts/db/init/004_showcase_user.sql:/docker-entrypoint-initdb.d/04_showcase_user.sql:ro
+      - ./backend/scripts/db/seed/sql/010_catalog.sql:/docker-entrypoint-initdb.d/02_catalog.sql:ro
+      - ./backend/scripts/db/seed/sql/011_home_quotes.sql:/docker-entrypoint-initdb.d/03_home_quotes.sql:ro
+      - ./backend/scripts/db/seed/sql/012_showcase_user.sql:/docker-entrypoint-initdb.d/04_showcase_user.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-keel} -d ${POSTGRES_DB:-keel}"]
       interval: 5s

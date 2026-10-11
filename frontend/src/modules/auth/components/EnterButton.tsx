@@ -2,15 +2,13 @@
 
 // Showcase login — creates a session for the shared demo user.
 
-import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { authKeys, enterShowcase } from "../api";
+import { enterShowcase } from "../api";
 
 export function EnterButton() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,8 +19,7 @@ export function EnterButton() {
     setPending(true);
     setError(null);
     try {
-      const user = await enterShowcase();
-      queryClient.setQueryData(authKeys.me(), user);
+      await enterShowcase();
       navigate("/", { replace: true });
     } catch {
       setError("Could not enter. Is the API running?");

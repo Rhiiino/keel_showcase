@@ -73,8 +73,10 @@ export function FocusHubRoute() {
 
   if (hubViewMode === "constellation") {
     return (
-      <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-        <RouteNoticeBanner className="shrink-0 px-6 pt-4" />
+      <>
+        <div className="px-6 pt-4">
+          <RouteNoticeBanner />
+        </div>
         <FocusConstellationPage
           viewMode={hubViewMode}
           onViewModeChange={handleViewModeChange}
@@ -82,7 +84,7 @@ export function FocusHubRoute() {
           onOpenScopedConstellation={openScopedConstellation}
           onClearScopedConstellation={clearScopedConstellation}
         />
-      </div>
+      </>
     );
   }
 

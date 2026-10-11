@@ -8,7 +8,7 @@ Contacts stores people records with optional profile photos (via unified Garage 
 
 ## Module type
 
-**Feature** — session auth, user-owned rows, frontend counterpart, native PEOPLE tools.
+**Feature** — session auth, user-owned rows, frontend counterpart, native CONTACTS tools.
 
 ## HTTP API
 
@@ -118,17 +118,13 @@ flowchart TB
 ## LLM integration
 
 **Native tools folder:** `keel_api/src/llm/tools/native/contacts/`  
-**Catalog category:** `PEOPLE`
+**Catalog category:** `CONTACTS`
 
 | Tool file | Purpose |
 |-----------|---------|
-| `list_contacts.py` | List contacts |
+| `list_contacts.py` | List contacts with optional filters |
 | `get_contact.py` | Get one contact by id |
-| `search_contacts.py` | Search by name |
-| `create_contact.py` / `update_contact.py` / `delete_contact.py` | Contact CRUD |
-| `list_contact_tags.py` / `create_contact_tag.py` / `update_contact_tag.py` / `delete_contact_tag.py` | Tag CRUD |
-| `list_relationships.py` / `create_contact_relationship.py` / `update_contact_relationship.py` / `delete_contact_relationship.py` | Relationship CRUD |
-| `list_family_groups.py` / `get_family_group.py` / `get_family_group_tree.py` | Family group reads |
+| `search_contacts.py` | Search by name or other fields |
 | `_contacts.py` | Shared tool helpers |
 
 ## Tests

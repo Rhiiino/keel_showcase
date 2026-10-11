@@ -311,7 +311,7 @@ keel_api/
 │       └── tools/
 │           └── native/  # Agent tool executors (call modules.*.service)
 │               ├── __init__.py
-│               ├── contacts/  # Category PEOPLE → modules.contacts
+│               ├── contacts/  # Category CONTACTS → modules.contacts
 │               │   ├── __init__.py
 │               │   ├── _contacts.py  # Shared contact tool helpers
 │               │   ├── get_contact.py
@@ -320,7 +320,7 @@ keel_api/
 │               ├── core/  # Category CORE — no HTTP module
 │               │   ├── __init__.py
 │               │   └── get_current_time.py
-│               ├── focus/  # Category FOCUS → modules.focus
+│               ├── focus/  # Category AGENDA → modules.focus
 │               │   ├── __init__.py
 │               │   ├── _focus.py  # Shared focus tool helpers
 │               │   ├── create_focus_entry.py
@@ -401,10 +401,10 @@ keel_api/
 
 | Native folder | Catalog category | Backend module |
 |---------------|------------------|----------------|
-| `focus/` | FOCUS | `modules/focus/` |
+| `focus/` | AGENDA | `modules/focus/` |
 | `haul/` | HAUL | `modules/finance/` |
 | `projects/` | PROJECTS | `modules/projects/` |
-| `contacts/`, `figures/` | PEOPLE | `modules/contacts/`, `modules/figures/` |
+| `contacts/` | CONTACTS | `modules/contacts/` |
 | `obsidian/` | OBSIDIAN | *(vault only)* |
 | `web/` | WEB | *(external API)* |
 | `core/` | CORE | *(utility)* |

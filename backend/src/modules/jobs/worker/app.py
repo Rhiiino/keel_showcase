@@ -29,8 +29,6 @@ celery_app.conf.update(
         jobs_config.TASK_PURGE_EXPIRED_SESSIONS: {"queue": jobs_config.DEFAULT_QUEUE},
         jobs_config.TASK_PING: {"queue": jobs_config.DEFAULT_QUEUE},
         jobs_config.TASK_CREATE_BACKUP: {"queue": jobs_config.DEFAULT_QUEUE},
-        jobs_config.TASK_CREATE_DEMO_SNAPSHOT: {"queue": jobs_config.HEAVY_QUEUE},
-        jobs_config.TASK_RESTORE_DEMO_SNAPSHOT: {"queue": jobs_config.HEAVY_QUEUE},
         jobs_config.TASK_CHECK_TIMELINE_REMINDERS: {"queue": jobs_config.DEFAULT_QUEUE},
         jobs_config.TASK_CHECK_SERVICES: {"queue": jobs_config.DEFAULT_QUEUE},
     },

@@ -9,9 +9,8 @@ import { InlineSaveDiscardActions } from "../../../components/InlineSaveDiscardA
 import { AppShellContent } from "../../../app/shell/AppShellContent";
 import {
   authKeys,
-  authSessionQueryRetry,
   CURRENT_USER_STALE_TIME_MS,
-  fetchAuthSessionUser,
+  fetchCurrentUserWithTimeout,
   patchCurrentUser,
 } from "../../auth/api";
 import { SettingsPageTabs } from "../components/SettingsPageTabs";
@@ -54,10 +53,9 @@ export function SettingsPage() {
 
   const { data: user } = useQuery({
     queryKey: authKeys.me(),
-    queryFn: ({ signal }) => fetchAuthSessionUser(signal),
+    queryFn: ({ signal }) => fetchCurrentUserWithTimeout(signal),
     staleTime: CURRENT_USER_STALE_TIME_MS,
     refetchOnWindowFocus: false,
-    retry: authSessionQueryRetry,
   });
 
   const [nameDraft, setNameDraft] = useState("");
@@ -104,14 +102,14 @@ export function SettingsPage() {
 
   return (
     <AppShellContent>
-      <div className="flex min-h-0 flex-1 flex-col gap-6">
+      <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-hidden">
         <header className="flex shrink-0 items-start justify-between gap-4 overflow-visible">
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-stone-50">
               Settings
             </h1>
             <p className="mt-1 text-sm text-stone-500">
-              Global app preferences.
+              Global app preferences. More categories will appear here over time.
             </p>
           </div>
           <InlineSaveDiscardActions
@@ -128,7 +126,7 @@ export function SettingsPage() {
           />
         </header>
 
-        <div className="flex min-h-0 flex-1 gap-8">
+        <div className="flex min-h-0 flex-1 gap-8 overflow-hidden">
           <SettingsPageTabs
             tabs={getSettingsTabs()}
             activeId={activeTabId}
@@ -138,7 +136,7 @@ export function SettingsPage() {
           <div
             role="tabpanel"
             aria-label={activeTab?.title ?? "Settings"}
-            className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain border-l border-stone-800/60 pl-8 pb-8"
+            className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-l border-stone-800/60 pl-8"
           >
             <SettingsTabPanel
               tabId={activeTabId}

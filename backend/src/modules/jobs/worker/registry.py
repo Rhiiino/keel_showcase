@@ -8,8 +8,6 @@ from celery import Task
 from core.errors import AppError
 from modules.jobs import config as jobs_config
 from modules.jobs.tasks.backup import create as backup_create
-from modules.jobs.tasks.demo_reset import create_snapshot as demo_reset_create_snapshot
-from modules.jobs.tasks.demo_reset import restore as demo_reset_restore
 from modules.jobs.tasks.maintenance import (
     purge_expired_deleted_records,
     purge_expired_sessions,
@@ -24,8 +22,6 @@ TASK_REGISTRY: dict[str, Task] = {
     jobs_config.TASK_PURGE_EXPIRED_SESSIONS: purge_expired_sessions,
     jobs_config.TASK_PURGE_EXPIRED_DELETED_RECORDS: purge_expired_deleted_records,
     jobs_config.TASK_CREATE_BACKUP: backup_create,
-    jobs_config.TASK_CREATE_DEMO_SNAPSHOT: demo_reset_create_snapshot,
-    jobs_config.TASK_RESTORE_DEMO_SNAPSHOT: demo_reset_restore,
     jobs_config.TASK_CHECK_TIMELINE_REMINDERS: check_reminders,
     jobs_config.TASK_CHECK_SERVICES: services_check_all,
 }

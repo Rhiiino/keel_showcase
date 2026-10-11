@@ -119,10 +119,10 @@ HTTP modules call `core.database.get_pool()` and raise `core.errors.AppError`. C
 
 | Catalog category | Native folder | Backend module |
 |------------------|---------------|----------------|
-| `FOCUS` | `focus/` | focus |
+| `AGENDA` | `focus/` | focus |
 | `HAUL` | `haul/` | shop |
 | `PROJECTS` | `projects/` | projects |
-| `PEOPLE` | `contacts/`, `figures/` | contacts, figures |
+| `CONTACTS` | `contacts/` | contacts |
 | `OBSIDIAN`, `WEB`, `CORE` | matching folders | no HTTP module counterpart |
 
 ## File size and splitting

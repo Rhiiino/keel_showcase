@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from llm.tools.categories import PEOPLE
+from llm.tools.categories import CONTACTS
 from llm.tools.contracts import ToolContext, ToolDefinition
 from llm.tools.native.contacts._contacts import dump_models
 from modules.contacts import service as contacts_service
@@ -18,7 +18,7 @@ async def execute(_arguments: dict[str, Any], context: ToolContext) -> dict[str,
 
 TOOL_DEFINITION = ToolDefinition(
     name="list_contacts",
-    category=PEOPLE,
+    category=CONTACTS,
     description="List all contacts with names, gender, birth dates, and computed nuclear families.",
     parameters={"type": "object", "properties": {}, "additionalProperties": False},
     returns="{ contacts: array, count: integer }",

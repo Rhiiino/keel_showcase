@@ -13,11 +13,6 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-interface Window {
-  __KEEL_SHELL_WALLPAPER_URL__?: string;
-  __KEEL_SHELL_SHOW_LOADING__?: boolean;
-}
-
 declare module "*.glb" {
   const src: string;
   export default src;

@@ -14,7 +14,7 @@ import {
   type CoakResizeHandle,
 } from "../../lib/panels/coakPanelGeometry";
 
-export type CoakPanelAnchor = "top-left" | "top-right" | "center";
+export type CoakPanelAnchor = "top-left" | "top-right";
 
 const DRAG_THRESHOLD_PX = 4;
 

@@ -7,9 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import type { SettingsTabPanelProps } from "../../../app/modules/settingsTabTypes";
 import {
   authKeys,
-  authSessionQueryRetry,
   CURRENT_USER_STALE_TIME_MS,
-  fetchAuthSessionUser,
+  fetchCurrentUserWithTimeout,
 } from "../../auth/api";
 import { GeneralSettingsTab } from "./GeneralSettingsTab";
 
@@ -20,15 +19,14 @@ export function GeneralSettingsTabPanel({
 }: SettingsTabPanelProps) {
   const { data: user } = useQuery({
     queryKey: authKeys.me(),
-    queryFn: ({ signal }) => fetchAuthSessionUser(signal),
+    queryFn: ({ signal }) => fetchCurrentUserWithTimeout(signal),
     staleTime: CURRENT_USER_STALE_TIME_MS,
     refetchOnWindowFocus: false,
-    retry: authSessionQueryRetry,
   });
 
   return (
     <GeneralSettingsTab
-      user={user ?? undefined}
+      user={user}
       nameDraft={nameDraft}
       onNameDraftChange={onNameDraftChange}
       nameEditDisabled={nameEditDisabled}

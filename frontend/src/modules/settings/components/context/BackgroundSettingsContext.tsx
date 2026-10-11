@@ -14,10 +14,8 @@ import {
 
 import { patchSettings, type ShellBackgroundSettings } from "../../api";
 import {
-  clearShellWallpaperBootstrap,
   normalizeShellBackground,
   readStoredShellBackground,
-  syncStoredShellWallpaperUrl,
   writeStoredShellBackground,
 } from "../../lib/background";
 
@@ -38,12 +36,6 @@ const BackgroundSettingsContext =
 function applyShellBackground(next: ShellBackgroundSettings): ShellBackgroundSettings {
   const normalized = normalizeShellBackground(next);
   writeStoredShellBackground(normalized);
-  const wallpaperUrl = syncStoredShellWallpaperUrl(normalized);
-  // Drop the early-paint layer when wallpaper is turned off; while enabled,
-  // AppShellWallpaper owns the live image and clears the bootstrap itself.
-  if (!wallpaperUrl) {
-    clearShellWallpaperBootstrap();
-  }
   return normalized;
 }
 

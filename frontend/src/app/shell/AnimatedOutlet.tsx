@@ -21,7 +21,7 @@ import {
 import { useTransitionSettings } from "../../modules/settings/components/context";
 
 const OUTLET_LAYOUT_CLASS =
-  "flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden";
+  "flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden";
 
 function outletAnimationKey(pathname: string): string {
   const workspaceMatch = pathname.match(/^(\/projects\/\d+\/workspace)\/\d+$/);

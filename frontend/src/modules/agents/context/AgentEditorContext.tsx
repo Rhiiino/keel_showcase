@@ -13,7 +13,6 @@ import {
 } from "react";
 
 export type AgentEditorControls = {
-  isDraft: boolean;
   isDirty: boolean;
   isSaving: boolean;
   saveError: string | null;

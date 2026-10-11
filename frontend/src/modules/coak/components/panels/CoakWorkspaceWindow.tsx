@@ -47,7 +47,13 @@ function resolveInitialRect(
   }
 
   const size = defaultCombinedWindowSize(bounds);
-  const centered = resolveAnchorRect("center", size, bounds);
+  const anchored = resolveAnchorRect("top-left", size, bounds);
+  const centered = {
+    x: Math.round((bounds.width - anchored.width) / 2),
+    y: Math.round((bounds.height - anchored.height) / 2),
+    width: anchored.width,
+    height: anchored.height,
+  };
 
   return {
     ...centered,
@@ -128,7 +134,7 @@ export function CoakWorkspaceWindow({
       title={headerTitle}
       ariaLabel={`Drag ${headerTitle} window`}
       boundsRef={boundsRef}
-      initialAnchor="center"
+      initialAnchor="top-left"
       defaultSizeForBounds={defaultCombinedWindowSize}
       headerContent={headerContent}
       initialRect={initialRect}

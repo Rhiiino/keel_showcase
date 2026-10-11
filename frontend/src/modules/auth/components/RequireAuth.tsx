@@ -6,44 +6,36 @@
 import { useQuery } from "@tanstack/react-query";
 import { Navigate, Outlet } from "react-router-dom";
 
-import { KeelBrandSpinner } from "../../../components/KeelBrandSpinner";
-import { SHELL_LOADING_BOOTSTRAP_ELEMENT_ID } from "../../settings/lib/background";
+import { ApiError } from "../../../lib/api";
 import {
   authKeys,
-  authSessionQueryRetry,
   CURRENT_USER_STALE_TIME_MS,
-  fetchAuthSessionUser,
+  fetchCurrentUserWithTimeout,
 } from "../api";
 
-function hasBootstrapLoadingSpinner(): boolean {
-  return typeof document !== "undefined"
-    ? document.getElementById(SHELL_LOADING_BOOTSTRAP_ELEMENT_ID) != null
-    : false;
-}
-
 export function RequireAuth() {
-  const { data: user, isLoading, isError, error, refetch, isFetching } = useQuery({
+  const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: authKeys.me(),
-    queryFn: ({ signal }) => fetchAuthSessionUser(signal),
+    queryFn: ({ signal }) => fetchCurrentUserWithTimeout(signal),
     staleTime: CURRENT_USER_STALE_TIME_MS,
     refetchOnWindowFocus: false,
-    retry: authSessionQueryRetry,
+    retry: 2,
   });
 
   if (isLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-app">
-        {hasBootstrapLoadingSpinner() ? null : <KeelBrandSpinner size={80} />}
+      <main className="flex min-h-screen items-center justify-center bg-app text-stone-400">
+        <p className="font-mono text-sm uppercase tracking-[0.2em]">Loading…</p>
       </main>
     );
   }
 
-  if (!user) {
+  if (error instanceof ApiError && error.status === 401) {
     return <Navigate to="/login" replace />;
   }
 
   // Keep the shell mounted when a background refetch fails but we already have a session.
-  if (isError) {
+  if (isError && !data) {
     const timedOut = error instanceof DOMException && error.name === "AbortError";
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-app px-6 text-center text-stone-300">

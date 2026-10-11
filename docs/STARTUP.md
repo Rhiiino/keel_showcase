@@ -72,22 +72,7 @@ npm install
 npm run dev
 ```
 
-Dev server: `http://127.0.0.1:5173` (or `5177` when using the public-domain dev setup below)
-
-### Dev server on the public domain
-
-Caddy forwards `https://keel.themidhunraj.com` → `127.0.0.1:5177`. To use `npm run dev` on that URL with hot reload:
-
-1. Run on the **same VPS** as Caddy (not your local laptop).
-2. Stop preview: `pkill -f "vite preview.*5177" || true`
-3. In `frontend/.env`:
-   ```env
-   VITE_DEV_PORT=5177
-   VITE_DEV_PUBLIC_ORIGIN=https://keel.themidhunraj.com
-   ```
-4. `npm run dev`
-
-When finished, stop dev (Ctrl+C) and restart preview if you want the production build served again.
+Dev server: `http://127.0.0.1:5173`
 
 ### Production preview
 
@@ -120,31 +105,7 @@ Stop: `pkill -f "vite preview.*5177"`
 5. Initialize Garage bucket and S3 keys (see backend scripts under `backend/scripts/`)
 6. Build and start frontend preview
 7. Open the site, click **Enter** on the login screen
-8. Seed demo data for all showcase modules (chat, focus, projects, finance, people, timeline, journal, services, coak):
-
-```bash
-# Ensure these are set in backend/.env:
-# DEMO_SEED_ENABLED=true
-# DEMO_USER_EMAIL=showcase@keel.demo
-
-docker exec -e DEMO_SEED_ENABLED=true -e DEMO_USER_EMAIL=showcase@keel.demo keel_showcase_api \
-  python /app/scripts/db/demo/generate_demo_data.py --dry-run
-
-docker exec -e DEMO_SEED_ENABLED=true -e DEMO_USER_EMAIL=showcase@keel.demo keel_showcase_api \
-  python /app/scripts/db/demo/generate_demo_data.py
-```
-
-The script is idempotent — safe to re-run. It seeds fictional demo data for `showcase@keel.demo` without media attachments.
-
-After pulling changes on the server:
-
-```bash
-cd /root/myrepos/keel_showcase
-git pull
-docker compose --env-file backend/.env up -d
-```
-
-Then rerun the seed commands above.
+8. Optionally seed demo data: set `DEMO_SEED_ENABLED=true` and `DEMO_USER_EMAIL=showcase@keel.demo` in `backend/.env`, then run the demo seed script
 
 ---
 

@@ -33,7 +33,7 @@ export function ProjectsPage() {
   };
 
   return (
-    <div className="flex w-full flex-col">
+    <div className="flex min-h-0 w-full flex-1 flex-col">
         <header className="flex shrink-0 flex-wrap items-start justify-between gap-4">
           <div>
             <ListPageTitle
@@ -42,8 +42,8 @@ export function ProjectsPage() {
             />
             <p className="mt-1 max-w-xl text-sm text-stone-500">
               {groupByStatus
-                ? "Track progress across your projects. Drag a card between rows to update its status."
-                : "Browse every project in one place. Open a card to pick up where you left off."}
+                ? "Browse projects by status. Drag a card between rows to update its state."
+                : "Browse all projects in a single gallery. Status appears on each card."}
             </p>
           </div>
 
@@ -61,7 +61,7 @@ export function ProjectsPage() {
 
         <RouteNoticeBanner />
 
-        <div className="mt-8 pb-8">
+        <div className="mt-8 min-h-0 flex-1">
           {projectsQuery.isLoading && (
             <p className="py-12 text-center text-sm text-stone-500">
               Loading projects…

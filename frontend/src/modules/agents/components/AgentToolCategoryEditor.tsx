@@ -12,7 +12,6 @@ import { toolCategoryLabel } from "../../chat/lib/tools";
 type AgentToolCategoryEditorProps = {
   assignedCategories: string[];
   onChange: (categories: string[]) => void;
-  readOnly?: boolean;
 };
 
 function sortCategories(categories: string[]) {
@@ -22,7 +21,6 @@ function sortCategories(categories: string[]) {
 export function AgentToolCategoryEditor({
   assignedCategories,
   onChange,
-  readOnly = false,
 }: AgentToolCategoryEditorProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const categoriesQuery = useQuery({
@@ -35,54 +33,25 @@ export function AgentToolCategoryEditor({
     [assignedCategories],
   );
 
-  const categoryDisplayNameByKey = useMemo(() => {
-    const catalog = categoriesQuery.data ?? [];
-    return new Map(catalog.map((category) => [category.key, category.display_name]));
-  }, [categoriesQuery.data]);
-
-  const categoryLabel = (categoryKey: string) =>
-    categoryDisplayNameByKey.get(categoryKey) ?? toolCategoryLabel(categoryKey);
-
   const availableToAdd = useMemo(() => {
     const catalog = categoriesQuery.data ?? [];
     return catalog
-      .filter((category) => !assignedSet.has(category.key))
-      .sort((left, right) => left.key.localeCompare(right.key));
+      .map((category) => category.key)
+      .filter((key) => !assignedSet.has(key))
+      .sort((left, right) => left.localeCompare(right));
   }, [assignedSet, categoriesQuery.data]);
 
   const removeCategory = (category: string) => {
-    if (readOnly || assignedCategories.length <= 1) {
+    if (assignedCategories.length <= 1) {
       return;
     }
     onChange(assignedCategories.filter((key) => key !== category));
   };
 
   const addCategory = (category: string) => {
-    if (readOnly) {
-      return;
-    }
     onChange(sortCategories([...assignedCategories, category]));
     setPickerOpen(false);
   };
-
-  if (readOnly) {
-    return (
-      <div className="flex flex-wrap items-center gap-1.5">
-        {assignedCategories.map((category) => (
-          <span
-            key={category}
-            className={[
-              "inline-flex items-center gap-1.5 rounded bg-stone-900/50 py-1 pl-1.5 pr-2",
-              "font-mono text-xs uppercase tracking-wider text-stone-400 ring-1 ring-stone-800/60",
-            ].join(" ")}
-          >
-            <ToolCategoryIcon category={category} size="xs" />
-            {categoryLabel(category)}
-          </span>
-        ))}
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-2">
@@ -106,7 +75,7 @@ export function AgentToolCategoryEditor({
             ].join(" ")}
           >
             <ToolCategoryIcon category={category} size="xs" />
-            {categoryLabel(category)}
+            {toolCategoryLabel(category)}
             {assignedCategories.length > 1 ? (
               <span className="text-stone-600" aria-hidden>
                 ×
@@ -137,17 +106,17 @@ export function AgentToolCategoryEditor({
               >
                 {availableToAdd.map((category) => (
                   <button
-                    key={category.key}
+                    key={category}
                     type="button"
-                    onClick={() => addCategory(category.key)}
+                    onClick={() => addCategory(category)}
                     className={[
                       "flex w-full items-center gap-2 rounded px-2 py-1.5 text-left",
                       "font-mono text-xs uppercase tracking-wider text-stone-300",
                       "transition hover:bg-stone-900",
                     ].join(" ")}
                   >
-                    <ToolCategoryIcon category={category.key} size="xs" />
-                    {categoryLabel(category.key)}
+                    <ToolCategoryIcon category={category} size="xs" />
+                    {toolCategoryLabel(category)}
                   </button>
                 ))}
               </div>

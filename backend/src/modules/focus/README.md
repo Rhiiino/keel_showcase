@@ -8,7 +8,7 @@ Focus is Keel's personal task system on the backend. A single `focus_nodes` tree
 
 ## Module type
 
-**Feature** — session auth, user-owned rows, frontend counterpart, native FOCUS tools.
+**Feature** — session auth, user-owned rows, frontend counterpart, native AGENDA tools.
 
 ## HTTP API
 
@@ -42,7 +42,7 @@ Focus is Keel's personal task system on the backend. A single `focus_nodes` tree
 | Consumer | Imports |
 |----------|---------|
 | `modules/connectors` | Focus service for automation connector sessions |
-| `llm/tools/native/focus/*` | Service functions for FOCUS tools |
+| `llm/tools/native/focus/*` | Service functions for AGENDA tools |
 | Other feature modules | Use HTTP or `reference_registry` — not focus repositories |
 
 ## Frontend integration
@@ -62,7 +62,7 @@ v2 nodes API is primary; frontend `lists.ts` / `entries.ts` adapt legacy shapes.
 
 Constellation layout and visual settings persist in `user_preferences.settings` JSON (via `modules.settings.repository`), not separate tables.
 
-**Schema:** [`scripts/db/init/001_schema.sql`](../../../scripts/db/init/001_schema.sql) — includes `focus_node_time_entries` for node timer session persistence.
+**Latest migration:** [`scripts/db/migrations/2026_06_19_1037_focus_node_time_entries/`](../../../scripts/db/migrations/2026_06_19_1037_focus_node_time_entries/) — adds node timer session persistence.
 
 ## Directory structure
 
@@ -146,7 +146,7 @@ flowchart TB
 ## LLM integration
 
 **Native tools folder:** `keel_api/src/llm/tools/native/focus/`  
-**Catalog category:** `FOCUS`
+**Catalog category:** `AGENDA`
 
 | Tool file | Purpose |
 |-----------|---------|
@@ -181,7 +181,9 @@ Tools call `modules.focus.service` and `schemas` — they use list/entry-oriente
 - [Modules umbrella README](../README.md)
 - [PROJECT_TREE.md](../../../PROJECT_TREE.md)
 - Frontend: [keel_web/src/modules/focus/README.md](../../../../keel_web/src/modules/focus/README.md)
-- Schema: [`scripts/db/init/001_schema.sql`](../../../scripts/db/init/001_schema.sql)
+- Migration: [2026_06_15_1500_focus_node_cleanup](../../../scripts/db/migrations/2026_06_15_1500_focus_node_cleanup/README.md)
+- Migration: [2026_06_19_1037_focus_node_time_entries](../../../scripts/db/migrations/2026_06_19_1037_focus_node_time_entries/README.md)
+- Migration: [2026_06_20_general_updates](../../../scripts/db/migrations/2026_06_20_general_updates/README.md)
 
 ## Module changelog
 

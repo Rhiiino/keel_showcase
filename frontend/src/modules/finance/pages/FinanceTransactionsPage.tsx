@@ -116,7 +116,7 @@ export function FinanceTransactionsPage() {
     <ListPageLayout
       title="Transactions"
       recordCount={itemsQuery.data?.length}
-      subtitle="Track spending, wishlist items, and orders."
+      subtitle="Track spending, wishlist items, and orders in one place."
       actions={
         <>
           <FinanceViewToggle

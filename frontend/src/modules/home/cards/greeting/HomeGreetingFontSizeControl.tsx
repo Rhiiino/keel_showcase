@@ -14,8 +14,6 @@ type HomeGreetingFontSizeControlProps = {
   fontSizePx: number;
   disabled?: boolean;
   className?: string;
-  /** When false, parent owns hover/focus reveal styling. Defaults to true. */
-  revealOnHover?: boolean;
   onChange: (nextFontSizePx: number) => void;
 };
 
@@ -30,7 +28,6 @@ export function HomeGreetingFontSizeControl({
   fontSizePx,
   disabled = false,
   className = "",
-  revealOnHover = true,
   onChange,
 }: HomeGreetingFontSizeControlProps) {
   const [draftValue, setDraftValue] = useState(String(fontSizePx));
@@ -59,15 +56,10 @@ export function HomeGreetingFontSizeControl({
   return (
     <div
       className={[
-        "flex shrink-0 items-center gap-1",
-        revealOnHover
-          ? [
-              "transition-opacity duration-200",
-              "opacity-0 pointer-events-none",
-              "group-hover/greeting:opacity-100 group-hover/greeting:pointer-events-auto",
-              "group-focus-within/greeting:opacity-100 group-focus-within/greeting:pointer-events-auto",
-            ].join(" ")
-          : "",
+        "flex shrink-0 items-center gap-1 transition-opacity duration-200",
+        "opacity-0 pointer-events-none",
+        "group-hover/greeting:opacity-100 group-hover/greeting:pointer-events-auto",
+        "group-focus-within/greeting:opacity-100 group-focus-within/greeting:pointer-events-auto",
         className,
       ].join(" ")}
       data-home-card-no-drag

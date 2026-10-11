@@ -3,7 +3,7 @@
 // Rotating inspirational quote bank card for the home dashboard.
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import {
   DEFAULT_HOME_QUOTE_INTERVAL_SECONDS,
@@ -17,8 +17,7 @@ import {
 import { fetchQuotes, homeKeys } from "../../api";
 import { HomeQuoteDisplay, quoteAccentBorderClass } from "./HomeQuoteDisplay";
 import { HomeQuoteIntervalEditor } from "./HomeQuoteIntervalEditor";
-import { FALLBACK_QUOTES } from "./lib/fallbackQuote";
-import { shuffleQuotes } from "./lib/shuffleQuotes";
+import { FALLBACK_QUOTE } from "./lib/fallbackQuote";
 
 export function HomeQuoteCard() {
   const queryClient = useQueryClient();
@@ -52,20 +51,10 @@ export function HomeQuoteCard() {
     },
   });
 
-  const quotesSourceKey =
+  const quotes =
     quotesQuery.data && quotesQuery.data.length > 0
-      ? quotesQuery.data.map((quote) => quote.id).join(",")
-      : "fallback";
-
-  const quotes = useMemo(() => {
-    const source =
-      quotesQuery.data && quotesQuery.data.length > 0
-        ? quotesQuery.data
-        : FALLBACK_QUOTES;
-    return shuffleQuotes(source);
-    // Reshuffle when the quote bank identity changes (including first load / fallback).
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: key captures bank identity
-  }, [quotesSourceKey]);
+      ? quotesQuery.data
+      : [FALLBACK_QUOTE];
 
   const isBusy =
     saveIntervalMutation.isPending

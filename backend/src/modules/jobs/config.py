@@ -18,8 +18,6 @@ TASK_PING = "jobs.tasks.ping.run"
 TASK_PURGE_EXPIRED_SESSIONS = "jobs.tasks.maintenance.purge_expired_sessions"
 TASK_PURGE_EXPIRED_DELETED_RECORDS = "jobs.tasks.maintenance.purge_expired_deleted_records"
 TASK_CREATE_BACKUP = "jobs.tasks.backup.create"
-TASK_CREATE_DEMO_SNAPSHOT = "jobs.tasks.demo_reset.create_snapshot"
-TASK_RESTORE_DEMO_SNAPSHOT = "jobs.tasks.demo_reset.restore"
 TASK_CHECK_TIMELINE_REMINDERS = "jobs.tasks.timeline.check_reminders"
 TASK_CHECK_SERVICES = "jobs.tasks.services.check_all"
 
@@ -95,14 +93,6 @@ TASK_CATALOG: dict[str, TaskCatalogEntry] = {
     ),
     TASK_CREATE_BACKUP: TaskCatalogEntry(
         description="Dump Postgres and mirror the Garage bucket to BACKUP_DIR.",
-    ),
-    TASK_CREATE_DEMO_SNAPSHOT: TaskCatalogEntry(
-        description="Capture the current demo Postgres + Garage state into the baseline snapshot directory.",
-        queue=HEAVY_QUEUE,
-    ),
-    TASK_RESTORE_DEMO_SNAPSHOT: TaskCatalogEntry(
-        description="Restore the demo Postgres database and Garage bucket from the baseline snapshot.",
-        queue=HEAVY_QUEUE,
     ),
     TASK_CHECK_TIMELINE_REMINDERS: TaskCatalogEntry(
         description="Scan timeline event reminders and log due entries (no delivery yet).",

@@ -41,7 +41,7 @@ export function KeelOrchestratorCard({
   return (
     <article
       className={[
-        "w-fit max-w-full overflow-hidden rounded-xl border border-stone-600/50",
+        "overflow-hidden rounded-xl border border-stone-600/50",
         "bg-gradient-to-br from-stone-800/90 via-stone-900 to-stone-950",
         "shadow-[inset_0_2px_0_rgba(255,255,255,0.1),inset_0_-3px_8px_rgba(0,0,0,0.4),0_8px_28px_rgba(0,0,0,0.4)]",
       ].join(" ")}
@@ -50,7 +50,7 @@ export function KeelOrchestratorCard({
         type="button"
         onClick={onToggle}
         aria-expanded={expanded}
-        className="flex items-center gap-5 p-5 text-left transition hover:bg-stone-900/40 sm:gap-6 sm:p-6"
+        className="flex w-full items-center gap-5 p-5 text-left transition hover:bg-stone-900/40 sm:gap-6 sm:p-6"
       >
         <div
           className={[
@@ -60,13 +60,13 @@ export function KeelOrchestratorCard({
           ].join(" ")}
         >
           <img
-            src={orchestratorPortraitSrc(agent) ?? undefined}
+            src={orchestratorPortraitSrc(agent)}
             alt=""
             className="h-20 w-20 object-contain sm:h-24 sm:w-24"
           />
         </div>
 
-        <div className="min-w-0 max-w-sm">
+        <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-xl font-semibold text-stone-100 sm:text-2xl">{agent.display_name}</h2>
             <span className="rounded px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-lime-400/90 ring-1 ring-lime-400/25 bg-lime-400/10">

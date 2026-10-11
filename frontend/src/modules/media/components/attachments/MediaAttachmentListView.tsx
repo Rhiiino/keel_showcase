@@ -24,7 +24,7 @@ export function MediaAttachmentListView({
   }
 
   return (
-    <div className="mb-8 w-fit max-w-full overflow-x-auto rounded-xl border border-stone-800 bg-stone-950/40">
+    <div className="w-fit max-w-full overflow-x-auto rounded-xl border border-stone-800 bg-stone-950/40">
       <div
         className={[
           "grid min-w-[16rem] border-b border-stone-800 text-xs font-medium uppercase tracking-wide text-stone-500",

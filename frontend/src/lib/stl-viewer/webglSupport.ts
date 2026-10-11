@@ -11,9 +11,6 @@ const CONTEXT_OPTIONS: WebGLContextAttributes = {
   powerPreference: "default",
 };
 
-/** Session cache — avoids re-probing (and console spam) when WebGL is disabled. */
-let webglAvailabilityCache: boolean | null = null;
-
 function isChromeBrowser(): boolean {
   if (typeof navigator === "undefined") {
     return false;
@@ -50,16 +47,7 @@ export function webGLUnavailableMessage(): string {
   return lines.join(" ");
 }
 
-/**
- * Release an existing WebGL context on a canvas.
- * Does not call getContext() when WebGL is known unavailable — that would attempt
- * creation and re-fire webglcontextcreationerror (noisy in sandboxed browsers).
- */
 export function releaseCanvasWebGLContext(canvas: HTMLCanvasElement) {
-  if (webglAvailabilityCache === false) {
-    return;
-  }
-
   const gl =
     (canvas.getContext("webgl2") as WebGL2RenderingContext | null) ??
     (canvas.getContext("webgl") as WebGLRenderingContext | null) ??
@@ -103,55 +91,4 @@ export async function waitForWebGLReleaseMs(ms = 120): Promise<void> {
 
 export function isChrome(): boolean {
   return isChromeBrowser();
-}
-
-export function isWebGLAvailable(
-  options: Partial<WebGLContextAttributes> = {},
-): boolean {
-  if (typeof document === "undefined") {
-    return false;
-  }
-
-  // Once we know WebGL is dead for this session, never probe again.
-  if (webglAvailabilityCache === false) {
-    return false;
-  }
-
-  if (webglAvailabilityCache === true && Object.keys(options).length === 0) {
-    return true;
-  }
-
-  try {
-    const canvas = document.createElement("canvas");
-    const contextOptions: WebGLContextAttributes = {
-      ...CONTEXT_OPTIONS,
-      ...options,
-    };
-    const gl =
-      (canvas.getContext("webgl2", contextOptions) as WebGL2RenderingContext | null) ??
-      (canvas.getContext("webgl", contextOptions) as WebGLRenderingContext | null) ??
-      (canvas.getContext(
-        "experimental-webgl",
-        contextOptions,
-      ) as WebGLRenderingContext | null);
-
-    const available = Boolean(gl);
-    gl?.getExtension("WEBGL_lose_context")?.loseContext();
-
-    if (Object.keys(options).length === 0) {
-      webglAvailabilityCache = available ? true : false;
-    }
-
-    return available;
-  } catch {
-    if (Object.keys(options).length === 0) {
-      webglAvailabilityCache = false;
-    }
-    return false;
-  }
-}
-
-/** Mark WebGL as unavailable for this session (e.g. after a failed renderer create). */
-export function markWebGLUnavailable() {
-  webglAvailabilityCache = false;
 }

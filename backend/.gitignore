@@ -37,12 +37,7 @@ coverage/
 # Runtime media and data (paths set via env on the server)
 data/
 backups/
-!backups/demo-baseline/
-backups/demo-baseline/*
-!backups/demo-baseline/.gitkeep
 scripts/db/seed/assets/
-assets/catalog-uploads/**
-!assets/catalog-uploads/.gitkeep
 
 # Docker volume artifacts (local only)
 pgdata/

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from core.errors import AppError
-from llm.tools.categories import FOCUS
+from llm.tools.categories import AGENDA
 from llm.tools.contracts import ToolContext, ToolDefinition
 from llm.tools.native.focus._focus import dump_model
 from modules.focus import service as focus_service
@@ -50,7 +50,7 @@ async def execute(arguments: dict[str, Any], context: ToolContext) -> dict[str, 
 
 TOOL_DEFINITION = ToolDefinition(
     name="create_focus_entry",
-    category=FOCUS,
+    category=AGENDA,
     description="Create a focus entry in a list (task or list_link).",
     parameters={
         "type": "object",

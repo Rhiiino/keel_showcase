@@ -13,7 +13,6 @@ class AgentMediaPublic(BaseModel):
     role: str | None = None
     mime_type: str
     url: str
-    updated_at: str | None = None
 
 
 class ToolSummary(BaseModel):
@@ -89,22 +88,6 @@ class AgentUpdate(BaseModel):
     display_name: str | None = Field(default=None, min_length=1, max_length=200)
     description: str | None = None
     tool_categories: list[str] | None = None
-
-
-class AgentSystemPromptCreate(BaseModel):
-    identity: str = Field(..., min_length=1)
-    purpose: str = Field(..., min_length=1)
-    guidelines: str = Field(..., min_length=1)
-    domain_reference: str = Field(..., min_length=1)
-    tool_guidance: str | None = None
-    safety: str = Field(..., min_length=1)
-
-
-class AgentCreate(BaseModel):
-    display_name: str = Field(..., min_length=1, max_length=200)
-    description: str = Field(..., min_length=1)
-    tool_categories: list[str] = Field(..., min_length=1)
-    system_prompt: AgentSystemPromptCreate
 
 
 class SystemPromptSectionUpdate(BaseModel):

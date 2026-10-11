@@ -1,6 +1,6 @@
 // stack_sandbox/frontend_web/src/modules/chat/components/status/ToolCategoryIcon.tsx
 
-// Renders a tool category logo (core, projects, …) at a consistent size.
+// Renders a tool category logo (core, obsidian, …) at a consistent size.
 
 import { toolCategoryIconSrc } from "../../lib/tools";
 

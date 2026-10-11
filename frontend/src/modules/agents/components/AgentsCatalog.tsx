@@ -9,13 +9,15 @@ import { useSearchParams } from "react-router-dom";
 import { NAVIGATION_PAGE_KEYS } from "../../../app/navigation/navigationStackConfig";
 import { usePageNavigationState } from "../../../app/navigation/usePageNavigationState";
 import { agentsQueryKeys, fetchAgents, type AgentSummary } from "../api";
-import { useAgentEditorContext } from "../context/AgentEditorContext";
 import {
   createDraftAgentSummary,
   DRAFT_AGENT_ID,
   isDraftAgent,
 } from "../lib/draftAgent";
+import { subagentModelSrc } from "../lib/agentDisplay";
+import { preloadAgentModel } from "../lib/preloadAgentModel";
 import { AgentDetailAside } from "./AgentDetailAside";
+import { CreateSubAgentTile } from "./CreateSubAgentTile";
 import { KeelOrchestratorCard } from "./KeelOrchestratorCard";
 import { SubAgentTile } from "./SubAgentTile";
 
@@ -30,7 +32,6 @@ export function AgentsCatalog({ initialSubagentId = null }: AgentsCatalogProps) 
   const [selectedSubagentId, setSelectedSubagentId] = useState<string | null>(null);
   const [detailLayoutOpen, setDetailLayoutOpen] = useState(false);
   const [draftAgent, setDraftAgent] = useState<AgentSummary | null>(null);
-  const { setPageActions } = useAgentEditorContext();
 
   usePageNavigationState(NAVIGATION_PAGE_KEYS.agents, {
     capture: () => ({
@@ -114,11 +115,6 @@ export function AgentsCatalog({ initialSubagentId = null }: AgentsCatalogProps) 
   }, [syncAgentSearchParam]);
 
   useEffect(() => {
-    setPageActions({ createSubagent: startDraftSubagent });
-    return () => setPageActions(null);
-  }, [setPageActions, startDraftSubagent]);
-
-  useEffect(() => {
     const agentFromUrl = searchParams.get("agent") ?? initialSubagentId;
     if (!agentFromUrl || agentFromUrl === DRAFT_AGENT_ID) {
       return;
@@ -152,10 +148,28 @@ export function AgentsCatalog({ initialSubagentId = null }: AgentsCatalogProps) 
     [syncAgentSearchParam],
   );
 
+  const handleDraftDiscarded = useCallback(() => {
+    setDraftAgent(null);
+    setSelectedSubagentId(null);
+    syncAgentSearchParam(null, false);
+  }, [syncAgentSearchParam]);
+
   const detailAgent: AgentSummary | null =
     keelExpanded && orchestrator
       ? orchestrator
       : selectedSubagent;
+
+  useEffect(() => {
+    // Preload only the selected agent's model so a failed catalog-wide preload
+    // cannot poison the three.js loader cache for every agent.
+    if (!detailAgent || isDraftAgent(detailAgent)) {
+      return;
+    }
+    const modelSrc = subagentModelSrc(detailAgent.id, detailAgent.media);
+    if (modelSrc) {
+      preloadAgentModel(modelSrc);
+    }
+  }, [detailAgent]);
 
   /** True while the detail pane is open or animating closed (keeps layout tracks in sync). */
   const detailPanelActive = detailLayoutOpen || detailAgent !== null;
@@ -220,45 +234,42 @@ export function AgentsCatalog({ initialSubagentId = null }: AgentsCatalogProps) 
             >
               Sub-agents
             </h2>
-            {subagents.length > 0 || draftAgent ? (
-              <div className="flex flex-wrap gap-4 sm:gap-5">
-                {draftAgent ? (
-                  <SubAgentTile
-                    agent={draftAgent}
-                    selected={selectedSubagentId === DRAFT_AGENT_ID && !keelExpanded}
-                    onSelect={() => {
-                      const nextSubagentId =
-                        selectedSubagentId === DRAFT_AGENT_ID ? null : DRAFT_AGENT_ID;
-                      if (nextSubagentId === null) {
-                        setDraftAgent(null);
-                      }
-                      setKeelExpanded(false);
-                      setSelectedSubagentId(nextSubagentId);
-                      syncAgentSearchParam(nextSubagentId, false);
-                    }}
-                  />
-                ) : null}
-                {subagents.map((agent) => (
-                  <SubAgentTile
-                    key={agent.id}
-                    agent={agent}
-                    selected={selectedSubagentId === agent.id && !keelExpanded}
-                    onSelect={() => {
-                      const nextSubagentId =
-                        selectedSubagentId === agent.id ? null : agent.id;
-                      setKeelExpanded(false);
+            <div className="flex flex-wrap gap-4 sm:gap-5">
+              {draftAgent ? (
+                <SubAgentTile
+                  agent={draftAgent}
+                  selected={selectedSubagentId === DRAFT_AGENT_ID && !keelExpanded}
+                  onSelect={() => {
+                    const nextSubagentId =
+                      selectedSubagentId === DRAFT_AGENT_ID ? null : DRAFT_AGENT_ID;
+                    if (nextSubagentId === null) {
                       setDraftAgent(null);
-                      setSelectedSubagentId(nextSubagentId);
-                      syncAgentSearchParam(nextSubagentId, false);
-                    }}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-stone-500">
-                No sub-agents yet. Use + to create one.
-              </p>
-            )}
+                    }
+                    setKeelExpanded(false);
+                    setSelectedSubagentId(nextSubagentId);
+                    syncAgentSearchParam(nextSubagentId, false);
+                  }}
+                />
+              ) : null}
+              {subagents.map((agent) => (
+                <SubAgentTile
+                  key={agent.id}
+                  agent={agent}
+                  selected={selectedSubagentId === agent.id && !keelExpanded}
+                  onSelect={() => {
+                    const nextSubagentId =
+                      selectedSubagentId === agent.id ? null : agent.id;
+                    setKeelExpanded(false);
+                    setDraftAgent(null);
+                    setSelectedSubagentId(nextSubagentId);
+                    syncAgentSearchParam(nextSubagentId, false);
+                  }}
+                />
+              ))}
+              {!draftAgent ? (
+                <CreateSubAgentTile onCreate={startDraftSubagent} />
+              ) : null}
+            </div>
           </section>
         </div>
       </div>
@@ -274,6 +285,9 @@ export function AgentsCatalog({ initialSubagentId = null }: AgentsCatalogProps) 
           agent={detailAgent}
           onLayoutOpenChange={handleDetailLayoutOpenChange}
           onCreated={isDraftAgent(detailAgent) ? handleAgentCreated : undefined}
+          onDiscarded={
+            isDraftAgent(detailAgent) ? handleDraftDiscarded : undefined
+          }
         />
       </div>
     </div>

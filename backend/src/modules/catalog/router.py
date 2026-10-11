@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import mimetypes
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -23,6 +24,16 @@ from modules.catalog.schemas import (
     ToolCategoryPublic,
     ToolPublic,
 )
+
+
+def _catalog_media_type(path_name: str) -> str | None:
+    suffix = path_name.rsplit(".", 1)[-1].lower() if "." in path_name else ""
+    if suffix == "glb":
+        return "model/gltf-binary"
+    if suffix == "gltf":
+        return "model/gltf+json"
+    guessed, _ = mimetypes.guess_type(path_name)
+    return guessed
 
 router = APIRouter(prefix=config.ROUTE_PREFIX, tags=[config.OPENAPI_TAG])
 
@@ -100,4 +111,17 @@ async def reload_catalog(user: CurrentUser) -> CatalogReloadResponse:
 async def serve_catalog_media(storage_key: str) -> FileResponse:
     """Serve a catalog media asset by storage key."""
     path = resolve_catalog_asset_path(storage_key)
-    return FileResponse(path, media_type=None, filename=path.name)
+    # Long browser cache; agents API appends ?v=updated_at for busting. Starlette
+    # still sends ETag/Last-Modified from the file so clients can revalidate.
+    # Inline disposition so GLTFLoader/XHR can consume the body (not force download).
+    return FileResponse(
+        path,
+        media_type=_catalog_media_type(path.name),
+        filename=path.name,
+        content_disposition_type="inline",
+        headers={
+            # Short max-age so asset replacements (same storage_key) pick up quickly;
+            # agents API also appends ?v=updated_at for explicit busting.
+            "Cache-Control": "public, max-age=300, stale-while-revalidate=86400",
+        },
+    )

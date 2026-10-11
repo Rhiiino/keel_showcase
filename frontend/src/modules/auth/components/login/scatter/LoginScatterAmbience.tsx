@@ -1,6 +1,6 @@
 // keel_web/src/modules/auth/components/login/scatter/LoginScatterAmbience.tsx
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { getKeelClip, pickRandomKeelClipId } from "../../../../../lib/keelPersona";
 import { THE_SAILOR_CLIP } from "../../../../../lib/keelPersona/clips/theSailor";
@@ -19,7 +19,6 @@ import {
 } from "../../../lib/loginScatterPlacement";
 import {
   LOGIN_SCATTER_INTRO_SAILOR_MS,
-  scatterLoginTitleCompleteMs,
 } from "../../../lib/loginScatterTiming";
 import { LoginScatterIntroSailor } from "./LoginScatterIntroSailor";
 import {
@@ -27,7 +26,7 @@ import {
   type LoginScatterSpotState,
 } from "./LoginScatterSpot";
 
-type AmbiencePhase = "waiting-title" | "intro-sailor" | "scatter";
+type AmbiencePhase = "intro-sailor" | "scatter";
 
 function useViewportSize(): ViewportSize {
   const [viewport, setViewport] = useState<ViewportSize>(() => ({
@@ -86,13 +85,13 @@ function createScatterSpot(
   };
 }
 
-export function LoginScatterAmbience() {
+export function LoginScatterAmbience({ children }: { children: ReactNode }) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const viewport = useViewportSize();
   const viewportRef = useRef(viewport);
   const spotsRef = useRef<LoginScatterSpotState[]>([]);
   const [phase, setPhase] = useState<AmbiencePhase>(
-    prefersReducedMotion ? "scatter" : "waiting-title",
+    prefersReducedMotion ? "scatter" : "intro-sailor",
   );
   const [introSailorExiting, setIntroSailorExiting] = useState(false);
   const [spots, setSpots] = useState<LoginScatterSpotState[]>([]);
@@ -250,12 +249,7 @@ export function LoginScatterAmbience() {
       };
     }
 
-    const titleTimerId = window.setTimeout(() => {
-      setPhase("intro-sailor");
-    }, scatterLoginTitleCompleteMs());
-
     return () => {
-      window.clearTimeout(titleTimerId);
       clearPlayTimer();
       clearExitTimer();
       clearIntroExitTimer();
@@ -281,25 +275,31 @@ export function LoginScatterAmbience() {
   }, [finishIntroSailor, introSailorExiting, phase]);
 
   return (
-    <div className="login-scatter-ambience pointer-events-none absolute inset-0 z-[5] overflow-hidden">
-      {phase === "waiting-title" || phase === "intro-sailor" ? (
-        <LoginScatterIntroSailor
-          viewport={viewport}
-          exiting={introSailorExiting}
-          revealed={phase === "intro-sailor"}
-        />
-      ) : null}
-      {phase === "scatter"
-        ? spots.map((spot) => (
-            <LoginScatterSpot
-              key={spot.key}
-              spot={spot}
-              viewportWidth={viewport.width}
-              onEnterComplete={handleEnterComplete}
-              onPlayStart={handlePlayStart}
-            />
-          ))
-        : null}
-    </div>
+    <>
+      <div className="login-scatter-ambience pointer-events-none absolute inset-0 z-[5] overflow-hidden">
+        {phase === "scatter"
+          ? spots.map((spot) => (
+              <LoginScatterSpot
+                key={spot.key}
+                spot={spot}
+                viewportWidth={viewport.width}
+                onEnterComplete={handleEnterComplete}
+                onPlayStart={handlePlayStart}
+              />
+            ))
+          : null}
+      </div>
+
+      <div className="relative z-10 flex flex-col items-center">
+        {phase === "intro-sailor" ? (
+          <LoginScatterIntroSailor exiting={introSailorExiting} />
+        ) : null}
+        <div
+          className={`flex flex-col items-center gap-8 ${phase === "intro-sailor" ? "mt-2" : ""}`}
+        >
+          {children}
+        </div>
+      </div>
+    </>
   );
 }

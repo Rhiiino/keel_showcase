@@ -21,7 +21,7 @@ export function ListPageLayout({
   actions,
   titleClassName,
   children,
-  className = "flex min-h-0 w-full flex-1 flex-col",
+  className = "flex w-full flex-col",
 }: ListPageLayoutProps) {
   return (
     <div className={className}>
@@ -41,7 +41,7 @@ export function ListPageLayout({
         ) : null}
       </header>
 
-      <div className="mt-8 min-h-0 flex-1">{children}</div>
+      <div className="mt-8 pb-8">{children}</div>
     </div>
   );
 }

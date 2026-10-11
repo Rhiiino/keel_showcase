@@ -80,9 +80,9 @@ export function TimelinePlanItemsListView({
 
   return (
     <section
-      className={
-        fillHeight ? "flex w-full min-h-0 max-h-full flex-col gap-4" : "space-y-4"
-      }
+      className={[
+        fillHeight ? "mb-8 flex w-full min-h-0 max-h-full flex-col gap-4" : "mb-8 space-y-4",
+      ].join(" ")}
     >
       <h2 className="shrink-0 text-sm font-semibold uppercase tracking-wide text-stone-400">
         Plan items
@@ -122,7 +122,11 @@ export function TimelinePlanItemsListView({
         </div>
 
         <div
-          className={fillHeight ? "min-h-0 flex-1 overflow-x-auto overflow-y-auto" : undefined}
+          className={
+            fillHeight
+              ? "min-h-0 flex-1 overflow-x-auto overflow-y-auto pb-12"
+              : "pb-8"
+          }
           onDragOver={handleListDragOver}
           onDrop={(event) => {
             event.preventDefault();

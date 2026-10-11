@@ -1,39 +1,32 @@
 // stack_sandbox/frontend_web/src/modules/agents/components/AgentEditorActions.tsx
 
-// Create sub-agent and save/create controls in the page header.
+// Save/create controls in the page header (new sub-agent lives on the catalog + tile).
 
-import {
-  useAgentsPageActions,
-  useOptionalAgentEditorControls,
-} from "../context/AgentEditorContext";
+import { useOptionalAgentEditorControls } from "../context/AgentEditorContext";
 
 export function AgentEditorActions() {
-  const pageActions = useAgentsPageActions();
   const controls = useOptionalAgentEditorControls();
+
+  if (!controls?.isDirty && !controls?.saveError) {
+    return null;
+  }
 
   return (
     <div className="flex shrink-0 flex-col items-end gap-1.5 py-1 pl-4 pr-2">
       <div className="flex items-center gap-2">
-        {pageActions ? (
+        {controls?.isDraft ? (
           <button
             type="button"
-            title="New sub-agent"
-            aria-label="New sub-agent"
-            onClick={pageActions.createSubagent}
+            onClick={() => controls.discard()}
+            disabled={controls.isSaving}
             className={[
-              "rounded-md p-1.5 text-stone-400 transition",
-              "ring-1 ring-stone-700/80 hover:bg-stone-900/70 hover:text-lime-400",
+              "rounded-md px-3 py-1.5 text-xs font-medium transition",
+              controls.isSaving
+                ? "cursor-not-allowed text-stone-600"
+                : "text-stone-400 ring-1 ring-stone-800/80 hover:bg-stone-900/70 hover:text-stone-200",
             ].join(" ")}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="h-4 w-4"
-              aria-hidden
-            >
-              <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-            </svg>
+            Discard
           </button>
         ) : null}
         {controls?.isDirty ? (

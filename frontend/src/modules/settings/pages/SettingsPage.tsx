@@ -104,14 +104,14 @@ export function SettingsPage() {
 
   return (
     <AppShellContent>
-      <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col gap-6">
         <header className="flex shrink-0 items-start justify-between gap-4 overflow-visible">
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-stone-50">
               Settings
             </h1>
             <p className="mt-1 text-sm text-stone-500">
-              Global app preferences. More categories will appear here over time.
+              Global app preferences.
             </p>
           </div>
           <InlineSaveDiscardActions
@@ -128,7 +128,7 @@ export function SettingsPage() {
           />
         </header>
 
-        <div className="flex min-h-0 flex-1 gap-8 overflow-hidden">
+        <div className="flex min-h-0 flex-1 gap-8">
           <SettingsPageTabs
             tabs={getSettingsTabs()}
             activeId={activeTabId}
@@ -138,7 +138,7 @@ export function SettingsPage() {
           <div
             role="tabpanel"
             aria-label={activeTab?.title ?? "Settings"}
-            className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-l border-stone-800/60 pl-8"
+            className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain border-l border-stone-800/60 pl-8 pb-8"
           >
             <SettingsTabPanel
               tabId={activeTabId}

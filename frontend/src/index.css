@@ -9,6 +9,38 @@ body {
   @apply bg-app text-stone-100 antialiased;
 }
 
+/* While shell wallpaper bootstrap is active, let it show through opaque chrome
+   backgrounds (desktop auth wait + mobile desktop gate). */
+html[data-shell-wallpaper="pending"] body,
+html[data-shell-wallpaper="pending"] #root main {
+  background-color: transparent !important;
+}
+
+html[data-shell-wallpaper="pending"] .app-shell-gradient {
+  opacity: 0 !important;
+}
+
+/* During the pre-React / entrance spinner, keep chrome fully clear so the
+   wallpaper on the loading layer is visible behind the icon (esp. mobile gate). */
+html[data-shell-loading] body,
+html[data-shell-loading] #root main,
+html[data-shell-loading] .login-gray-screen {
+  background-color: transparent !important;
+}
+
+html[data-shell-loading] .app-shell-gradient,
+html[data-shell-loading] .login-gray-gradient {
+  opacity: 0 !important;
+}
+
+html[data-shell-wallpaper="pending"]:not([data-shell-loading]) .login-gray-screen {
+  background-color: rgb(18 18 20 / 0.28) !important;
+}
+
+html[data-shell-wallpaper="pending"]:not([data-shell-loading]) .login-gray-gradient {
+  opacity: 0.45;
+}
+
 body.focus-list-card-dragging {
   cursor: grabbing !important;
   user-select: none;
@@ -358,6 +390,41 @@ body.focus-list-card-dragging {
   animation: chat-typing-bounce 1.1s ease-in-out infinite;
 }
 
+@keyframes keel-brand-spinner-segment {
+  0%,
+  100% {
+    opacity: 0.18;
+  }
+
+  45% {
+    opacity: 1;
+  }
+}
+
+@keyframes keel-brand-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.keel-brand-spinner__ring {
+  animation: keel-brand-spinner-rotate 2.8s linear infinite;
+}
+
+.keel-brand-spinner__segment {
+  animation: keel-brand-spinner-segment 1.05s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .keel-brand-spinner__ring {
+    animation-duration: 5s;
+  }
+
+  .keel-brand-spinner__segment {
+    animation-duration: 1.8s;
+  }
+}
+
 @keyframes keel-caption-dot-bounce {
   0%,
   60%,
@@ -636,6 +703,10 @@ body.focus-list-card-dragging {
   will-change: transform;
 }
 
+.keel-persona-player-stage:not(.keel-persona-compositor-ready) {
+  visibility: hidden;
+}
+
 /* Animation playground — beveled frame around the persona preview canvas. */
 .keel-playground-preview-frame::before {
   --keel-playground-bevel: 14px;
@@ -655,24 +726,6 @@ body.focus-list-card-dragging {
     0 calc(100% - var(--keel-playground-bevel)),
     0 var(--keel-playground-bevel)
   );
-}
-
-/* Settings → Animations gallery card titles. */
-.keel-animation-settings-card-title {
-  font-family: Impact, Haettenschweiler, "Franklin Gothic Bold", "Arial Narrow Bold", sans-serif;
-  font-size: 1.05rem;
-  font-weight: 400;
-  letter-spacing: 0.07em;
-  line-height: 1.05;
-  text-transform: uppercase;
-  color: hsl(84, 81%, 72%);
-  padding-left: 0.4rem;
-  border-left: 2px solid hsl(84, 81%, 55%);
-  text-shadow:
-    0 1px 0 rgba(0, 0, 0, 0.9),
-    0 2px 6px rgba(0, 0, 0, 0.55),
-    0 0 14px hsla(84, 81%, 55%, 0.28);
-  -webkit-text-stroke: 0.4px rgba(0, 0, 0, 0.35);
 }
 
 /* Coak constellation loading overlay — warm gradient backdrop. */
@@ -854,13 +907,12 @@ body.focus-list-card-dragging {
   will-change: transform, opacity, filter;
 }
 
-.login-scatter-intro-sailor--preloading {
-  opacity: 0;
-  visibility: hidden;
+.login-scatter-spot--mobile-gate.login-scatter-spot--entering {
+  animation-duration: 320ms;
 }
 
-.login-scatter-intro-sailor--entering {
-  animation: login-scatter-teleport-in 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+.login-scatter-spot--mobile-gate.login-scatter-spot--teleporting-out {
+  animation-duration: 320ms;
 }
 
 .scatter-login-title {
@@ -878,7 +930,7 @@ body.focus-list-card-dragging {
   );
   mix-blend-mode: screen;
   transform: translateX(-125%) skewX(-16deg);
-  animation: scatter-login-title-sheen 1350ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: scatter-login-title-sheen 2700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: transform, opacity;
 }
 

@@ -14,7 +14,7 @@ Settings is the preferences surface opened from the profile menu (not main nav).
 
 | Path | Page | Notes |
 |------|------|-------|
-| `/settings` | `SettingsPage` | Tabbed settings (General, Home Cards, Themes, Animations, Recently Deleted) |
+| `/settings` | `SettingsPage` | Tabbed settings (General, Home Cards, Themes, Recently Deleted) |
 
 **Nav:** none — opened from `auth/ProfileMenu`.
 
@@ -43,13 +43,12 @@ settings/
 ├── routes.tsx
 ├── settingsTabs.ts     # core settings tab manifest contributions
 ├── components/
-│   ├── GeneralSettingsTabPanel, GeneralSettingsTab, HomeCardsSettingsTab, ThemesSettingsTab, AnimationsSettingsTab, AnimationViewToggle, KeelAnimationCarouselView, KeelAnimationSettingsCard, BackgroundSettingsSection, BreadcrumbSettingsSection, NavWaveGlowSettingsSection, ProfileNameSection, ProfilePictureField
+│   ├── GeneralSettingsTabPanel, GeneralSettingsTab, HomeCardsSettingsTab, ThemesSettingsTab, BackgroundSettingsSection, BreadcrumbSettingsSection, NavWaveGlowSettingsSection, ProfileNameSection, ProfilePictureField
 │   ├── settingsTabRegistry.tsx, SettingsPageTabs
 │   └── context/    # ThemeSettingsContext, BackgroundSettingsContext, TransitionSettingsContext
 ├── hooks/          # useSettingsServerSync (shell ↔ server sync)
 ├── lib/
 │   ├── config/     # settingsTabsConfig
-│   ├── animationView.ts  # Animations tab cards/carousel view preference
 │   ├── background/ # shellBackgroundSettings
 │   ├── theme/      # themeSettings
 │   └── transition/ # transitionSettings
@@ -77,7 +76,6 @@ flowchart TB
 - **auth/api** — profile name and picture (`PATCH /auth/me`)
 - **agents** — `EditableText` for inline name edit
 - **projects** — title font key types for home greeting
-- **lib/keelPersona**, **components/keelPersona** — Animations tab gallery (`listKeelClips`, `KeelPersonaPlayer`)
 - Consumed by **app** (providers, nav), **home**
 
 ## Maintenance guidelines
@@ -93,6 +91,7 @@ flowchart TB
 
 ## Module changelog
 
+- **2026-07-09** — Removed Animations settings tab (and related gallery components) for the showcase.
 - **2026-07-09** — Animations tab view toggle (card grid or horizontal focus carousel); preference stored in `keel.settings.animations.viewMode`.
 - **2026-07-09** — `nav_menu_visibility` preference for nav panel hide/unhide via context menu (hidden items keep `nav_menu_layout` order).
 - **2026-07-08** — General tab nav menu wave glow toggle (`nav_wave_glow_enabled`, default on).

@@ -6,12 +6,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { Navigate, Outlet } from "react-router-dom";
 
+import { KeelBrandSpinner } from "../../../components/KeelBrandSpinner";
+import { SHELL_LOADING_BOOTSTRAP_ELEMENT_ID } from "../../settings/lib/background";
 import {
   authKeys,
   authSessionQueryRetry,
   CURRENT_USER_STALE_TIME_MS,
   fetchAuthSessionUser,
 } from "../api";
+
+function hasBootstrapLoadingSpinner(): boolean {
+  return typeof document !== "undefined"
+    ? document.getElementById(SHELL_LOADING_BOOTSTRAP_ELEMENT_ID) != null
+    : false;
+}
 
 export function RequireAuth() {
   const { data: user, isLoading, isError, error, refetch, isFetching } = useQuery({
@@ -24,8 +32,8 @@ export function RequireAuth() {
 
   if (isLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-app text-stone-400">
-        <p className="font-mono text-sm uppercase tracking-[0.2em]">Loading…</p>
+      <main className="flex min-h-screen items-center justify-center bg-app">
+        {hasBootstrapLoadingSpinner() ? null : <KeelBrandSpinner size={80} />}
       </main>
     );
   }

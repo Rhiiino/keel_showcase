@@ -176,6 +176,23 @@ export function pickLoginScatterIntroSailorPosition(
   };
 }
 
+/** Fixed persona slot for the mobile desktop gate — higher than intro sailor to clear the title. */
+export function pickMobileDesktopGatePersonaPosition(
+  viewport: ViewportSize,
+  sizePx = LOGIN_SCATTER_INTRO_SAILOR_SIZE_PX,
+): { x: number; y: number } {
+  const halfHeight = loginScatterDisplayHeightPx(sizePx) / 2;
+  const edgePadding = LOGIN_SCATTER_EDGE_PADDING_PX;
+  const targetY = viewport.height * 0.30;
+  const minY = edgePadding + halfHeight;
+  const maxY = viewport.height - edgePadding - halfHeight;
+
+  return {
+    x: viewport.width / 2,
+    y: Math.min(Math.max(targetY, minY), maxY),
+  };
+}
+
 export function pickLoginScatterPositionInQuadrant(
   viewport: ViewportSize,
   quadrant: LoginScatterQuadrant,

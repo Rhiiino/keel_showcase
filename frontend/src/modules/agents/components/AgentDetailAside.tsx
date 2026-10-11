@@ -14,12 +14,14 @@ type AgentDetailAsideProps = {
   /** Fires when the panel is mounted or unmounted (includes close animation). */
   onLayoutOpenChange?: (open: boolean) => void;
   onCreated?: (agent: AgentSummary) => void;
+  onDiscarded?: () => void;
 };
 
 export function AgentDetailAside({
   agent,
   onLayoutOpenChange,
   onCreated,
+  onDiscarded,
 }: AgentDetailAsideProps) {
   const [mountedAgent, setMountedAgent] = useState<AgentSummary | null>(null);
   const [slideIn, setSlideIn] = useState(false);
@@ -101,7 +103,11 @@ export function AgentDetailAside({
         onTransitionEnd={handleTransitionEnd}
       >
         <div className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto overscroll-contain p-8 lg:p-10">
-          <AgentDetailPanel agent={mountedAgent} onCreated={onCreated} />
+          <AgentDetailPanel
+            agent={mountedAgent}
+            onCreated={onCreated}
+            onDiscarded={onDiscarded}
+          />
         </div>
       </aside>
     </div>

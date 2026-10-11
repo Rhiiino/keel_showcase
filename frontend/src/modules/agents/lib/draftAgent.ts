@@ -1,6 +1,6 @@
 // stack_sandbox/frontend_web/src/modules/agents/lib/draftAgent.ts
 
-// Client-side draft sub-agent scaffolded from the Agents page + button.
+// Client-side draft sub-agent scaffolded from the Agents catalog + tile.
 
 import type { AgentSummary } from "../api";
 

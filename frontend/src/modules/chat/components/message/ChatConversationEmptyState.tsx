@@ -70,7 +70,7 @@ export function ChatConversationEmptyState({
       <AgentModelViewer
         agentId={driverAgentId}
         src={modelSrc}
-        placeholderSrc={subagentPortraitSrc(driverAgentId)}
+        placeholderSrc={subagentPortraitSrc(driverAgentId) ?? undefined}
         className="h-[min(28rem,52vh)] w-[min(22rem,78vw)] sm:h-96 sm:w-80"
       />
       <p

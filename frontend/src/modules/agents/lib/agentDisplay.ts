@@ -43,21 +43,34 @@ function agentImageStorageKey(agentId: string): string {
   return `agents/${agentId}/image.png`;
 }
 
+/** Built-in agents with committed portrait assets when catalog media is not loaded yet. */
+const BUILTIN_AGENT_IMAGE_STORAGE_KEYS: Record<string, string> = {
+  keel: "agents/keel/image.png",
+  baysic: "agents/baysic/image.png",
+  haul: "agents/haul/image.png",
+  recall: "agents/recall/image.png",
+};
+
 /** Built-in agents with committed 3D assets when catalog media is not loaded yet. */
 const BUILTIN_AGENT_MODEL_STORAGE_KEYS: Record<string, string> = {
   keel: "agents/keel/model.glb",
+  baysic: "agents/baysic/model.glb",
+  haul: "agents/haul/model.glb",
+  recall: "agents/recall/model.glb",
+  forage: "agents/forage/model.glb",
 };
 
-/** Portrait URL for an agent (orchestrator or sub-agent). */
+/** Portrait URL for an agent (orchestrator or sub-agent). Null when none exists. */
 export function agentImageUrl(
   agentId: string,
   media?: AgentMedia[],
-): string {
+): string | null {
   const fromApi = mediaByKind(media, "image", "tile");
   if (fromApi) {
     return resolveAgentMediaUrl(fromApi.url, fromApi.updated_at);
   }
-  return catalogMediaUrl(agentImageStorageKey(agentId));
+  const builtinStorageKey = BUILTIN_AGENT_IMAGE_STORAGE_KEYS[agentId];
+  return builtinStorageKey ? catalogMediaUrl(builtinStorageKey) : null;
 }
 
 /** GLB model URL for an agent detail panel turntable. */
@@ -73,7 +86,9 @@ export function agentModelUrl(
   return builtinStorageKey ? catalogMediaUrl(builtinStorageKey) : null;
 }
 
-export function orchestratorPortraitSrc(agent?: AgentSummary | null): string {
+export function orchestratorPortraitSrc(
+  agent?: AgentSummary | null,
+): string | null {
   if (agent) {
     return agentImageUrl(agent.id, agent.media);
   }
@@ -83,7 +98,7 @@ export function orchestratorPortraitSrc(agent?: AgentSummary | null): string {
 export function subagentPortraitSrc(
   agentId: string,
   media?: AgentMedia[],
-): string {
+): string | null {
   return agentImageUrl(agentId, media);
 }
 
@@ -224,7 +239,7 @@ export function conversationListAvatarSizeClassName(agentId: string): string {
   return agentId === "keel" ? "h-9 w-9" : "h-[2.625rem] w-[2.625rem]";
 }
 
-export function agentPortraitSrc(agentId: string): string {
+export function agentPortraitSrc(agentId: string): string | null {
   return agentImageUrl(agentId);
 }
 

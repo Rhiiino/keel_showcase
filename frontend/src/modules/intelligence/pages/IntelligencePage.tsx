@@ -65,7 +65,7 @@ export function IntelligencePage() {
             Intelligence
           </h1>
           <p className="mt-2 max-w-xl text-sm text-stone-500">
-            Read-only catalog of Keel&apos;s AI components — providers, models, tools, and
+            Catalog of Keel&apos;s AI components — providers, models, tools, and
             categories.
           </p>
         </header>

@@ -50,12 +50,38 @@ async function mediaObjectToFile(media: MediaObject): Promise<File> {
   });
 }
 
+function CameraUploadIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      className={className}
+      aria-hidden
+    >
+      <path
+        d="M4.5 8.25A2.25 2.25 0 0 1 6.75 6h1.378a1.5 1.5 0 0 0 1.06-.44l.872-.872A1.5 1.5 0 0 1 11.122 4.25h1.756a1.5 1.5 0 0 1 1.06.438l.873.872a1.5 1.5 0 0 0 1.06.44h1.379A2.25 2.25 0 0 1 19.5 8.25v8.5A2.25 2.25 0 0 1 17.25 19H6.75A2.25 2.25 0 0 1 4.5 16.75v-8.5Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 15.25a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function StaticPortrait({
   agent,
   portraitSrc,
+  editable,
 }: {
   agent: AgentSummary;
-  portraitSrc: string;
+  portraitSrc: string | null;
+  editable: boolean;
 }) {
   return (
     <div
@@ -70,11 +96,25 @@ function StaticPortrait({
             : "border border-stone-700/60 bg-stone-950/50 shadow-[0_8px_24px_rgba(0,0,0,0.35)]",
         ].join(" ")}
       >
-        <img
-          src={portraitSrc}
-          alt=""
-          className="h-32 w-32 object-contain drop-shadow-md"
-        />
+        {portraitSrc ? (
+          <img
+            src={portraitSrc}
+            alt=""
+            className="h-32 w-32 object-contain drop-shadow-md"
+          />
+        ) : (
+          <div className="flex flex-col items-center gap-2 px-4 text-center">
+            <CameraUploadIcon
+              className={[
+                "h-10 w-10",
+                editable ? "text-stone-400" : "text-stone-600",
+              ].join(" ")}
+            />
+            {editable ? (
+              <span className="text-xs text-stone-500">Add portrait</span>
+            ) : null}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -170,7 +210,11 @@ export function AgentMediaHero({
   };
 
   const chooseLabel =
-    sourceTarget === "tile" ? "Update portrait" : "Update 3D model";
+    sourceTarget === "tile"
+      ? portraitSrc
+        ? "Update portrait"
+        : "Add portrait"
+      : "Update 3D model";
 
   if (modelSrc) {
     return (
@@ -192,7 +236,7 @@ export function AgentMediaHero({
             <AgentModelViewer
               agentId={agent.id}
               src={modelSrc}
-              placeholderSrc={portraitSrc}
+              placeholderSrc={portraitSrc ?? undefined}
               className="h-64 w-56"
             />
           </button>
@@ -257,8 +301,20 @@ export function AgentMediaHero({
           type="button"
           disabled={!editable}
           onClick={(event) => openSourceMenu(event, "tile")}
-          title={editable ? "Update portrait" : undefined}
-          aria-label={editable ? "Update portrait" : undefined}
+          title={
+            editable
+              ? portraitSrc
+                ? "Update portrait"
+                : "Add portrait"
+              : undefined
+          }
+          aria-label={
+            editable
+              ? portraitSrc
+                ? "Update portrait"
+                : "Add portrait"
+              : undefined
+          }
           className={[
             "relative shrink-0 transition",
             editable
@@ -266,7 +322,11 @@ export function AgentMediaHero({
               : "cursor-default",
           ].join(" ")}
         >
-          <StaticPortrait agent={agent} portraitSrc={portraitSrc} />
+          <StaticPortrait
+            agent={agent}
+            portraitSrc={portraitSrc}
+            editable={editable}
+          />
         </button>
         {editable ? (
           <button

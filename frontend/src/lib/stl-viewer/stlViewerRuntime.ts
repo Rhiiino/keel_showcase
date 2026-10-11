@@ -21,6 +21,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import {
   getWebGLRendererParameters,
+  isWebGLAvailable,
+  markWebGLUnavailable,
   releaseCanvasWebGLContext,
 } from "./webglSupport";
 
@@ -377,6 +379,11 @@ export class StlViewerRuntime {
   }
 }
 
+function isPermanentWebGLFailure(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  return /webgl|context/i.test(message);
+}
+
 export async function createStlViewerRuntime(
   canvas: HTMLCanvasElement,
   container: HTMLElement,
@@ -384,15 +391,39 @@ export async function createStlViewerRuntime(
   displayOptions: StlViewerDisplayOptions,
   maxAttempts = 3,
 ): Promise<StlViewerRuntime> {
+  if (!isWebGLAvailable()) {
+    throw new Error("WebGL is not available in this browser.");
+  }
+
   let lastError: unknown;
+  let activeCanvas = canvas;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
-      return new StlViewerRuntime(canvas, container, initialGeometry, displayOptions);
+      return new StlViewerRuntime(
+        activeCanvas,
+        container,
+        initialGeometry,
+        displayOptions,
+      );
     } catch (error) {
       lastError = error;
-      releaseCanvasWebGLContext(canvas);
+      // Permanent GPU/sandbox disable — retries only spam the console.
+      if (isPermanentWebGLFailure(error)) {
+        markWebGLUnavailable();
+        break;
+      }
+      // Transient context exhaustion: swap the canvas (do not getContext() the
+      // failed one — that re-fires webglcontextcreationerror).
       if (attempt < maxAttempts) {
+        const next = document.createElement("canvas");
+        next.className = activeCanvas.className;
+        next.setAttribute(
+          "aria-label",
+          activeCanvas.getAttribute("aria-label") ?? "3D model preview",
+        );
+        activeCanvas.replaceWith(next);
+        activeCanvas = next;
         await new Promise<void>((resolve) => {
           window.setTimeout(resolve, 120 * attempt);
         });
@@ -400,6 +431,7 @@ export async function createStlViewerRuntime(
     }
   }
 
+  markWebGLUnavailable();
   throw lastError instanceof Error
     ? lastError
     : new Error("WebGL viewer failed to start.");

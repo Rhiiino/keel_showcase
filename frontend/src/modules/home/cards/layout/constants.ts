@@ -4,3 +4,6 @@
 
 /** Matches quote carousel and today-events list content width. */
 export const HOME_CONTENT_WIDTH_CLASS = "max-w-lg";
+
+/** Pixel width of Tailwind `max-w-lg` (32rem) used by non-resizable home cards. */
+export const HOME_CARD_MAX_CONTENT_WIDTH_PX = 512;

@@ -35,12 +35,19 @@ export function AgentToolCategoryEditor({
     [assignedCategories],
   );
 
+  const categoryDisplayNameByKey = useMemo(() => {
+    const catalog = categoriesQuery.data ?? [];
+    return new Map(catalog.map((category) => [category.key, category.display_name]));
+  }, [categoriesQuery.data]);
+
+  const categoryLabel = (categoryKey: string) =>
+    categoryDisplayNameByKey.get(categoryKey) ?? toolCategoryLabel(categoryKey);
+
   const availableToAdd = useMemo(() => {
     const catalog = categoriesQuery.data ?? [];
     return catalog
-      .map((category) => category.key)
-      .filter((key) => !assignedSet.has(key))
-      .sort((left, right) => left.localeCompare(right));
+      .filter((category) => !assignedSet.has(category.key))
+      .sort((left, right) => left.key.localeCompare(right.key));
   }, [assignedSet, categoriesQuery.data]);
 
   const removeCategory = (category: string) => {
@@ -70,7 +77,7 @@ export function AgentToolCategoryEditor({
             ].join(" ")}
           >
             <ToolCategoryIcon category={category} size="xs" />
-            {toolCategoryLabel(category)}
+            {categoryLabel(category)}
           </span>
         ))}
       </div>
@@ -99,7 +106,7 @@ export function AgentToolCategoryEditor({
             ].join(" ")}
           >
             <ToolCategoryIcon category={category} size="xs" />
-            {toolCategoryLabel(category)}
+            {categoryLabel(category)}
             {assignedCategories.length > 1 ? (
               <span className="text-stone-600" aria-hidden>
                 ×
@@ -130,17 +137,17 @@ export function AgentToolCategoryEditor({
               >
                 {availableToAdd.map((category) => (
                   <button
-                    key={category}
+                    key={category.key}
                     type="button"
-                    onClick={() => addCategory(category)}
+                    onClick={() => addCategory(category.key)}
                     className={[
                       "flex w-full items-center gap-2 rounded px-2 py-1.5 text-left",
                       "font-mono text-xs uppercase tracking-wider text-stone-300",
                       "transition hover:bg-stone-900",
                     ].join(" ")}
                   >
-                    <ToolCategoryIcon category={category} size="xs" />
-                    {toolCategoryLabel(category)}
+                    <ToolCategoryIcon category={category.key} size="xs" />
+                    {categoryLabel(category.key)}
                   </button>
                 ))}
               </div>

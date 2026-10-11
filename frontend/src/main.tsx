@@ -9,10 +9,12 @@ import { BrowserRouter } from "react-router-dom";
 
 import { AppProviders } from "./app/providers";
 import { AppRoutes } from "./app/routes";
+import { bootstrapShellWallpaperFromStorage } from "./modules/settings/lib/background";
 import { applyThemeToDocument, readStoredThemeId } from "./modules/settings/lib/theme";
 import "./index.css";
 
 applyThemeToDocument(readStoredThemeId());
+bootstrapShellWallpaperFromStorage();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

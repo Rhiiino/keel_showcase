@@ -4,9 +4,14 @@
 
 import { getHomeCardRegistryIds } from "../registry";
 import type { HomeCardId } from "../../../../app/modules/homeCardTypes";
+import { HOME_CARD_MAX_CONTENT_WIDTH_PX } from "./constants";
 import {
+  clampHomeCardPosition,
   isHomeCardResizable,
+  MIN_HOME_CARD_SIZE,
   resolveHomeCardSize,
+  type HomeCardBounds,
+  type HomeResizableCardId,
 } from "./homeCardResize";
 
 export type HomeCardLayoutEntry = {
@@ -122,4 +127,42 @@ export function getHomeCardSlotHeight(entry: HomeCardLayoutEntry): number {
     return entry.height;
   }
   return DEFAULT_HOME_CARD_SLOT_HEIGHT;
+}
+
+/**
+ * Fit a layout entry into the current canvas for display / drag.
+ * Clamps X (and resizable width) to the canvas width; Y is only floored at 0
+ * so tall stacked layouts remain vertically scrollable.
+ */
+export function fitHomeCardLayoutEntryToBounds(
+  entry: HomeCardLayoutEntry,
+  bounds: HomeCardBounds,
+  measuredWidth?: number,
+): HomeCardLayoutEntry {
+  const size = resolveHomeCardSize(entry.id, entry);
+  if (size) {
+    const mins = MIN_HOME_CARD_SIZE[entry.id as HomeResizableCardId];
+    const width = Math.min(
+      Math.max(mins.width, size.width),
+      Math.max(0, bounds.width),
+    );
+    const maxX = Math.max(0, bounds.width - width);
+    return {
+      ...entry,
+      x: Math.min(Math.max(0, Math.round(entry.x)), maxX),
+      y: Math.max(0, Math.round(entry.y)),
+      width,
+      height: Math.max(mins.height, size.height),
+    };
+  }
+
+  const cardWidth =
+    measuredWidth ??
+    Math.min(HOME_CARD_MAX_CONTENT_WIDTH_PX, Math.max(0, bounds.width));
+  const position = clampHomeCardPosition(entry.x, entry.y, cardWidth, bounds);
+  return {
+    ...entry,
+    x: position.x,
+    y: position.y,
+  };
 }

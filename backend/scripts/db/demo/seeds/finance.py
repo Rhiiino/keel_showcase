@@ -51,6 +51,9 @@ async def seed_finance(conn: asyncpg.Connection, ctx: DemoContext) -> None:
         ("streamflix", "StreamFlix", "https://example.com/streamflix", "Demo streaming subscription vendor."),
         ("cloudhost", "CloudHost Pro", "https://example.com/cloudhost", "Demo cloud hosting vendor."),
         ("cafe", "Bean & Byte", "https://example.com/cafe", "Demo local café vendor."),
+        ("apple", "Apple", "https://www.apple.com", "Consumer electronics and software."),
+        ("microsoft", "Microsoft", "https://www.microsoft.com", "Software, cloud, and hardware."),
+        ("walmart", "Walmart", "https://www.walmart.com", "Retail and household goods."),
     )
     for key, name, url, notes in vendor_specs:
         await _seed_vendor(conn, ctx, key, name, url, notes)
@@ -163,6 +166,11 @@ async def seed_finance(conn: asyncpg.Connection, ctx: DemoContext) -> None:
         ("chair", "Demo: Reading Chair", "desk", "physical", "in_transit", 2, Decimal("240.00")),
         ("cafe", "Demo: Team Coffee Run", "cafe", "expense", "received", 3, Decimal("18.75")),
         ("hosting", "Demo: Extra Storage", "cloudhost", "service", "received", 4, Decimal("12.00")),
+        ("airpods", "AirPods Pro", "apple", "physical", "considering", 5, Decimal("249.00")),
+        ("macbook", "MacBook Air M3", "apple", "physical", "ordered", 6, Decimal("1099.00")),
+        ("xbox_controller", "Xbox Wireless Controller", "microsoft", "physical", "received", 7, Decimal("59.99")),
+        ("groceries", "Weekly Groceries", "walmart", "expense", "received", 8, Decimal("87.42")),
+        ("patio_set", "Patio Furniture Set", "walmart", "physical", "in_transit", 9, Decimal("349.00")),
     )
     for key, title, vendor_key, kind, status, sort_order, price in transaction_specs:
         item_id = await fetch_or_insert(
@@ -213,6 +221,30 @@ async def seed_finance(conn: asyncpg.Connection, ctx: DemoContext) -> None:
         name="Home Office",
         color="#06B6D4",
     )
+    shopping_tag = await upsert_tag(
+        conn,
+        ctx,
+        table=tables.FINANCE_TRANSACTION_TAGS,
+        user_id=ctx.user_id,
+        name="Shopping",
+        color="#10B981",
+    )
+    splurging_tag = await upsert_tag(
+        conn,
+        ctx,
+        table=tables.FINANCE_TRANSACTION_TAGS,
+        user_id=ctx.user_id,
+        name="Splurging",
+        color="#F97316",
+    )
+    tech_tag = await upsert_tag(
+        conn,
+        ctx,
+        table=tables.FINANCE_TRANSACTION_TAGS,
+        user_id=ctx.user_id,
+        name="Tech",
+        color="#3B82F6",
+    )
     essential_tag = await upsert_tag(
         conn,
         ctx,
@@ -230,7 +262,20 @@ async def seed_finance(conn: asyncpg.Connection, ctx: DemoContext) -> None:
         color="#F97316",
     )
 
-    for txn_key, tag_id in (("mic", wishlist_tag), ("lamp", office_tag), ("chair", office_tag)):
+    for txn_key, tag_id in (
+        ("mic", wishlist_tag),
+        ("lamp", office_tag),
+        ("chair", office_tag),
+        ("airpods", tech_tag),
+        ("airpods", splurging_tag),
+        ("macbook", tech_tag),
+        ("macbook", splurging_tag),
+        ("xbox_controller", tech_tag),
+        ("xbox_controller", shopping_tag),
+        ("groceries", shopping_tag),
+        ("patio_set", shopping_tag),
+        ("patio_set", splurging_tag),
+    ):
         await conn.execute(
             f"""
             INSERT INTO {tables.FINANCE_TRANSACTION_TAG_ASSIGNMENTS} (transaction_id, tag_id)

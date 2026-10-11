@@ -100,6 +100,21 @@ export function clampHomeCardRect(
   };
 }
 
+/** Clamp a free-form card position so its box stays inside the canvas width. */
+export function clampHomeCardPosition(
+  x: number,
+  y: number,
+  cardWidth: number,
+  bounds: HomeCardBounds,
+): { x: number; y: number } {
+  const width = Math.min(Math.max(0, cardWidth), bounds.width);
+  const maxX = Math.max(0, bounds.width - width);
+  return {
+    x: Math.min(Math.max(0, Math.round(x)), maxX),
+    y: Math.max(0, Math.round(y)),
+  };
+}
+
 export function applyHomeCardResize(
   origin: HomeCardRect,
   handle: HomeCardResizeHandle,

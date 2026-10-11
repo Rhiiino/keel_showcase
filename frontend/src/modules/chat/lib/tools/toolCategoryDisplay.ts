@@ -11,13 +11,14 @@ export type ToolCategoryDisplay = {
 
 const CATEGORY_LABELS: Record<string, string> = {
   core: "Core",
-  obsidian: "Obsidian",
   projects: "Projects",
-  haul: "Shop",
+  haul: "Finance",
   scripts: "Script",
   scrape: "Scrape",
   web: "Web",
-  agenda: "Agenda",
+  focus: "Focus",
+  people: "People",
+  coak: "Coak",
 };
 
 function catalogCategoryIconUrl(categoryKey: string): string {

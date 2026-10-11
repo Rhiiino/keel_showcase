@@ -19,15 +19,19 @@ import {
   HomeCardSlotContext,
 } from "./HomeCardCanvasContext";
 import { HomeCardResizeHandles } from "./HomeCardResizeHandles";
+import { HOME_CARD_MAX_CONTENT_WIDTH_PX } from "./constants";
 import {
   getHomeCardSlotHeight,
+  fitHomeCardLayoutEntryToBounds,
   type HomeCardLayoutEntry,
 } from "./homeCardLayout";
 import {
   applyHomeCardResize,
+  clampHomeCardPosition,
   isHomeCardResizable,
   MIN_HOME_CARD_SIZE,
   resolveHomeCardSize,
+  type HomeCardBounds,
   type HomeCardRect,
   type HomeCardResizeHandle,
   type HomeResizableCardId,
@@ -70,13 +74,16 @@ function clearDragSessionListeners(
   window.removeEventListener("pointercancel", onEnd);
 }
 
-function getCanvasBounds(canvas: HTMLDivElement) {
+function getCanvasBounds(canvas: HTMLDivElement): HomeCardBounds {
   return {
     width: canvas.clientWidth,
     height: Math.max(canvas.clientHeight, 480),
   };
 }
 
+function estimateNonResizableCardWidth(boundsWidth: number): number {
+  return Math.min(HOME_CARD_MAX_CONTENT_WIDTH_PX, Math.max(0, boundsWidth));
+}
 
 function shouldIgnoreHomeCardDrag(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -88,7 +95,6 @@ function shouldIgnoreHomeCardDrag(target: EventTarget | null): boolean {
     ),
   );
 }
-
 
 function buildCardRect(entry: HomeCardLayoutEntry): HomeCardRect | null {
   const size = resolveHomeCardSize(entry.id, entry);
@@ -117,6 +123,7 @@ export function HomeCardCanvas({
   const onMoveCardRef = useRef(onMoveCard);
   const onResizeCardRef = useRef(onResizeCard);
   const onLayoutChangeEndRef = useRef(onLayoutChangeEnd);
+  const layoutByIdRef = useRef(new Map<HomeCardId, HomeCardLayoutEntry>());
   onMoveCardRef.current = onMoveCard;
   onResizeCardRef.current = onResizeCard;
   onLayoutChangeEndRef.current = onLayoutChangeEnd;
@@ -129,8 +136,28 @@ export function HomeCardCanvas({
   const [cardHeights, setCardHeights] = useState<Partial<Record<HomeCardId, number>>>(
     {},
   );
+  const [canvasBounds, setCanvasBounds] = useState<HomeCardBounds>({
+    width: 0,
+    height: 480,
+  });
 
   const interactingCardId = pendingDragId ?? draggingId ?? resizingId;
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return;
+    }
+
+    const updateBounds = () => {
+      setCanvasBounds(getCanvasBounds(canvas));
+    };
+
+    updateBounds();
+    const observer = new ResizeObserver(updateBounds);
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const observers: ResizeObserver[] = [];
@@ -157,12 +184,41 @@ export function HomeCardCanvas({
     };
   }, [layout]);
 
+  const displayLayout = useMemo(() => {
+    if (canvasBounds.width <= 0) {
+      return layout;
+    }
+    return layout.map((entry) => {
+      const node = cardRefs.current.get(entry.id);
+      const measuredWidth =
+        !isHomeCardResizable(entry.id) && node
+          ? node.offsetWidth
+          : undefined;
+      return fitHomeCardLayoutEntryToBounds(entry, canvasBounds, measuredWidth);
+    });
+  }, [canvasBounds, layout]);
+
+  layoutByIdRef.current = new Map(
+    displayLayout.map((entry) => [entry.id, entry]),
+  );
+
   const canvasMinHeight = useMemo(() => {
-    const bottoms = layout.map(
+    const bottoms = displayLayout.map(
       (entry) => entry.y + (cardHeights[entry.id] ?? getHomeCardSlotHeight(entry)),
     );
     return Math.max(480, ...bottoms, 0) + 48;
-  }, [cardHeights, layout]);
+  }, [cardHeights, displayLayout]);
+
+  const resolveDragCardWidthRef = useRef(
+    (id: HomeCardId, entry: HomeCardLayoutEntry, bounds: HomeCardBounds) => {
+      const size = resolveHomeCardSize(id, entry);
+      if (size) {
+        return Math.min(size.width, bounds.width);
+      }
+      const node = cardRefs.current.get(id);
+      return node?.offsetWidth ?? estimateNonResizableCardWidth(bounds.width);
+    },
+  );
 
   const handleWindowPointerMoveRef = useRef((event: PointerEvent) => {
     const dragState = dragStateRef.current;
@@ -185,10 +241,16 @@ export function HomeCardCanvas({
 
     event.preventDefault();
 
+    const bounds = getCanvasBounds(canvas);
     const canvasRect = canvas.getBoundingClientRect();
-    const x = event.clientX - canvasRect.left - dragState.offsetX;
-    const y = event.clientY - canvasRect.top - dragState.offsetY;
-    onMoveCardRef.current(dragState.id, x, y);
+    const rawX = event.clientX - canvasRect.left - dragState.offsetX;
+    const rawY = event.clientY - canvasRect.top - dragState.offsetY;
+    const layoutEntry = layoutByIdRef.current.get(dragState.id);
+    const cardWidth = layoutEntry
+      ? resolveDragCardWidthRef.current(dragState.id, layoutEntry, bounds)
+      : estimateNonResizableCardWidth(bounds.width);
+    const next = clampHomeCardPosition(rawX, rawY, cardWidth, bounds);
+    onMoveCardRef.current(dragState.id, next.x, next.y);
   });
 
   const handleWindowPointerUpRef = useRef((event: PointerEvent) => {
@@ -358,7 +420,7 @@ export function HomeCardCanvas({
         style={{ minHeight: canvasMinHeight }}
         onClickCapture={handleClickCapture}
       >
-        {layout.map((entry) => {
+        {displayLayout.map((entry) => {
           const Card = getHomeCardComponent(entry.id);
           if (!Card) {
             return null;

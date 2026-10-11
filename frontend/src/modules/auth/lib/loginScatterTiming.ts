@@ -3,13 +3,16 @@
 // Shared timing for scatter login title + intro sailor sequencing.
 
 export const SCATTER_LOGIN_LETTER_COUNT = 4;
-export const SCATTER_LOGIN_FADE_DURATION_S = 1.8;
-export const SCATTER_LOGIN_LETTER_STAGGER_S = 0.33;
-export const SCATTER_LOGIN_INITIAL_DELAY_S = 0.3;
-export const LOGIN_SCATTER_INTRO_SAILOR_MS = 4500;
+export const SCATTER_LOGIN_FADE_DURATION_S = 0.9;
+export const SCATTER_LOGIN_LETTER_STAGGER_S = 0.165;
+export const SCATTER_LOGIN_INITIAL_DELAY_S = 0.15;
+export const LOGIN_SCATTER_INTRO_SAILOR_MS = 8000;
+export const MOBILE_DESKTOP_GATE_CLIP_MS = 4000;
+/** Teleport in/out duration for the mobile gate persona cycle (faster than desktop scatter). */
+export const MOBILE_DESKTOP_GATE_TELEPORT_MS = 320;
 export const SCATTER_LOGIN_SHEEN_MIN_MS = 4500;
 export const SCATTER_LOGIN_SHEEN_MAX_MS = 7500;
-export const SCATTER_LOGIN_SHEEN_DURATION_MS = 1350;
+export const SCATTER_LOGIN_SHEEN_DURATION_MS = 2700;
 
 export function scatterLoginTitleCompleteMs(): number {
   return (

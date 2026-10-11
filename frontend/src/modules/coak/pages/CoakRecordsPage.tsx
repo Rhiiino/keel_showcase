@@ -95,7 +95,7 @@ export function CoakRecordsPage() {
     <CardGalleryPageLayout
       title="C.O.A.K."
       recordCount={!recordsQuery.isLoading ? records.length : undefined}
-      subtitle="Culmination of all knowledge — create a record for each topic you want to learn."
+      subtitle="Culmination of All Knowledge — a system designed to become proficient on a given topic in a short amount of time."
       headerActions={
         <IconPlusButton
           onClick={handleCreate}

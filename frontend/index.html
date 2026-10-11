@@ -5,6 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/src/assets/general/keel.png" />
     <title>Keel</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: rgb(5 7 5);
+        color: rgb(245 245 244);
+      }
+
+      #root {
+        min-height: 100vh;
+      }
+
+      @keyframes keel-brand-spinner-segment {
+        0%,
+        100% {
+          opacity: 0.18;
+        }
+
+        45% {
+          opacity: 1;
+        }
+      }
+
+      @keyframes keel-brand-spinner-rotate {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .keel-brand-spinner__ring {
+        animation: keel-brand-spinner-rotate 2.8s linear infinite;
+      }
+
+      .keel-brand-spinner__segment {
+        animation: keel-brand-spinner-segment 1.05s ease-in-out infinite;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .keel-brand-spinner__ring {
+          animation-duration: 5s;
+        }
+
+        .keel-brand-spinner__segment {
+          animation-duration: 1.8s;
+        }
+      }
+    </style>
+    <script>
+      // Apply stored theme + wallpaper before React/CSS load to avoid a flash on refresh.
+      (function () {
+        var themeBackgrounds = {
+          forest: "5 7 5",
+          ember: "21 19 16",
+          sage: "12 15 14",
+          parchment: "200 204 196",
+          midnight: "8 12 24",
+          obsidian: "0 0 0",
+          sepia: "24 18 14",
+          signal: "4 4 4",
+          rainy_night: "2 2 2",
+        };
+
+        try {
+          var theme = localStorage.getItem("keel.app.theme") || "forest";
+          var background = themeBackgrounds[theme] || themeBackgrounds.forest;
+          var color = theme === "parchment" ? "rgb(28 25 23)" : "rgb(245 245 244)";
+          document.documentElement.setAttribute("data-app-theme", theme);
+          document.documentElement.style.backgroundColor = "rgb(" + background + ")";
+          document.documentElement.style.color = color;
+
+          var path = location.pathname || "/";
+          var onLogin = path === "/login" || path.indexOf("/login/") === 0;
+          var isMobile = false;
+          try {
+            isMobile =
+              window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+              /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(
+                navigator.userAgent,
+              );
+          } catch (mobileError) {
+            isMobile = false;
+          }
+          var showShellBootstrap = !onLogin || isMobile;
+          var wallpaperUrl = localStorage.getItem("keel.app.shellBackgroundUrl");
+          if (!wallpaperUrl) {
+            try {
+              var rawBackground = localStorage.getItem("keel.app.shellBackground");
+              var parsed = rawBackground ? JSON.parse(rawBackground) : null;
+              if (parsed && parsed.enabled && parsed.media_id) {
+                var apiBase = "%VITE_API_BASE_URL%";
+                wallpaperUrl = apiBase.replace(/\/$/, "") + "/media/" + parsed.media_id;
+                if (parsed.media_updated_at) {
+                  wallpaperUrl += "?v=" + encodeURIComponent(parsed.media_updated_at);
+                }
+              }
+            } catch (backgroundError) {
+              wallpaperUrl = null;
+            }
+          }
+          if (showShellBootstrap && wallpaperUrl) {
+            document.documentElement.setAttribute("data-shell-wallpaper", "pending");
+            var preload = document.createElement("link");
+            preload.rel = "preload";
+            preload.as = "image";
+            preload.href = wallpaperUrl;
+            document.head.appendChild(preload);
+            window.__KEEL_SHELL_WALLPAPER_URL__ = wallpaperUrl;
+          }
+          if (showShellBootstrap) {
+            window.__KEEL_SHELL_SHOW_LOADING__ = true;
+            document.documentElement.setAttribute("data-shell-loading", "1");
+          }
+        } catch (error) {
+          // Ignore private-mode / blocked storage.
+        }
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -30,6 +148,147 @@
     </script>
   </head>
   <body>
+    <script>
+      // Paint stored wallpaper + loading spinner before React mounts.
+      // Wallpaper media requires auth — prefer Cache Storage bytes, else credentialed fetch.
+      (function () {
+        var WALLPAPER_CACHE_NAME = "keel-shell-wallpaper-v1";
+        var WALLPAPER_CACHE_REQUEST = "/__keel_shell_wallpaper__";
+
+        function cssUrl(url) {
+          return (
+            'url("' + String(url).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '")'
+          );
+        }
+
+        function paintBackground(element, objectUrl) {
+          if (!element || !objectUrl) {
+            return;
+          }
+          element.style.backgroundSize = "cover";
+          element.style.backgroundPosition = "center";
+          element.style.backgroundRepeat = "no-repeat";
+          element.style.backgroundImage = cssUrl(objectUrl);
+        }
+
+        function paintWallpaperLayers(objectUrl) {
+          paintBackground(document.getElementById("keel-shell-wallpaper-bootstrap"), objectUrl);
+          paintBackground(document.getElementById("keel-shell-loading-bootstrap"), objectUrl);
+        }
+
+        function resolveWallpaperObjectUrl(sourceUrl) {
+          if (!sourceUrl || !window.caches || !window.fetch) {
+            return Promise.resolve(null);
+          }
+
+          return caches
+            .open(WALLPAPER_CACHE_NAME)
+            .then(function (cache) {
+              return cache.match(WALLPAPER_CACHE_REQUEST).then(function (cached) {
+                if (cached) {
+                  return cached.blob().then(function (blob) {
+                    return blob && blob.size ? URL.createObjectURL(blob) : null;
+                  });
+                }
+
+                return fetch(sourceUrl, { credentials: "include", mode: "cors" }).then(
+                  function (response) {
+                    if (!response.ok) {
+                      return null;
+                    }
+                    return response.blob().then(function (blob) {
+                      if (!blob || !blob.size) {
+                        return null;
+                      }
+                      var headers = new Headers({
+                        "Content-Type": blob.type || "image/jpeg",
+                        "X-Keel-Wallpaper-Source": sourceUrl,
+                      });
+                      return cache
+                        .put(WALLPAPER_CACHE_REQUEST, new Response(blob, { status: 200, headers: headers }))
+                        .catch(function () {
+                          return undefined;
+                        })
+                        .then(function () {
+                          return URL.createObjectURL(blob);
+                        });
+                    });
+                  },
+                );
+              });
+            })
+            .catch(function () {
+              return null;
+            });
+        }
+
+        try {
+          var wallpaperUrl = window.__KEEL_SHELL_WALLPAPER_URL__;
+          if (wallpaperUrl) {
+            var layer = document.createElement("div");
+            layer.id = "keel-shell-wallpaper-bootstrap";
+            layer.setAttribute("aria-hidden", "true");
+            layer.style.cssText =
+              "position:fixed;inset:0;z-index:0;pointer-events:none;" +
+              "background-size:cover;background-position:center;background-repeat:no-repeat;";
+            document.body.insertBefore(layer, document.body.firstChild);
+          }
+
+          if (!window.__KEEL_SHELL_SHOW_LOADING__) {
+            if (wallpaperUrl) {
+              resolveWallpaperObjectUrl(wallpaperUrl).then(paintWallpaperLayers);
+            }
+            return;
+          }
+
+          var segments = "";
+          for (var i = 0; i < 12; i += 1) {
+            var delay = ((i / 12) * -1.05).toFixed(3);
+            var angle = (360 / 12) * i;
+            segments +=
+              '<g transform="rotate(' +
+              angle +
+              ' 40 40)">' +
+              '<rect class="keel-brand-spinner__segment" style="animation-delay:' +
+              delay +
+              's" x="37" y="8" width="6" height="14" rx="3" fill="url(#keelBootstrapSpinnerFill)"/>' +
+              "</g>";
+          }
+
+          var host = document.createElement("div");
+          host.id = "keel-shell-loading-bootstrap";
+          host.style.cssText =
+            "position:fixed;inset:0;z-index:50;display:flex;align-items:center;" +
+            "justify-content:center;pointer-events:none;";
+          host.innerHTML =
+            '<div class="keel-brand-spinner" style="width:80px;height:80px" role="status" aria-label="Loading">' +
+            '<div class="keel-brand-spinner__ring" style="width:100%;height:100%">' +
+            '<svg width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden="true" style="display:block;width:100%;height:100%">' +
+            "<defs>" +
+            '<linearGradient id="keelBootstrapSpinnerFill" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0%" stop-color="#d9f99d"/>' +
+            '<stop offset="45%" stop-color="#bef264"/>' +
+            '<stop offset="100%" stop-color="#34d399"/>' +
+            "</linearGradient>" +
+            '<filter id="keelBootstrapSpinnerGlow" x="-40%" y="-40%" width="180%" height="180%">' +
+            '<feGaussianBlur stdDeviation="1.2" result="blur"/>' +
+            '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+            "</filter>" +
+            "</defs>" +
+            '<circle cx="40" cy="40" r="28" stroke="rgba(190,242,100,0.12)" stroke-width="1.5"/>' +
+            '<g filter="url(#keelBootstrapSpinnerGlow)">' +
+            segments +
+            "</g></svg></div></div>";
+          document.body.appendChild(host);
+
+          if (wallpaperUrl) {
+            resolveWallpaperObjectUrl(wallpaperUrl).then(paintWallpaperLayers);
+          }
+        } catch (error) {
+          // Ignore DOM / private-mode failures.
+        }
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

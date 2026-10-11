@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from core.errors import AppError
-from llm.tools.categories import AGENDA
+from llm.tools.categories import FOCUS
 from llm.tools.contracts import ToolContext, ToolDefinition
 from modules.focus import service as focus_service
 
@@ -21,7 +21,7 @@ async def execute(arguments: dict[str, Any], context: ToolContext) -> dict[str, 
 
 TOOL_DEFINITION = ToolDefinition(
     name="delete_focus_entry",
-    category=AGENDA,
+    category=FOCUS,
     description="Delete a focus entry.",
     parameters={
         "type": "object",

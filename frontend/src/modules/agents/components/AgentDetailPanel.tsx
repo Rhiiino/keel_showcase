@@ -29,6 +29,7 @@ import { formatContextWindow } from "./TokenCountBadge";
 type AgentDetailPanelProps = {
   agent: AgentSummary;
   onCreated?: (agent: AgentSummary) => void;
+  onDiscarded?: () => void;
 };
 
 function AgentSystemPromptBlock({
@@ -115,14 +116,21 @@ function AgentToolsColumn({
   );
 }
 
-export function AgentDetailPanel({ agent, onCreated }: AgentDetailPanelProps) {
+export function AgentDetailPanel({
+  agent,
+  onCreated,
+  onDiscarded,
+}: AgentDetailPanelProps) {
   const isDraft = isDraftAgent(agent);
   const promptQuery = useQuery({
     queryKey: agentsQueryKeys.systemPrompt(agent.id),
     queryFn: () => fetchAgentSystemPrompt(agent.id),
     enabled: !isDraft,
   });
-  const editor = useAgentEditor(agent, promptQuery.data, { onCreated });
+  const editor = useAgentEditor(agent, promptQuery.data, {
+    onCreated,
+    onDiscarded,
+  });
   const { usage, isLoading: usageLoading, isError: usageError } =
     useAgentContextUsage(agent);
 

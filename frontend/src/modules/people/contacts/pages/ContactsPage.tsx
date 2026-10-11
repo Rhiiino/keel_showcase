@@ -48,7 +48,7 @@ export function ContactsPage() {
 
   return (
     <ListPageLayout
-      className="mx-auto flex min-h-0 w-full flex-1 flex-col"
+      className="mx-auto flex w-full flex-col"
       title="Contacts"
       recordCount={contactsQuery.data?.length}
       subtitle="People in your life — family, friends, and everyone else."

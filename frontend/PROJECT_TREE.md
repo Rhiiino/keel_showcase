@@ -1331,10 +1331,6 @@ keel_web/
 │   │   │   │   ├── GeneralSettingsTabPanel.tsx  # General tab panel wrapper (loads user)
 │   │   │   │   ├── GeneralSettingsTab.tsx  # Profile + background + breadcrumb + wave glow + transitions
 │   │   │   │   ├── HomeCardsSettingsTab.tsx  # Home card visibility toggles
-│   │   │   │   ├── AnimationsSettingsTab.tsx  # Registered Keel Persona clip gallery
-│   │   │   │   ├── AnimationViewToggle.tsx  # Cards vs carousel view selector
-│   │   │   │   ├── KeelAnimationCarouselView.tsx  # Horizontal focus carousel for animations
-│   │   │   │   ├── KeelAnimationSettingsCard.tsx  # Single animation card (player + quips)
 │   │   │   │   ├── ProfileNameSection.tsx  # Profile Name Section
 │   │   │   │   ├── ProfilePictureField.tsx  # Profile picture upload/picker
 │   │   │   │   ├── SettingsPageTabs.tsx  # Tab bar for settings page
@@ -1343,7 +1339,6 @@ keel_web/
 │   │   │   ├── hooks/          # settings hooks
 │   │   │   │   └── useSettingsServerSync.ts  # Hydrate theme/background/transitions from server after login
 │   │   │   ├── lib/          # settings helpers
-│   │   │   │   ├── animationView.ts  # Animations tab cards/carousel view preference
 │   │   │   │   ├── config/
 │   │   │   │   │   ├── index.ts  # index
 │   │   │   │   │   └── settingsTabsConfig.ts  # settings Tabs Config

@@ -98,7 +98,7 @@ export function applyFreeResize(
 }
 
 export function resolveAnchorRect(
-  anchor: "top-left" | "top-right",
+  anchor: "top-left" | "top-right" | "center",
   size: CoakPanelSize,
   bounds: CoakPanelBounds,
 ): CoakPanelRect {
@@ -107,6 +107,20 @@ export function resolveAnchorRect(
       {
         x: bounds.width - size.width,
         y: 0,
+        width: size.width,
+        height: size.height,
+      },
+      COAK_PANEL_MIN_WIDTH,
+      COAK_PANEL_MIN_HEIGHT,
+      bounds,
+    );
+  }
+
+  if (anchor === "center") {
+    return clampPanelRect(
+      {
+        x: Math.round((bounds.width - size.width) / 2),
+        y: Math.round((bounds.height - size.height) / 2),
         width: size.width,
         height: size.height,
       },

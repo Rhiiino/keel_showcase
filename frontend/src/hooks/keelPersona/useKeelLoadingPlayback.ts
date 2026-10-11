@@ -52,7 +52,10 @@ export function useKeelLoadingPlayback(
       }
     }
 
+    stage.classList.add("keel-persona-compositor-ready");
+
     return () => {
+      stage.classList.remove("keel-persona-compositor-ready");
       for (const animation of animations) {
         animation.cancel();
       }

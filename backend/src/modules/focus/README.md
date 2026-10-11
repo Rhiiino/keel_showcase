@@ -8,7 +8,7 @@ Focus is Keel's personal task system on the backend. A single `focus_nodes` tree
 
 ## Module type
 
-**Feature** — session auth, user-owned rows, frontend counterpart, native AGENDA tools.
+**Feature** — session auth, user-owned rows, frontend counterpart, native FOCUS tools.
 
 ## HTTP API
 
@@ -42,7 +42,7 @@ Focus is Keel's personal task system on the backend. A single `focus_nodes` tree
 | Consumer | Imports |
 |----------|---------|
 | `modules/connectors` | Focus service for automation connector sessions |
-| `llm/tools/native/focus/*` | Service functions for AGENDA tools |
+| `llm/tools/native/focus/*` | Service functions for FOCUS tools |
 | Other feature modules | Use HTTP or `reference_registry` — not focus repositories |
 
 ## Frontend integration
@@ -146,7 +146,7 @@ flowchart TB
 ## LLM integration
 
 **Native tools folder:** `keel_api/src/llm/tools/native/focus/`  
-**Catalog category:** `AGENDA`
+**Catalog category:** `FOCUS`
 
 | Tool file | Purpose |
 |-----------|---------|

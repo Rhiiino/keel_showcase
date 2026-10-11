@@ -18,27 +18,21 @@ export type AgentEditorControls = {
   isSaving: boolean;
   saveError: string | null;
   save: () => Promise<void>;
-};
-
-export type AgentsPageActions = {
-  createSubagent: () => void;
+  discard: () => void;
 };
 
 type AgentEditorContextValue = {
   controls: AgentEditorControls | null;
   setControls: Dispatch<SetStateAction<AgentEditorControls | null>>;
-  pageActions: AgentsPageActions | null;
-  setPageActions: Dispatch<SetStateAction<AgentsPageActions | null>>;
 };
 
 const AgentEditorContext = createContext<AgentEditorContextValue | null>(null);
 
 export function AgentEditorProvider({ children }: { children: ReactNode }) {
   const [controls, setControls] = useState<AgentEditorControls | null>(null);
-  const [pageActions, setPageActions] = useState<AgentsPageActions | null>(null);
   const value = useMemo(
-    () => ({ controls, setControls, pageActions, setPageActions }),
-    [controls, pageActions],
+    () => ({ controls, setControls }),
+    [controls],
   );
 
   return (
@@ -58,8 +52,4 @@ export function useAgentEditorContext() {
 
 export function useOptionalAgentEditorControls() {
   return useContext(AgentEditorContext)?.controls ?? null;
-}
-
-export function useAgentsPageActions() {
-  return useContext(AgentEditorContext)?.pageActions ?? null;
 }

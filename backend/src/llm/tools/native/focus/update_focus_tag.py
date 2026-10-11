@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from core.errors import AppError
-from llm.tools.categories import AGENDA
+from llm.tools.categories import FOCUS
 from llm.tools.contracts import ToolContext, ToolDefinition
 from llm.tools.native.focus._focus import dump_model
 from modules.focus import service as focus_service
@@ -27,7 +27,7 @@ async def execute(arguments: dict[str, Any], context: ToolContext) -> dict[str, 
 
 TOOL_DEFINITION = ToolDefinition(
     name="update_focus_tag",
-    category=AGENDA,
+    category=FOCUS,
     description="Update a focus tag name or color.",
     parameters={
         "type": "object",

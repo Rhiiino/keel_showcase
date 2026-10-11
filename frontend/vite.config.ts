@@ -20,9 +20,18 @@ export default defineConfig(({ mode }) => {
   const devPort = Number(env.VITE_DEV_PORT ?? 5173);
   const previewPort = Number(env.VITE_PREVIEW_PORT ?? 5177);
   const devPublicOrigin = parsePublicOrigin(env.VITE_DEV_PUBLIC_ORIGIN);
+  const apiBaseUrl = (env.VITE_API_BASE_URL ?? "http://127.0.0.1:9092").replace(/\/$/, "");
 
   return {
-    plugins: [react()],
+    plugins: [
+      react(),
+      {
+        name: "keel-html-api-base",
+        transformIndexHtml(html) {
+          return html.replaceAll("%VITE_API_BASE_URL%", apiBaseUrl);
+        },
+      },
+    ],
     assetsInclude: ["**/*.glb"],
     server: {
       port: devPort,
@@ -30,6 +39,14 @@ export default defineConfig(({ mode }) => {
       // Required when Caddy (or another reverse proxy) forwards keel.themidhunraj.com to this port.
       host: true,
       allowedHosts: ["keel.themidhunraj.com", "127.0.0.1", "localhost"],
+      proxy: {
+        // If a relative /catalog/... URL ever slips through, serve API assets
+        // instead of the Vite SPA HTML fallback (which breaks GLB loading).
+        "/catalog": {
+          target: env.VITE_API_BASE_URL ?? "http://127.0.0.1:9092",
+          changeOrigin: true,
+        },
+      },
       hmr: devPublicOrigin
         ? {
             host: devPublicOrigin.hostname,

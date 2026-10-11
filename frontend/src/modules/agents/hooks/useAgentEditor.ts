@@ -66,6 +66,7 @@ function revokeObjectUrl(url: string | null) {
 
 type UseAgentEditorOptions = {
   onCreated?: (agent: AgentSummary) => void;
+  onDiscarded?: () => void;
 };
 
 export function useAgentEditor(
@@ -281,6 +282,8 @@ export function useAgentEditor(
   mutateAsyncRef.current = mutateAsync;
   const resetSaveMutationRef = useRef(resetSaveMutation);
   resetSaveMutationRef.current = resetSaveMutation;
+  const onDiscardedRef = useRef(options.onDiscarded);
+  onDiscardedRef.current = options.onDiscarded;
 
   const save = useCallback(async () => {
     if (!isDirty || isPending) {
@@ -289,6 +292,15 @@ export function useAgentEditor(
     setValidationError(null);
     await mutateAsyncRef.current();
   }, [isDirty, isPending]);
+
+  const discard = useCallback(() => {
+    if (isPending) {
+      return;
+    }
+    if (isDraft) {
+      onDiscardedRef.current?.();
+    }
+  }, [isDraft, isPending]);
 
   const setTileImage = useCallback(
     (file: File | null) => {
@@ -330,7 +342,8 @@ export function useAgentEditor(
         previous.isDirty === isDirty &&
         previous.isSaving === isPending &&
         previous.saveError === saveError &&
-        previous.save === save
+        previous.save === save &&
+        previous.discard === discard
       ) {
         return previous;
       }
@@ -340,11 +353,12 @@ export function useAgentEditor(
         isSaving: isPending,
         saveError,
         save,
+        discard,
       };
     });
 
     return () => setControls(null);
-  }, [error, isDirty, isDraft, isPending, save, saveError, setControls]);
+  }, [discard, error, isDirty, isDraft, isPending, save, saveError, setControls]);
 
   const updatePromptSection = (key: string, content: string) => {
     setPromptSections((current) => ({ ...current, [key]: content }));

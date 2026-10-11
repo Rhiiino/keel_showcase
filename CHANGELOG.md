@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- (backend) People tool category — full CRUD native tools for contacts (including tags, relationships, family groups) and figures under the renamed `people` catalog category.
+- (backend) Catalog migration — `catalog_category_rename.sql` renames `agenda`→`focus` and `contacts`→`people` on existing deployments.
+
+### Changed
+
+- (backend) Tool catalog categories — `agenda` renamed to `focus`; `contacts` renamed to `people` (display labels and Keel system prompt updated).
+- (frontend) Tool category display — `focus` and `people` labels in chat tools UI.
+
+- (backend) People demo figures — seed Richard Feynman, Albert Einstein, Andrej Karpathy, Yann LeCun, Donald Trump, and Socrates with gender and life dates for `showcase@keel.demo`.
+- (backend) Catalog agent assets — restore Recall, Baysic, Haul, and Forage sub-agent `image.png` / `model.glb` files; add `catalog_media` rows for Recall, Baysic, and Haul (and Keel if missing).
+
 ## [2026-07-09] - 2026-07-09
 
 ### Added

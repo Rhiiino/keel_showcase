@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AgentModelViewer } from "../../../agents/components/AgentModelViewer";
 import { subagentModelSrc } from "../../../agents/lib/agentDisplay";
+import { preloadAgentModel } from "../../../agents/lib/preloadAgentModel";
 import { LoginLightningSky } from "../../components/login/classic/LoginLightningSky";
 import { EnterButton } from "../../components/EnterButton";
 
@@ -74,6 +75,12 @@ export function ClassicLoginScreen() {
   const [skipInstant, setSkipInstant] = useState(prefersReducedMotion);
   const timersRef = useRef<number[]>([]);
   const keelModelSrc = subagentModelSrc("keel");
+
+  useEffect(() => {
+    if (keelModelSrc) {
+      preloadAgentModel(keelModelSrc);
+    }
+  }, [keelModelSrc]);
 
   const clearEntranceTimers = useCallback(() => {
     timersRef.current.forEach((id) => window.clearTimeout(id));

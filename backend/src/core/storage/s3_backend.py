@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import mimetypes
 from collections.abc import AsyncIterator
 from pathlib import Path
 from typing import Any
@@ -175,5 +176,56 @@ class S3StorageBackend:
 
                     object_count += 1
                     total_bytes += len(body)
+
+        return {"object_count": object_count, "total_bytes": total_bytes}
+
+    async def clear_bucket(self) -> dict[str, int]:
+        """Delete every object in the configured bucket."""
+        deleted_count = 0
+
+        async with self._session.client(**self._client_kwargs(), config=self._config()) as client:
+            paginator = client.get_paginator("list_objects_v2")
+            async for page in paginator.paginate(Bucket=self._settings.s3_bucket):
+                keys = [
+                    {"Key": item["Key"]}
+                    for item in page.get("Contents") or []
+                    if not item["Key"].endswith("/")
+                ]
+                if not keys:
+                    continue
+
+                await client.delete_objects(
+                    Bucket=self._settings.s3_bucket,
+                    Delete={"Objects": keys, "Quiet": True},
+                )
+                deleted_count += len(keys)
+
+        return {"deleted_count": deleted_count}
+
+    async def sync_dir_to_bucket(self, src: Path) -> dict[str, int]:
+        """Upload every file under ``src`` into the bucket, preserving relative paths as keys."""
+        if not src.is_dir():
+            raise AppError(f"Garage snapshot directory not found: {src}", status_code=500)
+
+        object_count = 0
+        total_bytes = 0
+
+        async with self._session.client(**self._client_kwargs(), config=self._config()) as client:
+            for local_path in sorted(src.rglob("*")):
+                if not local_path.is_file():
+                    continue
+
+                key = local_path.relative_to(src).as_posix()
+                storage_key = validate_storage_key(key)
+                body = local_path.read_bytes()
+                content_type, _ = mimetypes.guess_type(local_path.name)
+                await client.put_object(
+                    Bucket=self._settings.s3_bucket,
+                    Key=storage_key,
+                    Body=body,
+                    ContentType=content_type or "application/octet-stream",
+                )
+                object_count += 1
+                total_bytes += len(body)
 
         return {"object_count": object_count, "total_bytes": total_bytes}

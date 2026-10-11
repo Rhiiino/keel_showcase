@@ -31,14 +31,14 @@ export function ModuleSubNavLayout({
 
   return (
     <AppShellContent>
-      <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col">
+      <div className="mx-auto flex w-full max-w-6xl flex-col">
         <ModuleSubNav
           moduleId={moduleId}
           moduleTitle={moduleTitle}
           items={items}
           ariaLabel={ariaLabel}
         />
-        <div className="mt-8 flex min-h-0 flex-1 flex-col">
+        <div className="mt-8">
           <Outlet />
         </div>
       </div>

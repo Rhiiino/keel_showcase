@@ -32,7 +32,7 @@ export function FiguresPage() {
 
   return (
     <ListPageLayout
-      className="mx-auto flex min-h-0 w-full flex-1 flex-col"
+      className="mx-auto flex w-full flex-col"
       title="Figures"
       recordCount={figuresQuery.data?.length}
       subtitle="Public people you track — celebrities, creators, politicians, and more."

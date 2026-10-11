@@ -25,7 +25,7 @@ export function quoteAccentBorderClass(accentIndex = 0): string {
 }
 
 const WHEEL_COOLDOWN_MS = 380;
-const SLIDE_DURATION_MS = 280;
+const SLIDE_DURATION_MS = 420;
 
 type HomeQuoteDisplayProps = {
   quotes: Quote[];
@@ -64,7 +64,7 @@ function QuotePanel({
 }) {
   return (
     <div
-      className="flex w-full flex-col justify-center px-5"
+      className="flex w-full shrink-0 flex-col justify-center px-5"
       style={{ height: viewportHeight }}
     >
       <QuotePanelBody quote={quote} />
@@ -113,16 +113,27 @@ export function HomeQuoteDisplay({
 }: HomeQuoteDisplayProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const wheelLockedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const slideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const isAnimatingRef = useRef(false);
+  const viewportHeightRef = useRef(MIN_QUOTE_VIEWPORT_HEIGHT_PX);
+  const quotesLengthRef = useRef(quotes.length);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(MIN_QUOTE_VIEWPORT_HEIGHT_PX);
-  const [dragOffset, setDragOffset] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
+  // Track rests at -viewportHeight so the middle (current) panel is visible.
+  const [trackOffset, setTrackOffset] = useState(-MIN_QUOTE_VIEWPORT_HEIGHT_PX);
+  const [transitionEnabled, setTransitionEnabled] = useState(false);
 
+  const quotesIdentity = quotes.map((quote) => quote.id).join("\0");
   const resolvedSeconds = resolveHomeQuoteIntervalSeconds(intervalSeconds);
   const accentBorder = quoteAccentBorderClass(accentIndex);
+
+  quotesLengthRef.current = quotes.length;
+  viewportHeightRef.current = viewportHeight;
 
   const measureViewport = useCallback(() => {
     const root = measureRef.current;
@@ -131,14 +142,53 @@ export function HomeQuoteDisplay({
     }
     const panels = root.querySelectorAll<HTMLElement>("[data-quote-measure-panel]");
     const heights = Array.from(panels).map((panel) => panel.offsetHeight);
-    setViewportHeight(resolveQuoteViewportHeight(heights));
+    const nextHeight = resolveQuoteViewportHeight(heights);
+    setViewportHeight((current) => {
+      if (current === nextHeight) {
+        return current;
+      }
+      return nextHeight;
+    });
   }, []);
 
+  const clearSlideTimeout = useCallback(() => {
+    if (slideTimeoutRef.current !== null) {
+      window.clearTimeout(slideTimeoutRef.current);
+      slideTimeoutRef.current = null;
+    }
+  }, []);
+
+  const clearRaf = useCallback(() => {
+    if (rafRef.current !== null) {
+      window.cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+  }, []);
+
+  const clearTimer = useCallback(() => {
+    if (timerRef.current !== null) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  // Keep the resting offset aligned when the viewport height is measured/updated.
   useLayoutEffect(() => {
+    if (isAnimatingRef.current) {
+      return;
+    }
+    setTrackOffset(-viewportHeight);
+  }, [viewportHeight]);
+
+  useLayoutEffect(() => {
+    clearSlideTimeout();
+    clearRaf();
+    isAnimatingRef.current = false;
+    setTransitionEnabled(false);
     setActiveIndex(0);
-    setDragOffset(0);
+    setTrackOffset(-viewportHeightRef.current);
     measureViewport();
-  }, [quotes, measureViewport]);
+  }, [quotesIdentity, measureViewport, clearSlideTimeout, clearRaf]);
 
   useEffect(() => {
     const node = measureRef.current;
@@ -150,52 +200,68 @@ export function HomeQuoteDisplay({
     return () => observer.disconnect();
   }, [measureViewport]);
 
-  const clearTimer = useCallback(() => {
-    if (timerRef.current !== null) {
-      window.clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  }, []);
-
   const completeSlideRef = useRef<(delta: 1 | -1) => void>(() => {});
 
   const completeSlide = useCallback(
     (delta: 1 | -1) => {
-      if (quotes.length <= 1 || isAnimating) {
+      const count = quotesLengthRef.current;
+      const height = viewportHeightRef.current;
+      if (count <= 1 || isAnimatingRef.current || height <= 0) {
         return;
       }
 
-      setIsAnimating(true);
-      const target = -delta * viewportHeight;
-      setDragOffset(target);
+      isAnimatingRef.current = true;
+      clearSlideTimeout();
+      clearRaf();
 
-      window.setTimeout(() => {
-        setActiveIndex((current) => (current + delta + quotes.length) % quotes.length);
-        setDragOffset(0);
-        setIsAnimating(false);
-      }, SLIDE_DURATION_MS);
+      // Ensure we start from rest with transitions off, then animate on the next frames.
+      setTransitionEnabled(false);
+      setTrackOffset(-height);
+
+      rafRef.current = window.requestAnimationFrame(() => {
+        rafRef.current = window.requestAnimationFrame(() => {
+          rafRef.current = null;
+          setTransitionEnabled(true);
+          // delta 1 (next): slide track up so the lower panel enters.
+          // delta -1 (prev): slide track down so the upper panel enters.
+          setTrackOffset(delta === 1 ? -2 * height : 0);
+
+          slideTimeoutRef.current = window.setTimeout(() => {
+            slideTimeoutRef.current = null;
+            setTransitionEnabled(false);
+            setActiveIndex((current) => (current + delta + count) % count);
+            setTrackOffset(-height);
+            isAnimatingRef.current = false;
+          }, SLIDE_DURATION_MS);
+        });
+      });
     },
-    [isAnimating, quotes.length, viewportHeight],
+    [clearSlideTimeout, clearRaf],
   );
 
   completeSlideRef.current = completeSlide;
 
-  const startTimer = useCallback(() => {
+  useEffect(() => {
     clearTimer();
     if (quotes.length <= 1) {
-      return;
+      return clearTimer;
     }
+
     timerRef.current = window.setInterval(() => {
       completeSlideRef.current(1);
     }, resolvedSeconds * 1000);
-  }, [clearTimer, quotes.length, resolvedSeconds]);
 
-  useEffect(() => {
-    if (!isAnimating) {
-      startTimer();
-    }
     return clearTimer;
-  }, [startTimer, clearTimer, isAnimating, activeIndex, viewportHeight]);
+  }, [clearTimer, quotes.length, quotesIdentity, resolvedSeconds]);
+
+  useEffect(
+    () => () => {
+      clearTimer();
+      clearSlideTimeout();
+      clearRaf();
+    },
+    [clearTimer, clearSlideTimeout, clearRaf],
+  );
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -206,7 +272,7 @@ export function HomeQuoteDisplay({
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
       event.stopPropagation();
-      if (wheelLockedRef.current || quotes.length <= 1 || isAnimating) {
+      if (wheelLockedRef.current || quotesLengthRef.current <= 1 || isAnimatingRef.current) {
         return;
       }
       if (Math.abs(event.deltaY) < 4) {
@@ -218,20 +284,16 @@ export function HomeQuoteDisplay({
         wheelLockedRef.current = false;
       }, WHEEL_COOLDOWN_MS);
 
-      clearTimer();
-      completeSlide(event.deltaY > 0 ? 1 : -1);
+      completeSlideRef.current(event.deltaY > 0 ? 1 : -1);
     };
 
     viewport.addEventListener("wheel", onWheel, { passive: false });
     return () => viewport.removeEventListener("wheel", onWheel);
-  }, [clearTimer, completeSlide, isAnimating, quotes.length]);
+  }, [quotesIdentity]);
 
   const current = quoteAtOffset(quotes, activeIndex, 0);
   const previous = quoteAtOffset(quotes, activeIndex, -1);
   const next = quoteAtOffset(quotes, activeIndex, 1);
-  const transitionClass = isAnimating
-    ? "transition-transform duration-[280ms] ease-out"
-    : "";
 
   return (
     <div className={`mt-8 ${HOME_CONTENT_WIDTH_CLASS}`}>
@@ -261,25 +323,19 @@ export function HomeQuoteDisplay({
           style={{ height: viewportHeight }}
         >
           {quotes.length > 1 ? (
-            <div className={`relative h-full ${transitionClass}`}>
-              <div
-                className="absolute inset-x-0 top-0"
-                style={{ transform: `translateY(${dragOffset - viewportHeight}px)` }}
-              >
-                <QuotePanel quote={previous} viewportHeight={viewportHeight} />
-              </div>
-              <div
-                className="absolute inset-x-0 top-0"
-                style={{ transform: `translateY(${dragOffset}px)` }}
-              >
-                <QuotePanel quote={current} viewportHeight={viewportHeight} />
-              </div>
-              <div
-                className="absolute inset-x-0 top-0"
-                style={{ transform: `translateY(${dragOffset + viewportHeight}px)` }}
-              >
-                <QuotePanel quote={next} viewportHeight={viewportHeight} />
-              </div>
+            <div
+              ref={trackRef}
+              className="flex flex-col will-change-transform"
+              style={{
+                transform: `translate3d(0, ${trackOffset}px, 0)`,
+                transition: transitionEnabled
+                  ? `transform ${SLIDE_DURATION_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`
+                  : "none",
+              }}
+            >
+              <QuotePanel quote={previous} viewportHeight={viewportHeight} />
+              <QuotePanel quote={current} viewportHeight={viewportHeight} />
+              <QuotePanel quote={next} viewportHeight={viewportHeight} />
             </div>
           ) : (
             <QuotePanel quote={current} viewportHeight={viewportHeight} />

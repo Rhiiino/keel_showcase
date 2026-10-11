@@ -61,7 +61,7 @@ const RAIL_ACTIVE_CLASS: Record<NavAccent, string> = {
 };
 
 const LABEL_ACTIVE_TEXT: Record<NavAccent, string> = {
-  lime: "font-semibold text-stone-50",
+  lime: "font-semibold text-app-accent",
   blue: "font-semibold text-blue-100",
 };
 
@@ -209,8 +209,8 @@ function NavRow({
             active
               ? RAIL_ACTIVE_CLASS[accent]
               : hiddenPreview
-                ? "text-stone-500 group-hover/navrow:bg-stone-800/50 group-hover/navrow:text-stone-400"
-                : "text-stone-400 group-hover/navrow:bg-stone-800/80 group-hover/navrow:text-stone-200",
+                ? "text-stone-500 group-hover/navrow:bg-stone-800/50 group-hover/navrow:text-app-accent/70"
+                : "text-stone-400 group-hover/navrow:bg-stone-800/80 group-hover/navrow:text-app-accent",
           ].join(" ")}
         >
           <span
@@ -232,8 +232,8 @@ function NavRow({
           active
             ? LABEL_ACTIVE_TEXT[accent]
             : hiddenPreview
-              ? "font-medium text-stone-500 group-hover/navrow:text-stone-400"
-              : "font-medium text-stone-400 group-hover/navrow:text-stone-200",
+              ? "font-medium text-stone-500 group-hover/navrow:text-app-accent/70"
+              : "font-medium text-stone-400 group-hover/navrow:text-app-accent",
           comingSoon ? "opacity-70" : "",
         ].join(" ")}
       >
@@ -622,7 +622,7 @@ export function AppNav({
       ref={panelRef}
       data-app-nav
       className={[
-        "relative shrink-0",
+        "relative h-full min-h-0 shrink-0",
         isResizing ? "" : "transition-[width] duration-300 ease-in-out",
       ].join(" ")}
       style={{ width: panelWidth }}
@@ -663,24 +663,25 @@ export function AppNav({
           </span>
         </div>
 
-        <nav aria-label="Features">
-          <ul
-            className="flex flex-col gap-0.5 py-0.5"
-            onContextMenu={(event) => {
-              if (event.target !== event.currentTarget) {
-                return;
-              }
-              openPanelContextMenu(
-                event,
-                resolveDisplayInsertIndexFromPointer(event.clientY),
-              );
-            }}
-            onDragOver={handleListDragOver}
-            onDrop={(event) => {
-              event.preventDefault();
-              handleDrop();
-            }}
-          >
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain scrollbar-hidden">
+          <nav aria-label="Features">
+            <ul
+              className="flex flex-col gap-0.5 py-0.5"
+              onContextMenu={(event) => {
+                if (event.target !== event.currentTarget) {
+                  return;
+                }
+                openPanelContextMenu(
+                  event,
+                  resolveDisplayInsertIndexFromPointer(event.clientY),
+                );
+              }}
+              onDragOver={handleListDragOver}
+              onDrop={(event) => {
+                event.preventDefault();
+                handleDrop();
+              }}
+            >
             {rows.map((row, index) => {
               if (row.kind === "separator") {
                 const isDraggingRow = draggingRowKey === row.key;
@@ -773,13 +774,14 @@ export function AppNav({
                 </li>
               );
             })}
-          </ul>
-        </nav>
+            </ul>
+          </nav>
 
-        <div
-          className="flex-1"
-          onContextMenu={(event) => openPanelContextMenu(event, rows.length)}
-        />
+          <div
+            className="min-h-8 flex-1"
+            onContextMenu={(event) => openPanelContextMenu(event, rows.length)}
+          />
+        </div>
 
         {user ? (
           <div className="flex w-full items-center border-t border-stone-800/80 py-4">

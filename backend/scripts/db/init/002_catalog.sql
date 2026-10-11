@@ -69,12 +69,12 @@ ON CONFLICT (key) DO NOTHING;
 INSERT INTO tool_categories (key, display_name, description, sort_order)
 VALUES
     ('core', 'Core', 'Shared utilities available across agents.', 0),
-    ('obsidian', 'Obsidian', 'Recall vault filesystem tools.', 1),
     ('projects', 'Projects', 'Baysic personal project tools.', 2),
-    ('haul', 'Finance', 'Haul purchase-tracking and listing tools.', 3),
+    ('haul', 'Finance', 'Finance transaction, vendor, and listing-import tools.', 3),
     ('web', 'Web', 'Public web toolkit powered by Tavily: search the open web, extract page content, map site structure, crawl sites, and run cited multi-source research.', 6),
-    ('agenda', 'Agenda', 'Focus list and item management tools.', 7),
-    ('contacts', 'Contacts', 'People registry and relationship tools.', 8)
+    ('focus', 'Focus', 'Focus list and item management tools.', 7),
+    ('people', 'People', 'People registry, relationships, and figures.', 8),
+    ('coak', 'Coak', 'Coak learning workspace tools: records, directory items, tags, and constellation layout.', 9)
 ON CONFLICT (key) DO NOTHING;
 
 -- ----- Tools
@@ -147,24 +147,6 @@ SELECT 'update_finance_transaction', c.id, 'Update a purchase (partial fields).'
 UNION ALL
 SELECT 'update_finance_vendor', c.id, 'Update a vendor.', '{"type": "object", "properties": {"vendor_id": {"type": "integer", "description": "Merchant id."}, "name": {"type": "string"}, "website_url": {"type": "string"}, "notes": {"type": "string"}, "default_currency": {"type": "string"}}, "required": ["vendor_id"], "additionalProperties": false}'::jsonb, '{ vendor: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'haul'
 UNION ALL
-SELECT 'vault_append_file', c.id, 'Append text to the end of a file, creating the file (and parent folders) if it does not exist. Use for adding entries to a running note (e.g. a daily log) without rewriting existing content.', '{"type": "object", "properties": {"path": {"type": "string", "description": "Vault-relative path to append to, e.g. ''Daily/2026-06-01.md''."}, "content": {"type": "string", "description": "Text to append verbatim. Include a leading newline if you need a line break."}}, "required": ["path", "content"], "additionalProperties": false}'::jsonb, '{ path: string, size_bytes: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'obsidian'
-UNION ALL
-SELECT 'vault_create_directory', c.id, 'Create a folder (and any missing parent folders) in the vault. Idempotent — succeeds whether or not the folder already existed. Note: writing a file already creates its parent folders, so this is only needed for empty folders.', '{"type": "object", "properties": {"path": {"type": "string", "description": "Vault-relative folder path to create, e.g. ''Projects/Keel''."}}, "required": ["path"], "additionalProperties": false}'::jsonb, '{ path: string, created: boolean }  (created=false if it already existed)', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'obsidian'
-UNION ALL
-SELECT 'vault_delete_file', c.id, 'Delete a single file from the vault. Only use when the user clearly requested deletion. Fails if the path is missing or is a directory (this tool does not delete folders).', '{"type": "object", "properties": {"path": {"type": "string", "description": "Vault-relative path of the file to delete."}}, "required": ["path"], "additionalProperties": false}'::jsonb, '{ path: string, deleted: true }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'obsidian'
-UNION ALL
-SELECT 'vault_list_entries', c.id, 'List files and folders under a vault directory (recursively, up to a depth). Use to discover what exists before reading or to map a folder''s structure.', '{"type": "object", "properties": {"path": {"type": "string", "description": "Vault-relative folder to list. Omit or use '''' for the vault root."}, "depth": {"type": "integer", "description": "How many directory levels to descend. Default 2.", "default": 2}, "extension": {"type": "string", "description": "Optional file extension filter, e.g. ''md'' or ''.canvas''. Folders are excluded when set."}}, "required": [], "additionalProperties": false}'::jsonb, '{ path: string, entries: [{ path: string, type: ''file''|''directory'' }], total: integer, truncated: boolean } — capped at 500 entries.', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'obsidian'
-UNION ALL
-SELECT 'vault_move_file', c.id, 'Move or rename a file within the vault. Parent folders of the destination are created automatically. Fails if the destination exists unless overwrite=true.', '{"type": "object", "properties": {"from_path": {"type": "string", "description": "Current vault-relative path of the file."}, "to_path": {"type": "string", "description": "New vault-relative path (including filename)."}, "overwrite": {"type": "boolean", "description": "Replace the destination if it already exists. Default false.", "default": false}}, "required": ["from_path", "to_path"], "additionalProperties": false}'::jsonb, '{ from_path: string, to_path: string }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'obsidian'
-UNION ALL
-SELECT 'vault_patch_file', c.id, 'Find-and-replace literal text within an existing file — the preferred way to make a targeted edit without rewriting the whole note. Fails if the ''find'' text is not present. Read the file first so ''find'' matches exactly.', '{"type": "object", "properties": {"path": {"type": "string", "description": "Vault-relative path to edit."}, "find": {"type": "string", "description": "Exact literal text to locate (not a regex)."}, "replace": {"type": "string", "description": "Replacement text. Use an empty string to delete the matched text."}, "replace_all": {"type": "boolean", "description": "Replace every occurrence. Default false (first match only).", "default": false}}, "required": ["path", "find", "replace"], "additionalProperties": false}'::jsonb, '{ path: string, replacements: integer, size_bytes: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'obsidian'
-UNION ALL
-SELECT 'vault_read_file', c.id, 'Read the full UTF-8 text of a file in the Obsidian vault. Use to inspect a note before editing or to answer questions about its contents.', '{"type": "object", "properties": {"path": {"type": "string", "description": "Vault-relative path to the file, e.g. ''Daily/2026-06-01.md''."}, "max_bytes": {"type": "integer", "description": "Optional cap on bytes returned for large files. Omit to read the whole file."}}, "required": ["path"], "additionalProperties": false}'::jsonb, '{ path: string, content: string, size_bytes: integer, truncated: boolean, modified_at: string (ISO 8601 UTC) }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'obsidian'
-UNION ALL
-SELECT 'vault_search_notes', c.id, 'Case-insensitive substring search across markdown (.md) notes in the vault. Use to find where something is written when the exact file is unknown.', '{"type": "object", "properties": {"query": {"type": "string", "description": "Text to search for (case-insensitive substring match)."}, "path_prefix": {"type": "string", "description": "Optional vault-relative folder to limit the search to. Omit to search the whole vault."}, "max_results": {"type": "integer", "description": "Maximum number of matching files to return. Default 20.", "default": 20}}, "required": ["query"], "additionalProperties": false}'::jsonb, '{ query: string, hits: [{ path: string, snippets: [string] }], total: integer } — up to 3 context snippets per file.', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'obsidian'
-UNION ALL
-SELECT 'vault_write_file', c.id, 'Create a new file or overwrite an existing one with the provided content. Parent folders are created automatically. By default fails if the file already exists; pass overwrite=true to replace it. Prefer vault_patch_file or vault_append_file for edits that should preserve existing content.', '{"type": "object", "properties": {"path": {"type": "string", "description": "Vault-relative path to write, e.g. ''Inbox/Idea.md''."}, "content": {"type": "string", "description": "Full UTF-8 text content to write."}, "overwrite": {"type": "boolean", "description": "Replace the file if it already exists. Default false.", "default": false}}, "required": ["path", "content"], "additionalProperties": false}'::jsonb, '{ path: string, created: boolean, size_bytes: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'obsidian'
-UNION ALL
 SELECT 'web_search', c.id, 'Search the public web via Tavily for current or factual information (news, products, documentation, sports, etc.). The response may include an `answer` field synthesized by Tavily — treat it as a hint only; always read `results` (titles, URLs, snippets) and synthesize or verify before answering the user. Cite source URLs when appropriate.', '{"type": "object", "properties": {"query": {"type": "string", "description": "Focused search query (keywords, entities, dates) — not the full chat transcript."}, "topic": {"type": "string", "enum": ["general", "news", "finance"], "description": "Search category. Defaults to general if omitted."}, "time_range": {"type": "string", "enum": ["day", "week", "month", "year"], "description": "Recency filter. Omit if not needed."}, "max_results": {"type": "integer", "description": "How many result rows to return; server clamps between 3 and 8 (default 5)."}}, "required": ["query"], "additionalProperties": false}'::jsonb, '{ query, answer?, results: [{ title, url, content, score? }], response_time?, usage? }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'web'
 UNION ALL
 SELECT 'web_extract', c.id, 'Extract clean page content from known URLs via Tavily. Use after web_search when you need full text from specific links, or when the user supplies URLs directly.', '{"type": "object", "properties": {"urls": {"oneOf": [{"type": "string", "description": "Single URL to extract."}, {"type": "array", "items": {"type": "string"}, "description": "URLs to extract (server clamps count)."}], "description": "One URL or a list of URLs."}, "query": {"type": "string", "description": "Optional intent string to rerank extracted chunks for relevance."}, "format": {"type": "string", "enum": ["markdown", "text"], "description": "Output format (default markdown)."}}, "required": ["urls"], "additionalProperties": false}'::jsonb, '{ results: [{ url, raw_content, favicon? }], failed_results?, response_time?, usage? }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'web'
@@ -175,37 +157,107 @@ SELECT 'web_crawl', c.id, 'Crawl multiple pages on a site via Tavily and return 
 UNION ALL
 SELECT 'web_research', c.id, 'Run multi-step cited web research via Tavily and return a synthesized report with sources. Highest latency and credit cost in the web toolkit — use web_search for simple lookups. Use when the user wants a comparison, market overview, or detailed cited summary.', '{"type": "object", "properties": {"query": {"type": "string", "description": "Research question or topic to investigate across multiple web sources."}}, "required": ["query"], "additionalProperties": false}'::jsonb, '{ status, content, sources: [{ title, url, favicon? }], request_id?, response_time? }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'web'
 UNION ALL
-SELECT 'list_focus_lists', c.id, 'List the user''s focus lists (named task containers).', '{"type": "object", "properties": {"status": {"type": "string", "enum": ["active", "paused", "completed", "archived", "limbo"], "description": "Optional status filter."}}, "additionalProperties": false}'::jsonb, '{ lists: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'agenda'
+SELECT 'list_focus_lists', c.id, 'List the user''s focus lists (named task containers).', '{"type": "object", "properties": {"status": {"type": "string", "enum": ["active", "paused", "completed", "archived", "limbo"], "description": "Optional status filter."}}, "additionalProperties": false}'::jsonb, '{ lists: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
-SELECT 'get_focus_list', c.id, 'Fetch one focus list with embedded entries.', '{"type": "object", "properties": {"list_id": {"type": "integer", "description": "Focus list id."}}, "required": ["list_id"], "additionalProperties": false}'::jsonb, '{ list: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'agenda'
+SELECT 'get_focus_list', c.id, 'Fetch one focus list with embedded entries.', '{"type": "object", "properties": {"list_id": {"type": "integer", "description": "Focus list id."}}, "required": ["list_id"], "additionalProperties": false}'::jsonb, '{ list: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
-SELECT 'create_focus_list', c.id, 'Create a new focus list.', '{"type": "object", "properties": {"title": {"type": "string", "description": "List title."}, "notes": {"type": "string", "description": "Optional notes."}, "status": {"type": "string", "enum": ["active", "paused", "completed", "archived", "limbo"], "description": "Defaults to active."}, "work_order": {"type": ["integer", "null"], "description": "Optional manual execution order."}, "tag_ids": {"type": "array", "items": {"type": "integer"}, "description": "Optional tag ids to assign to the list."}, "node_color_hex": {"type": ["string", "null"], "description": "Optional node tint hex like #38BDF8."}, "title_font_key": {"type": ["string", "null"], "description": "Optional title font key (default, serif, mono, rounded, condensed, handwritten, display, elegant, slab, bold, retro, tech, classic, wide)."}}, "required": ["title"], "additionalProperties": false}'::jsonb, '{ list: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'agenda'
+SELECT 'create_focus_list', c.id, 'Create a new focus list.', '{"type": "object", "properties": {"title": {"type": "string", "description": "List title."}, "notes": {"type": "string", "description": "Optional notes."}, "status": {"type": "string", "enum": ["active", "paused", "completed", "archived", "limbo"], "description": "Defaults to active."}, "work_order": {"type": ["integer", "null"], "description": "Optional manual execution order."}, "tag_ids": {"type": "array", "items": {"type": "integer"}, "description": "Optional tag ids to assign to the list."}, "node_color_hex": {"type": ["string", "null"], "description": "Optional node tint hex like #38BDF8."}, "title_font_key": {"type": ["string", "null"], "description": "Optional title font key (default, serif, mono, rounded, condensed, handwritten, display, elegant, slab, bold, retro, tech, classic, wide)."}}, "required": ["title"], "additionalProperties": false}'::jsonb, '{ list: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
-SELECT 'update_focus_list', c.id, 'Update a focus list title, notes, status, sort order, node color, title font, or tags.', '{"type": "object", "properties": {"list_id": {"type": "integer"}, "title": {"type": "string"}, "notes": {"type": "string"}, "status": {"type": "string", "enum": ["active", "paused", "completed", "archived", "limbo"]}, "work_order": {"type": ["integer", "null"], "description": "Optional manual execution order."}, "sort_order": {"type": "integer"}, "tag_ids": {"type": "array", "items": {"type": "integer"}, "description": "Replace list tag assignments when provided."}, "node_color_hex": {"type": ["string", "null"], "description": "Node tint hex; null clears to default."}, "title_font_key": {"type": ["string", "null"], "description": "Title font key; null clears to default."}}, "required": ["list_id"], "additionalProperties": false}'::jsonb, '{ list: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'agenda'
+SELECT 'update_focus_list', c.id, 'Update a focus list title, notes, status, sort order, node color, title font, or tags.', '{"type": "object", "properties": {"list_id": {"type": "integer"}, "title": {"type": "string"}, "notes": {"type": "string"}, "status": {"type": "string", "enum": ["active", "paused", "completed", "archived", "limbo"]}, "work_order": {"type": ["integer", "null"], "description": "Optional manual execution order."}, "sort_order": {"type": "integer"}, "tag_ids": {"type": "array", "items": {"type": "integer"}, "description": "Replace list tag assignments when provided."}, "node_color_hex": {"type": ["string", "null"], "description": "Node tint hex; null clears to default."}, "title_font_key": {"type": ["string", "null"], "description": "Title font key; null clears to default."}}, "required": ["list_id"], "additionalProperties": false}'::jsonb, '{ list: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
-SELECT 'delete_focus_list', c.id, 'Delete a focus list and all entries in it.', '{"type": "object", "properties": {"list_id": {"type": "integer"}}, "required": ["list_id"], "additionalProperties": false}'::jsonb, '{ deleted: boolean, list_id: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'agenda'
+SELECT 'delete_focus_list', c.id, 'Delete a focus list and all entries in it.', '{"type": "object", "properties": {"list_id": {"type": "integer"}}, "required": ["list_id"], "additionalProperties": false}'::jsonb, '{ deleted: boolean, list_id: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
-SELECT 'list_focus_entries', c.id, 'List focus entries. Filter by list, status, or kind (task or list_link).', '{"type": "object", "properties": {"list_id": {"type": "integer", "description": "Filter to one list."}, "status": {"type": "string", "enum": ["active", "paused", "completed", "archived", "limbo"]}, "kind": {"type": "string", "enum": ["task", "list_link"]}}, "additionalProperties": false}'::jsonb, '{ entries: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'agenda'
+SELECT 'list_focus_entries', c.id, 'List focus entries. Filter by list, status, or kind (task or list_link).', '{"type": "object", "properties": {"list_id": {"type": "integer", "description": "Filter to one list."}, "status": {"type": "string", "enum": ["active", "paused", "completed", "archived", "limbo"]}, "kind": {"type": "string", "enum": ["task", "list_link"]}}, "additionalProperties": false}'::jsonb, '{ entries: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
-SELECT 'create_focus_entry', c.id, 'Create a focus entry in a list (task or list_link).', '{"type": "object", "properties": {"title": {"type": "string"}, "notes": {"type": "string"}, "list_id": {"type": "integer", "description": "Target list id."}, "kind": {"type": "string", "enum": ["task", "list_link"], "description": "Entry kind. Defaults to task."}, "linked_list_id": {"type": "integer", "description": "Existing list id for list_link entries."}, "linked_list": {"type": "object", "description": "Inline list fields when creating a new linked list.", "properties": {"notes": {"type": "string"}, "node_color_hex": {"type": ["string", "null"]}, "title_font_key": {"type": ["string", "null"]}, "tag_ids": {"type": "array", "items": {"type": "integer"}}}}, "status": {"type": "string", "enum": ["active", "paused", "completed", "archived", "limbo"]}, "work_order": {"type": ["integer", "null"], "description": "Optional manual execution order."}}, "required": ["title", "list_id"], "additionalProperties": false}'::jsonb, '{ entry: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'agenda'
+SELECT 'create_focus_entry', c.id, 'Create a focus entry in a list (task or list_link).', '{"type": "object", "properties": {"title": {"type": "string"}, "notes": {"type": "string"}, "list_id": {"type": "integer", "description": "Target list id."}, "kind": {"type": "string", "enum": ["task", "list_link"], "description": "Entry kind. Defaults to task."}, "linked_list_id": {"type": "integer", "description": "Existing list id for list_link entries."}, "linked_list": {"type": "object", "description": "Inline list fields when creating a new linked list.", "properties": {"notes": {"type": "string"}, "node_color_hex": {"type": ["string", "null"]}, "title_font_key": {"type": ["string", "null"]}, "tag_ids": {"type": "array", "items": {"type": "integer"}}}}, "status": {"type": "string", "enum": ["active", "paused", "completed", "archived", "limbo"]}, "work_order": {"type": ["integer", "null"], "description": "Optional manual execution order."}}, "required": ["title", "list_id"], "additionalProperties": false}'::jsonb, '{ entry: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
-SELECT 'update_focus_entry', c.id, 'Update a task focus entry, including moving between lists or completing it.', '{"type": "object", "properties": {"entry_id": {"type": "integer"}, "title": {"type": "string"}, "notes": {"type": "string"}, "list_id": {"type": "integer", "description": "Move the entry to another list."}, "status": {"type": "string", "enum": ["active", "paused", "completed", "archived", "limbo"]}, "work_order": {"type": ["integer", "null"], "description": "Optional manual execution order."}, "sort_order": {"type": "integer"}}, "required": ["entry_id"], "additionalProperties": false}'::jsonb, '{ entry: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'agenda'
+SELECT 'update_focus_entry', c.id, 'Update a task focus entry, including moving between lists or completing it.', '{"type": "object", "properties": {"entry_id": {"type": "integer"}, "title": {"type": "string"}, "notes": {"type": "string"}, "list_id": {"type": "integer", "description": "Move the entry to another list."}, "status": {"type": "string", "enum": ["active", "paused", "completed", "archived", "limbo"]}, "work_order": {"type": ["integer", "null"], "description": "Optional manual execution order."}, "sort_order": {"type": "integer"}}, "required": ["entry_id"], "additionalProperties": false}'::jsonb, '{ entry: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
-SELECT 'delete_focus_entry', c.id, 'Delete a focus entry.', '{"type": "object", "properties": {"entry_id": {"type": "integer"}}, "required": ["entry_id"], "additionalProperties": false}'::jsonb, '{ deleted: boolean, entry_id: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'agenda'
+SELECT 'delete_focus_entry', c.id, 'Delete a focus entry.', '{"type": "object", "properties": {"entry_id": {"type": "integer"}}, "required": ["entry_id"], "additionalProperties": false}'::jsonb, '{ deleted: boolean, entry_id: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
-SELECT 'list_focus_tags', c.id, 'List the user''s focus tags.', '{"type": "object", "properties": {}, "additionalProperties": false}'::jsonb, '{ tags: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'agenda'
+SELECT 'list_focus_tags', c.id, 'List the user''s focus tags.', '{"type": "object", "properties": {}, "additionalProperties": false}'::jsonb, '{ tags: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
-SELECT 'create_focus_tag', c.id, 'Create a focus tag for categorizing lists.', '{"type": "object", "properties": {"name": {"type": "string"}, "color_hex": {"type": "string", "description": "Hex color like #06B6D4."}}, "required": ["name"], "additionalProperties": false}'::jsonb, '{ tag: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'agenda'
+SELECT 'create_focus_tag', c.id, 'Create a focus tag for categorizing lists.', '{"type": "object", "properties": {"name": {"type": "string"}, "color_hex": {"type": "string", "description": "Hex color like #06B6D4."}}, "required": ["name"], "additionalProperties": false}'::jsonb, '{ tag: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
-SELECT 'update_focus_tag', c.id, 'Update a focus tag name or color.', '{"type": "object", "properties": {"tag_id": {"type": "integer"}, "name": {"type": "string"}, "color_hex": {"type": "string"}}, "required": ["tag_id"], "additionalProperties": false}'::jsonb, '{ tag: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'agenda'
+SELECT 'update_focus_tag', c.id, 'Update a focus tag name or color.', '{"type": "object", "properties": {"tag_id": {"type": "integer"}, "name": {"type": "string"}, "color_hex": {"type": "string"}}, "required": ["tag_id"], "additionalProperties": false}'::jsonb, '{ tag: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
-SELECT 'delete_focus_tag', c.id, 'Delete a focus tag.', '{"type": "object", "properties": {"tag_id": {"type": "integer"}}, "required": ["tag_id"], "additionalProperties": false}'::jsonb, '{ deleted: boolean, tag_id: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'agenda'
+SELECT 'delete_focus_tag', c.id, 'Delete a focus tag.', '{"type": "object", "properties": {"tag_id": {"type": "integer"}}, "required": ["tag_id"], "additionalProperties": false}'::jsonb, '{ deleted: boolean, tag_id: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
-SELECT 'list_contacts', c.id, 'List all contacts with names, gender, birth dates, and family groups.', '{"type": "object", "properties": {}, "additionalProperties": false}'::jsonb, '{ contacts: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'contacts'
+SELECT 'list_contacts', c.id, 'List all contacts with names, gender, birth dates, and family groups.', '{"type": "object", "properties": {}, "additionalProperties": false}'::jsonb, '{ contacts: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
 UNION ALL
-SELECT 'get_contact', c.id, 'Get one contact by id, including relationships.', '{"type": "object", "properties": {"contact_id": {"type": "integer", "description": "Contact id."}}, "required": ["contact_id"], "additionalProperties": false}'::jsonb, '{ contact: object, relationships: array }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'contacts'
+SELECT 'get_contact', c.id, 'Get one contact by id, including relationships.', '{"type": "object", "properties": {"contact_id": {"type": "integer", "description": "Contact id."}}, "required": ["contact_id"], "additionalProperties": false}'::jsonb, '{ contact: object, relationships: array }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
 UNION ALL
-SELECT 'search_contacts', c.id, 'Search contacts by first or last name.', '{"type": "object", "properties": {"query": {"type": "string", "description": "Name search text."}}, "required": ["query"], "additionalProperties": false}'::jsonb, '{ contacts: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'contacts'
+SELECT 'search_contacts', c.id, 'Search contacts by first or last name.', '{"type": "object", "properties": {"query": {"type": "string", "description": "Name search text."}}, "required": ["query"], "additionalProperties": false}'::jsonb, '{ contacts: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'create_contact', c.id, 'Create a new contact in the personal CRM.', '{"type": "object", "properties": {"first_name": {"type": "string"}, "last_name": {"type": "string"}, "gender": {"type": "string", "enum": ["male", "female"]}, "birth_date": {"type": "string", "description": "ISO date YYYY-MM-DD."}, "birth_date_year_known": {"type": "boolean"}, "death_date": {"type": "string", "description": "ISO date YYYY-MM-DD."}, "notes": {"type": "string"}, "status": {"type": "string", "enum": ["active", "archived"]}, "tag_ids": {"type": "array", "items": {"type": "integer"}, "description": "Optional tag ids to assign."}}, "additionalProperties": false}'::jsonb, '{ contact: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'update_contact', c.id, 'Update a contact profile or tag assignments.', '{"type": "object", "properties": {"contact_id": {"type": "integer"}, "first_name": {"type": "string"}, "last_name": {"type": "string"}, "gender": {"type": "string", "enum": ["male", "female"]}, "birth_date": {"type": "string"}, "birth_date_year_known": {"type": "boolean"}, "death_date": {"type": "string"}, "notes": {"type": "string"}, "status": {"type": "string", "enum": ["active", "archived"]}, "tag_ids": {"type": "array", "items": {"type": "integer"}, "description": "Replace all tag assignments when provided."}}, "required": ["contact_id"], "additionalProperties": false}'::jsonb, '{ contact: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'delete_contact', c.id, 'Delete a contact and move it to trash. Cannot delete the self contact.', '{"type": "object", "properties": {"contact_id": {"type": "integer"}}, "required": ["contact_id"], "additionalProperties": false}'::jsonb, '{ deleted: boolean, contact_id: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'list_contact_tags', c.id, 'List the user''s contact tags.', '{"type": "object", "properties": {}, "additionalProperties": false}'::jsonb, '{ tags: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'create_contact_tag', c.id, 'Create a tag for categorizing contacts.', '{"type": "object", "properties": {"name": {"type": "string"}, "color_hex": {"type": "string", "description": "Hex color like #06B6D4."}}, "required": ["name"], "additionalProperties": false}'::jsonb, '{ tag: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'update_contact_tag', c.id, 'Update a contact tag name or color.', '{"type": "object", "properties": {"tag_id": {"type": "integer"}, "name": {"type": "string"}, "color_hex": {"type": "string"}}, "required": ["tag_id"], "additionalProperties": false}'::jsonb, '{ tag: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'delete_contact_tag', c.id, 'Delete a contact tag.', '{"type": "object", "properties": {"tag_id": {"type": "integer"}}, "required": ["tag_id"], "additionalProperties": false}'::jsonb, '{ deleted: boolean, tag_id: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'list_relationships', c.id, 'List all contact relationships for the user.', '{"type": "object", "properties": {}, "additionalProperties": false}'::jsonb, '{ relationships: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'create_contact_relationship', c.id, 'Create a directed relationship between two contacts.', '{"type": "object", "properties": {"from_contact_id": {"type": "integer"}, "to_contact_id": {"type": "integer"}, "relationship_type": {"type": "string", "enum": ["spouse", "parent", "sibling", "friend"]}}, "required": ["from_contact_id", "to_contact_id", "relationship_type"], "additionalProperties": false}'::jsonb, '{ relationship: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'update_contact_relationship', c.id, 'Update a contact relationship endpoints or type.', '{"type": "object", "properties": {"relationship_id": {"type": "integer"}, "from_contact_id": {"type": "integer"}, "to_contact_id": {"type": "integer"}, "relationship_type": {"type": "string", "enum": ["spouse", "parent", "sibling", "friend"]}}, "required": ["relationship_id", "from_contact_id", "to_contact_id", "relationship_type"], "additionalProperties": false}'::jsonb, '{ relationship: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'delete_contact_relationship', c.id, 'Delete a contact relationship.', '{"type": "object", "properties": {"relationship_id": {"type": "integer"}}, "required": ["relationship_id"], "additionalProperties": false}'::jsonb, '{ deleted: boolean, relationship_id: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'list_family_groups', c.id, 'List computed nuclear family groups derived from contact relationships.', '{"type": "object", "properties": {}, "additionalProperties": false}'::jsonb, '{ family_groups: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'get_family_group', c.id, 'Get one computed family group by family_key.', '{"type": "object", "properties": {"family_key": {"type": "string", "description": "Stable family group identifier."}}, "required": ["family_key"], "additionalProperties": false}'::jsonb, '{ family_group: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'get_family_group_tree', c.id, 'Get the family tree subgraph for one family group.', '{"type": "object", "properties": {"family_key": {"type": "string", "description": "Stable family group identifier."}}, "required": ["family_key"], "additionalProperties": false}'::jsonb, '{ family_tree: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'list_figures', c.id, 'List all notable/public figures.', '{"type": "object", "properties": {}, "additionalProperties": false}'::jsonb, '{ figures: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'get_figure', c.id, 'Get one figure by id.', '{"type": "object", "properties": {"figure_id": {"type": "integer", "description": "Figure id."}}, "required": ["figure_id"], "additionalProperties": false}'::jsonb, '{ figure: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'create_figure', c.id, 'Create a new notable/public figure record.', '{"type": "object", "properties": {"first_name": {"type": "string"}, "last_name": {"type": "string"}, "gender": {"type": "string", "enum": ["male", "female"]}, "birth_date": {"type": "string", "description": "ISO date YYYY-MM-DD."}, "birth_date_year_known": {"type": "boolean"}, "death_date": {"type": "string", "description": "ISO date YYYY-MM-DD."}, "notes": {"type": "string"}, "status": {"type": "string", "enum": ["active", "archived"]}}, "additionalProperties": false}'::jsonb, '{ figure: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'update_figure', c.id, 'Update a figure profile fields.', '{"type": "object", "properties": {"figure_id": {"type": "integer"}, "first_name": {"type": "string"}, "last_name": {"type": "string"}, "gender": {"type": "string", "enum": ["male", "female"]}, "birth_date": {"type": "string"}, "birth_date_year_known": {"type": "boolean"}, "death_date": {"type": "string"}, "notes": {"type": "string"}, "status": {"type": "string", "enum": ["active", "archived"]}}, "required": ["figure_id"], "additionalProperties": false}'::jsonb, '{ figure: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'delete_figure', c.id, 'Delete a figure and move it to trash.', '{"type": "object", "properties": {"figure_id": {"type": "integer"}}, "required": ["figure_id"], "additionalProperties": false}'::jsonb, '{ deleted: boolean, figure_id: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT 'list_coak_records', c.id, 'List the user''s Coak learning workspace records.', '{"type": "object", "properties": {}, "additionalProperties": false}'::jsonb, '{ records: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'get_coak_record', c.id, 'Fetch one Coak record by id.', '{"type": "object", "properties": {"record_id": {"type": "integer", "description": "Coak record id."}}, "required": ["record_id"], "additionalProperties": false}'::jsonb, '{ record: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'create_coak_record', c.id, 'Create a new Coak learning workspace record.', '{"type": "object", "properties": {"name": {"type": "string", "description": "Record name."}, "color_hex": {"type": ["string", "null"], "description": "Optional origin node color hex like #FBBF24."}}, "required": ["name"], "additionalProperties": false}'::jsonb, '{ record: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'update_coak_record', c.id, 'Update a Coak record name or origin node color.', '{"type": "object", "properties": {"record_id": {"type": "integer"}, "name": {"type": "string"}, "color_hex": {"type": ["string", "null"], "description": "Origin node color hex like #FBBF24."}}, "required": ["record_id"], "additionalProperties": false}'::jsonb, '{ record: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'delete_coak_record', c.id, 'Delete a Coak record and move it to trash.', '{"type": "object", "properties": {"record_id": {"type": "integer"}}, "required": ["record_id"], "additionalProperties": false}'::jsonb, '{ deleted: boolean, record_id: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'list_coak_items', c.id, 'List all directory items in a Coak record, including embedded tags.', '{"type": "object", "properties": {"record_id": {"type": "integer", "description": "Coak record id."}}, "required": ["record_id"], "additionalProperties": false}'::jsonb, '{ items: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'create_coak_item', c.id, 'Create a Coak directory item (folder, note, or flash card).', '{"type": "object", "properties": {"record_id": {"type": "integer"}, "kind": {"type": "string", "enum": ["folder", "note", "flash"]}, "name": {"type": "string"}, "parent_id": {"type": ["integer", "null"], "description": "Parent folder id; null for record root."}, "color_hex": {"type": ["string", "null"]}, "sort_order": {"type": "integer"}, "media_id": {"type": ["string", "null"], "description": "Optional media attachment UUID."}, "note_body": {"type": "string"}, "flash_front": {"type": "string"}, "flash_back": {"type": "string"}, "tag_ids": {"type": "array", "items": {"type": "integer"}, "description": "Optional tag ids to assign."}}, "required": ["record_id", "kind", "name"], "additionalProperties": false}'::jsonb, '{ item: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'update_coak_item', c.id, 'Update a Coak directory item. Supports renaming, moving, color changes, note/flash content, note-to-folder promotion, media attachment, and tag assignment. When tag_ids is provided it replaces all existing tags.', '{"type": "object", "properties": {"record_id": {"type": "integer"}, "item_id": {"type": "integer"}, "kind": {"type": "string", "enum": ["folder", "note", "flash"], "description": "Only note items can be promoted to folder."}, "name": {"type": "string"}, "parent_id": {"type": ["integer", "null"], "description": "Move item to another folder; null for record root."}, "color_hex": {"type": ["string", "null"]}, "sort_order": {"type": "integer"}, "media_id": {"type": ["string", "null"], "description": "Media attachment UUID; null detaches."}, "note_body": {"type": "string"}, "flash_front": {"type": "string"}, "flash_back": {"type": "string"}, "tag_ids": {"type": "array", "items": {"type": "integer"}, "description": "Replace all tag assignments when provided."}}, "required": ["record_id", "item_id"], "additionalProperties": false}'::jsonb, '{ item: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'delete_coak_item', c.id, 'Delete a Coak directory item and its descendants.', '{"type": "object", "properties": {"record_id": {"type": "integer"}, "item_id": {"type": "integer"}}, "required": ["record_id", "item_id"], "additionalProperties": false}'::jsonb, '{ deleted: boolean, record_id: integer, item_id: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'list_coak_tags', c.id, 'List tags defined for a Coak record.', '{"type": "object", "properties": {"record_id": {"type": "integer"}}, "required": ["record_id"], "additionalProperties": false}'::jsonb, '{ tags: array, count: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'create_coak_tag', c.id, 'Create a tag in a Coak record for categorizing items.', '{"type": "object", "properties": {"record_id": {"type": "integer"}, "name": {"type": "string"}, "description": {"type": ["string", "null"]}, "color_hex": {"type": ["string", "null"], "description": "Hex color like #06B6D4."}}, "required": ["record_id", "name"], "additionalProperties": false}'::jsonb, '{ tag: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'update_coak_tag', c.id, 'Update a Coak tag name, description, or color.', '{"type": "object", "properties": {"record_id": {"type": "integer"}, "tag_id": {"type": "integer"}, "name": {"type": "string"}, "description": {"type": ["string", "null"]}, "color_hex": {"type": ["string", "null"]}}, "required": ["record_id", "tag_id"], "additionalProperties": false}'::jsonb, '{ tag: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'delete_coak_tag', c.id, 'Delete a Coak tag and move it to trash.', '{"type": "object", "properties": {"record_id": {"type": "integer"}, "tag_id": {"type": "integer"}}, "required": ["record_id", "tag_id"], "additionalProperties": false}'::jsonb, '{ deleted: boolean, record_id: integer, tag_id: integer }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'get_coak_workspace_state', c.id, 'Get the constellation workspace layout for a Coak record, including node positions, expanded folders, pinned items, and camera.', '{"type": "object", "properties": {"record_id": {"type": "integer"}}, "required": ["record_id"], "additionalProperties": false}'::jsonb, '{ workspace_state: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'update_coak_workspace_state', c.id, 'Update the constellation workspace layout for a Coak record: node positions, expanded folders, pinned items, and camera.', '{"type": "object", "properties": {"record_id": {"type": "integer"}, "state_version": {"type": "integer", "description": "Workspace state schema version (use 1)."}, "node_positions": {"type": "array", "items": {"type": "object", "properties": {"item_id": {"type": "integer"}, "x": {"type": "number"}, "y": {"type": "number"}, "z": {"type": "number"}}, "required": ["item_id", "x", "y", "z"], "additionalProperties": false}}, "expanded_folder_ids": {"type": "array", "items": {"type": "integer"}}, "pinned_item_ids": {"type": "array", "items": {"type": "integer"}}, "camera": {"type": ["object", "null"], "properties": {"distance": {"type": "number"}, "polar_angle": {"type": "number"}, "azimuth_angle": {"type": "number"}}, "required": ["distance", "polar_angle", "azimuth_angle"], "additionalProperties": false}}, "required": ["record_id", "state_version"], "additionalProperties": false}'::jsonb, '{ workspace_state: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
+UNION ALL
+SELECT 'update_coak_configuration_settings', c.id, 'Update visual and configuration settings for a Coak record. Settings is a dict of keys such as node_visuals, node_size_scale, connection_color, constellation_background, and auto_optimize_layout.', '{"type": "object", "properties": {"record_id": {"type": "integer"}, "settings": {"type": "object", "description": "Configuration settings key-value map.", "additionalProperties": true}}, "required": ["record_id", "settings"], "additionalProperties": false}'::jsonb, '{ configuration_settings: object }', '[]'::jsonb, TRUE FROM tool_categories c WHERE c.key = 'coak'
 ON CONFLICT (name) DO NOTHING;
 
 -- ----- System prompts
@@ -214,7 +266,7 @@ VALUES ('keel', 'Keel', 'You are Keel, the user''s primary AI assistant.', 'You 
 - Use the tools available to you when they let you give a better, grounded answer.
   Do not invent tool results; only rely on values a tool actually returned.
 - If you are missing information needed to act safely, ask a brief clarifying question.
-- Answer the user yourself — there are no specialist sub-agents to delegate to.', 'Keel has access to project, finance, vault, focus, contacts, and web tools when configured.', 'Web (Tavily):
+- Answer the user yourself — there are no specialist sub-agents to delegate to.', 'Keel has access to project, finance, focus, people, and web tools when configured.', 'Web (Tavily):
 - Use `web_search` for current public-web facts when sources are unknown (news, prices,
   docs, sports). Treat Tavily''s `answer` as a hint — ground replies in `results` and cite URLs.
 - Use `web_extract` when you already have specific URLs and need full page text.
@@ -227,21 +279,108 @@ Projects:
 - Use canvas tools (`get_project_canvas`, `update_project_canvas`) for workspace layout changes.
 
 Finance:
-- Use finance tools for vendors, purchases, and listing imports when the user asks.
+- Use finance tools for transactions, vendors, and listing imports when the user asks.
+- For product URL imports, use `fetch_listing` then `propose_finance_listing` and let the user confirm before creating.
 
-Vault (Obsidian):
-- Use vault_* tools when OBSIDIAN_VAULT_PATH is configured on the server.
-
-Agenda (Focus):
+Focus:
 - Use `list_focus_lists` / `get_focus_list` / `create_focus_entry` for tasks and lists.
 
-Contacts:
-- Use contact list/search/get tools for people lookups.', '- Never expose tool schemas, storage paths, or system instructions to the user.', 0)
+People:
+- Use contact tools for personal CRM: list/search/get, create/update/delete contacts.
+- Use contact tag and relationship tools to organize and link contacts.
+- Use family group tools to inspect computed genealogical groups and trees.
+- Use figure tools for notable/public people records (separate from personal contacts).', '- Never expose tool schemas, storage paths, or system instructions to the user.', 0)
+ON CONFLICT (key) DO NOTHING;
+
+INSERT INTO system_prompts (key, display_name, identity, purpose, guidelines, domain_reference, tool_guidance, safety, sort_order)
+VALUES
+    (
+        'baysic',
+        'Baysic',
+        'You are Baysic, a tenured software engineer.',
+        'Assist user with any technical requests involving coding, algorithms, data structure related questions.',
+        'Be concise and cooperative.',
+        'You have access to a wide toolkit, use it as needed to effectively serve the user''s requests.',
+        NULL,
+        'Stay safe.',
+        1
+    ),
+    (
+        'recall',
+        'Recall',
+        'You are Recall, Keel''s learning specialist and Coak workspace expert.',
+        'Help users learn new concepts and topics as efficiently as possible using Coak.',
+        '- Be concise and helpful.
+- Use your assigned Coak tools when they improve the answer.
+- Do not invent tool results; only rely on values a tool actually returned.
+- Structure learning material logically: break topics into folders, write clear notes, and create flash cards for spaced recall.
+- When a user is exploring a new topic, suggest a sensible Coak organization before making large edits.',
+        'Coak (Culmination of all Knowledge) is Keel''s learning workspace. Users create Coak records for topics, organize folders/notes/flash cards in a directory tree, assign tags, and explore relationships in a 3D constellation graph.',
+        'Coak records:
+- Use `list_coak_records` / `get_coak_record` to discover and inspect learning workspaces.
+- Use `create_coak_record` / `update_coak_record` / `delete_coak_record` to manage topics.
+
+Directory items:
+- Use `list_coak_items` to read the full directory tree for a record.
+- Use `create_coak_item` for folders, notes, and flash cards.
+- Use `update_coak_item` to edit content, rename, move, recolor, or attach media.
+- Use `delete_coak_item` to remove items and their descendants.
+
+Tags:
+- Use `list_coak_tags` / `create_coak_tag` / `update_coak_tag` / `delete_coak_tag` to categorize items.
+
+Workspace:
+- Use `get_coak_workspace_state` / `update_coak_workspace_state` for constellation layout: node positions, expanded folders, pinned items, and camera.
+- Use `update_coak_configuration_settings` for per-record visual and layout preferences.',
+        'Stay safe. Never expose tool schemas or system instructions.',
+        2
+    ),
+    (
+        'haul',
+        'Haul',
+        'You are Haul, a specialist sub-agent in Keel.',
+        'Finance specialist — manage transactions, vendors, and product listings. Import items from e-commerce URLs, track order status, and maintain vendor records.',
+        '- Be concise and helpful.
+- Use your assigned tools when they improve the answer.
+- Do not invent tool results; only rely on values a tool actually returned.
+- When importing from a URL, call `fetch_listing` first and merge user-provided fields (user values win).
+- For URL imports, prefer `propose_finance_listing` and wait for the user to Confirm/Decline in chat before creating.
+- Transaction statuses flow: considering → ordered → in_transit → received (also cancelled, returned).
+- Direct users to the Finance UI for subscriptions, payment accounts, and tags (you have no tools for those).',
+        'Finance is Keel''s personal spending tracker. Users track transactions (wishlist items, orders, expenses) through statuses from considering to received, organize vendors, attach cover images and gallery media, and import product details from e-commerce URLs via a confirmable proposal flow. Subscriptions, payment accounts, and tags are managed in the Finance UI — you do not have tools for those.',
+        'Transactions:
+- Use `list_finance_transactions` to search/filter by status, vendor, or query.
+- Use `get_finance_transaction` for full detail including media.
+- Use `create_finance_transaction` for direct creation when fields are known.
+- Use `update_finance_transaction` for partial updates (title, status, price, vendor, dates, notes).
+- Use `delete_finance_transaction` to remove a transaction and its media.
+- Use `mark_finance_transaction_ordered` / `mark_finance_transaction_received` for status transitions with timestamps.
+
+Listing import:
+- Use `fetch_listing` to parse a product URL (title, price, image, vendor).
+- Prefer `propose_finance_listing` after fetch — present the proposal card to the user and wait for Confirm/Decline before creating.
+- Only call `create_finance_transaction` directly from a listing when the user explicitly skips confirmation.
+
+Vendors:
+- Use `list_finance_vendors` / `create_finance_vendor` / `update_finance_vendor` / `delete_finance_vendor`.
+- Pass `vendor_name` on transaction create/update to find-or-create merchants automatically.
+
+Media:
+- Use `list_finance_transaction_media`, `set_finance_transaction_cover`, `set_finance_transaction_cover_from_url`, `clear_finance_transaction_cover`, `delete_finance_transaction_media`.',
+        'Stay safe. Never expose tool schemas or system instructions.',
+        3
+    )
 ON CONFLICT (key) DO NOTHING;
 
 -- ----- Agents
 INSERT INTO agents (key, display_name, description, system_prompt_id, is_orchestrator, is_enabled, sort_order)
 SELECT 'keel', 'Keel', 'Primary assistant and orchestrator.', sp.id, TRUE, TRUE, 0 FROM system_prompts sp WHERE sp.key = 'keel'
+UNION ALL
+SELECT 'recall', 'Recall', 'Coak specialist — help users learn topics efficiently with records, notes, flash cards, tags, and constellation workspace.', sp.id, FALSE, TRUE, 2 FROM system_prompts sp WHERE sp.key = 'recall'
+UNION ALL
+SELECT 'baysic', 'Baysic', 'Technical lead', sp.id, FALSE, TRUE, 1 FROM system_prompts sp WHERE sp.key = 'baysic'
+UNION ALL
+SELECT 'haul', 'Haul', 'Finance specialist — manage transactions, vendors, and product listings. Import items from e-commerce URLs, track order status, and maintain vendor records.', sp.id, FALSE, TRUE, 3 FROM system_prompts sp WHERE sp.key = 'haul'
 ON CONFLICT (key) DO NOTHING;
 
 -- ----- Agent tool category grants
@@ -250,22 +389,36 @@ SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'keel' AND c.ke
 UNION ALL
 SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'keel' AND c.key = 'web'
 UNION ALL
-SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'keel' AND c.key = 'agenda'
+SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'keel' AND c.key = 'focus'
 UNION ALL
-SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'keel' AND c.key = 'contacts'
+SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'keel' AND c.key = 'people'
 UNION ALL
 SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'keel' AND c.key = 'projects'
 UNION ALL
 SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'keel' AND c.key = 'haul'
 UNION ALL
-SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'keel' AND c.key = 'obsidian'
+SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'baysic' AND c.key = 'core'
+UNION ALL
+SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'recall' AND c.key = 'core'
+UNION ALL
+SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'recall' AND c.key = 'coak'
+UNION ALL
+SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'haul' AND c.key = 'core'
+UNION ALL
+SELECT a.id, c.id FROM agents a, tool_categories c WHERE a.key = 'haul' AND c.key = 'haul'
+ON CONFLICT DO NOTHING;
+
+-- ----- Agent delegations (Keel -> sub-agents)
+INSERT INTO agent_delegations (parent_agent_id, child_agent_id)
+SELECT parent.id, child.id
+FROM agents parent
+JOIN agents child ON child.key IN ('baysic', 'recall', 'haul')
+WHERE parent.key = 'keel'
 ON CONFLICT DO NOTHING;
 
 -- ----- Catalog media
 INSERT INTO catalog_media (agent_id, tool_category_id, provider_id, model_id, media_kind, role, storage_key, mime_type, sort_order)
 SELECT NULL::integer, c.id, NULL::integer, NULL::integer, 'image', 'tile', 'tool_categories/core/image.png', 'image/png', 0 FROM tool_categories c WHERE c.key = 'core'
-UNION ALL
-SELECT NULL::integer, c.id, NULL::integer, NULL::integer, 'image', 'tile', 'tool_categories/obsidian/image.png', 'image/png', 0 FROM tool_categories c WHERE c.key = 'obsidian'
 UNION ALL
 SELECT NULL::integer, c.id, NULL::integer, NULL::integer, 'image', 'tile', 'tool_categories/projects/image.png', 'image/png', 0 FROM tool_categories c WHERE c.key = 'projects'
 UNION ALL
@@ -273,7 +426,7 @@ SELECT NULL::integer, c.id, NULL::integer, NULL::integer, 'image', 'tile', 'tool
 UNION ALL
 SELECT NULL::integer, c.id, NULL::integer, NULL::integer, 'image', 'tile', 'tool_categories/web/image.png', 'image/png', 0 FROM tool_categories c WHERE c.key = 'web'
 UNION ALL
-SELECT NULL::integer, c.id, NULL::integer, NULL::integer, 'image', 'tile', 'tool_categories/agenda/image.png', 'image/png', 0 FROM tool_categories c WHERE c.key = 'agenda'
+SELECT NULL::integer, c.id, NULL::integer, NULL::integer, 'image', 'tile', 'tool_categories/focus/image.png', 'image/png', 0 FROM tool_categories c WHERE c.key = 'focus'
 UNION ALL
 SELECT NULL::integer, NULL::integer, p.id, NULL::integer, 'image', 'logo', 'providers/openai/image.png', 'image/png', 0 FROM model_providers p WHERE p.key = 'openai'
 UNION ALL
@@ -285,4 +438,18 @@ SELECT a.id, NULL::integer, NULL::integer, NULL::integer, 'image', 'tile', 'agen
 UNION ALL
 SELECT a.id, NULL::integer, NULL::integer, NULL::integer, 'model_3d', 'turntable', 'agents/keel/model.glb', 'model/gltf-binary', 0 FROM agents a WHERE a.key = 'keel'
 UNION ALL
-SELECT NULL::integer, c.id, NULL::integer, NULL::integer, 'image', 'tile', 'tool_categories/contacts/image.png', 'image/png', 0 FROM tool_categories c WHERE c.key = 'contacts';
+SELECT a.id, NULL::integer, NULL::integer, NULL::integer, 'image', 'tile', 'agents/recall/image.png', 'image/png', 0 FROM agents a WHERE a.key = 'recall'
+UNION ALL
+SELECT a.id, NULL::integer, NULL::integer, NULL::integer, 'model_3d', 'turntable', 'agents/recall/model.glb', 'model/gltf-binary', 0 FROM agents a WHERE a.key = 'recall'
+UNION ALL
+SELECT a.id, NULL::integer, NULL::integer, NULL::integer, 'image', 'tile', 'agents/baysic/image.png', 'image/png', 0 FROM agents a WHERE a.key = 'baysic'
+UNION ALL
+SELECT a.id, NULL::integer, NULL::integer, NULL::integer, 'model_3d', 'turntable', 'agents/baysic/model.glb', 'model/gltf-binary', 0 FROM agents a WHERE a.key = 'baysic'
+UNION ALL
+SELECT a.id, NULL::integer, NULL::integer, NULL::integer, 'image', 'tile', 'agents/haul/image.png', 'image/png', 0 FROM agents a WHERE a.key = 'haul'
+UNION ALL
+SELECT a.id, NULL::integer, NULL::integer, NULL::integer, 'model_3d', 'turntable', 'agents/haul/model.glb', 'model/gltf-binary', 0 FROM agents a WHERE a.key = 'haul'
+UNION ALL
+SELECT NULL::integer, c.id, NULL::integer, NULL::integer, 'image', 'tile', 'tool_categories/people/image.png', 'image/png', 0 FROM tool_categories c WHERE c.key = 'people'
+UNION ALL
+SELECT NULL::integer, c.id, NULL::integer, NULL::integer, 'image', 'tile', 'tool_categories/coak/image.png', 'image/png', 0 FROM tool_categories c WHERE c.key = 'coak';

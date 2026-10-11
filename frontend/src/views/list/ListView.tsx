@@ -37,13 +37,13 @@ export function ListView<TItem, TColumn extends string>({
   return (
     <div
       className={[
-        "relative rounded-xl border border-stone-800 bg-stone-950/40",
+        "relative mb-8 rounded-xl border border-stone-800 bg-stone-950/40",
         fitToContent ? "w-fit max-w-full" : "w-full",
       ].join(" ")}
     >
       {headerSlot}
 
-      <div className="overflow-x-auto overflow-y-hidden overscroll-x-contain">
+      <div className="overflow-x-auto overscroll-x-contain">
         <div className={tableWidthClassName}>
           {pagination ? (
             <div className="flex items-center justify-end gap-3 border-b border-stone-800 px-4 py-2.5">

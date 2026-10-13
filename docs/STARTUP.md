@@ -16,7 +16,7 @@ Configure Caddy (or your reverse proxy) to route those hostnames to the local po
 | File | Key variables |
 |------|---------------|
 | `backend/.env` | `SHOWCASE_USER_ID`, `SESSION_SECRET`, `OPENAI_API_KEY`, `S3_*`, `FRONTEND_URL`, `CORS_EXTRA_ORIGINS` |
-| `frontend/.env` | `VITE_DEV_PORT`, `VITE_PREVIEW_PORT`, `VITE_API_BASE_URL` |
+| `frontend/.env` | `VITE_DEV_PORT`, `VITE_PREVIEW_PORT`, `VITE_API_BASE_URL`, `KEEL_INGEST_TOKEN` (server-only page-visit token; do not prefix with `VITE_`) |
 
 Before first deploy, fill in on the server:
 

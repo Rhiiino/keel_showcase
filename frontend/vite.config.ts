@@ -2,6 +2,7 @@
 
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
+import { keelPageVisits, readIndexTitle } from "./server/keelPageVisits";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -9,7 +10,13 @@ export default defineConfig(({ mode }) => {
   const previewPort = Number(env.VITE_PREVIEW_PORT ?? 5177);
 
   return {
-    plugins: [react()],
+    plugins: [
+      keelPageVisits({
+        token: env.KEEL_INGEST_TOKEN,
+        title: readIndexTitle(`${process.cwd()}/index.html`),
+      }),
+      react(),
+    ],
     assetsInclude: ["**/*.glb"],
     server: {
       port: devPort,

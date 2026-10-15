@@ -6,6 +6,7 @@ Keel Showcase ships production feature modules with showcase-specific exclusions
 
 | Module | Description |
 |--------|-------------|
+| **health** | Unauthenticated `GET /health` liveness check |
 | **auth** | Enter-button login, session cookies, route guards (shared demo user) |
 | **home** | Authenticated dashboard with configurable home cards |
 | **settings** | Theme, page transitions, nav layout preferences |

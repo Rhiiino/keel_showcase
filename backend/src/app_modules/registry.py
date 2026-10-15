@@ -12,6 +12,7 @@ from modules.connectors.router import router as connectors_router
 from modules.contacts.router import router as contacts_router
 from modules.figures.router import router as figures_router
 from modules.games.router import router as games_router
+from modules.health.router import router as health_router
 from modules.deleted.router import router as deleted_router
 from modules.finance.router import router as finance_router
 from modules.focus.router import router as focus_router
@@ -27,6 +28,7 @@ from modules.timeline.router import router as timeline_router
 from app_modules.types import ModuleRegistration
 
 MODULE_REGISTRY: tuple[ModuleRegistration, ...] = (
+    ModuleRegistration(key="health", router=health_router),
     ModuleRegistration(key="auth", router=auth_router),
     ModuleRegistration(key="settings", router=settings_router),
     ModuleRegistration(key="deleted", router=deleted_router),

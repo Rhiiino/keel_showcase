@@ -2,6 +2,7 @@
 """FastAPI application entrypoint for the Keel API."""
 
 import logging
+import os
 import secrets
 from contextlib import asynccontextmanager
 
@@ -34,11 +35,17 @@ async def lifespan(_app: FastAPI):
     logger.info("Keel API shutdown complete")
 
 
+# Off unless ENABLE_API_DOCS=true, so production does not publish Swagger, ReDoc, or the schema.
+_API_DOCS_ENABLED = os.getenv("ENABLE_API_DOCS", "").strip().lower() in {"1", "true", "yes"}
+
 app = FastAPI(
     title="Keel API",
     description="Production API for Keel — personal assistant backend.",
     version="1.0.0",
     lifespan=lifespan,
+    docs_url="/docs" if _API_DOCS_ENABLED else None,
+    redoc_url="/redoc" if _API_DOCS_ENABLED else None,
+    openapi_url="/openapi.json" if _API_DOCS_ENABLED else None,
 )
 
 register_exception_handlers(app)

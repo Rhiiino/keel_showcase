@@ -41,3 +41,5 @@ Set `VITE_API_BASE_URL` to your production API URL **before** `npm run build` so
 Feature modules live under `src/modules/`. Each module exports a `manifest.ts` registered in `src/app/modules/registry.ts`.
 
 Login screen variant is configured in `src/modules/auth/lib/loginConfig.ts` (showcase default: **scatter**).
+
+Phones and viewports at or below 960px do not get the Enter button. They see a notice asking them to open Keel on a desktop.

@@ -6,13 +6,20 @@
 import { Fragment } from "react";
 import { Route, Routes } from "react-router-dom";
 
+import { MobileUnsupportedScreen } from "../modules/auth/components/MobileUnsupportedScreen";
 import { RequireAuth } from "../modules/auth/components/RequireAuth";
+import { useMobileUnsupported } from "../modules/auth/hooks/useMobileUnsupported";
 import { enabledModules, moduleManifests } from "./modules/registry";
 import { AppShell } from "./shell/AppShell";
 
 const enabled = enabledModules(moduleManifests);
 
 export function AppRoutes() {
+  const mobileUnsupported = useMobileUnsupported();
+  if (mobileUnsupported) {
+    return <MobileUnsupportedScreen />;
+  }
+
   return (
     <Routes>
       {enabled.map((module) =>
